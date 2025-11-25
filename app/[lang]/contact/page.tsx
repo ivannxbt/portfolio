@@ -29,7 +29,7 @@ export default async function ContactPage({ params }: PageProps) {
                 <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
                   {detail.label}
                 </p>
-                {detail.href ? (
+                {"href" in detail && detail.href ? (
                   <Link
                     href={detail.href}
                     className="text-base font-semibold text-white hover:text-teal-300"
