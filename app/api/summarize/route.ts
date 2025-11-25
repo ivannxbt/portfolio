@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
     };
 
     return NextResponse.json(summary);
-  } catch {
+  } catch (error) {
+    console.error("Summarize API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

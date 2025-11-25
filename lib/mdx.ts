@@ -40,6 +40,7 @@ export function getContentBySlug(
       content,
     };
   } catch {
+    // File not found or read error - return null to indicate content doesn't exist
     return null;
   }
 }
