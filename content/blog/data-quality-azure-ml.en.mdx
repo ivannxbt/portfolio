@@ -20,7 +20,7 @@ Most "AI failures" I investigate are really data quality failures. On Azure-cent
 ## Metrics that matter
 1. Coverage of labeled golden sets per language.
 2. Drift between offline and online embedding clusters.
-3. Time-to-detect issues (goal: <15 minutes from ingestion).
+3. Time-to-detect issues (goal: &lt;15 minutes from ingestion).
 
 ## Lessons learned
 Treat Azure ML as the decision layer, not just a training surface. When deduplication and validation live next to your model registry, the feedback loops between MLOps and knowledge engineers finally align.
