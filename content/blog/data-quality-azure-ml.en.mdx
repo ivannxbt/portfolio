@@ -1,0 +1,26 @@
+---
+title: "Data Quality Pipelines with Azure ML"
+date: "2024-09-15"
+summary: "How I pair Azure ML, Fabric, and semantic embeddings to keep AI datasets trustworthy before they feed copilots."
+tags:
+  - Azure ML
+  - Data Quality
+  - Pipelines
+---
+
+## Context
+Most "AI failures" I investigate are really data quality failures. On Azure-centric stacks, ops teams already lean on Fabric Lakehouses, Synapse, and ML pipelines. We can piggyback on that infrastructure to score corpora before LLMs touch them.
+
+## Pipeline blueprint
+- **Ingestion** — Event-driven Azure Data Factory normalizes SharePoint, SQL, and SAP dumps.
+- **Profiling** — Fabric notebooks run Great Expectations suites plus embedding-based duplicate detection (Cohere models via Azure ML endpoints).
+- **Governance** — Metadata is pushed to Purview; failed batches raise Teams alerts with remediation playbooks.
+- **Enrichment** — Cleaned records land in Delta tables with version tags so RAG pipelines can time-travel when regressions appear.
+
+## Metrics that matter
+1. Coverage of labeled golden sets per language.
+2. Drift between offline and online embedding clusters.
+3. Time-to-detect issues (goal: <15 minutes from ingestion).
+
+## Lessons learned
+Treat Azure ML as the decision layer, not just a training surface. When deduplication and validation live next to your model registry, the feedback loops between MLOps and knowledge engineers finally align.

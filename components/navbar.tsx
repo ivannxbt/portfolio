@@ -33,9 +33,9 @@ export function Navbar({ lang }: NavbarProps) {
         <div className="flex h-16 items-center justify-between">
           <Link
             href={`/${lang}`}
-            className="text-xl font-bold text-white hover:text-zinc-300 transition-colors"
+            className="text-xl font-bold text-white transition-colors hover:text-zinc-300"
           >
-            Portfolio
+            Iván Caamaño
           </Link>
 
           {/* Desktop Navigation */}

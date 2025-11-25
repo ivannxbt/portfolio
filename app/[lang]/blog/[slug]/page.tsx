@@ -1,14 +1,18 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, CalendarDays, Tag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { getContentBySlug, getAllSlugs } from "@/lib/mdx";
-import { locales } from "@/lib/i18n";
+import { getAllSlugs, getCompiledBlogPost } from "@/lib/mdx";
+import { getTranslations, type Locale, locales } from "@/lib/i18n";
+
+interface PageProps {
+  params: Promise<{ lang: Locale; slug: string }>;
+}
 
 export async function generateStaticParams() {
   const slugs = getAllSlugs("blog");
-  const params: { lang: string; slug: string }[] = [];
+  const params: { lang: Locale; slug: string }[] = [];
 
   for (const lang of locales) {
     for (const slug of slugs) {
@@ -19,73 +23,71 @@ export async function generateStaticParams() {
   return params;
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ lang: string; slug: string }>;
-}) {
+export default async function BlogPostPage({ params }: PageProps) {
   const { lang, slug } = await params;
-  const post = getContentBySlug("blog", slug, lang);
+  const post = await getCompiledBlogPost(slug, lang);
 
   if (!post) {
     notFound();
   }
 
+  const t = getTranslations(lang);
+  const formattedDate = new Date(post.frontmatter.date).toLocaleDateString(
+    lang === "es" ? "es-ES" : "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+
   return (
-    <article className="py-16 px-4">
-      <div className="max-w-3xl mx-auto">
-        <Button asChild variant="ghost" className="mb-8">
+    <article className="px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl space-y-8">
+        <Button asChild variant="ghost" className="text-zinc-400">
           <Link href={`/${lang}/blog`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             {lang === "es" ? "Volver al blog" : "Back to blog"}
           </Link>
         </Button>
 
-        <header className="mb-8">
-          <div className="flex items-center gap-2 text-zinc-500 text-sm mb-4">
-            <Calendar className="h-4 w-4" />
-            <time dateTime={post.frontmatter.date}>
-              {new Date(post.frontmatter.date).toLocaleDateString(
-                lang === "es" ? "es-ES" : "en-US",
-                {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }
-              )}
-            </time>
+        <header className="space-y-4">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">
+            <CalendarDays className="h-4 w-4" />
+            <span>{formattedDate}</span>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">
+          <h1 className="text-4xl font-semibold text-white sm:text-5xl">
             {post.frontmatter.title}
           </h1>
-          <p className="text-zinc-400 text-lg">{post.frontmatter.description}</p>
+          <p className="text-lg text-zinc-300">{post.frontmatter.summary}</p>
+          {post.frontmatter.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {post.frontmatter.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 rounded-full border border-zinc-800 px-3 py-1 text-xs uppercase tracking-[0.2em] text-zinc-500"
+                >
+                  <Tag className="h-3 w-3" />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </header>
 
-        <div className="prose prose-invert prose-zinc max-w-none">
-          {post.content.split("\n").map((paragraph, index) => {
-            if (paragraph.startsWith("## ")) {
-              return (
-                <h2 key={index} className="text-2xl font-semibold text-white mt-8 mb-4">
-                  {paragraph.replace("## ", "")}
-                </h2>
-              );
-            }
-            if (paragraph.startsWith("### ")) {
-              return (
-                <h3 key={index} className="text-xl font-semibold text-white mt-6 mb-3">
-                  {paragraph.replace("### ", "")}
-                </h3>
-              );
-            }
-            if (paragraph.trim()) {
-              return (
-                <p key={index} className="text-zinc-300 mb-4 leading-relaxed">
-                  {paragraph}
-                </p>
-              );
-            }
-            return null;
-          })}
+        <div className="markdown-body space-y-6 text-base leading-relaxed text-zinc-200">
+          {post.content}
+        </div>
+
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+          <p className="text-sm text-zinc-400">
+            {lang === "es"
+              ? "¿Listo para llevar algo similar a producción? Escríbeme."
+              : "Ready to ship something similar? Let's collaborate."}
+          </p>
+          <Button asChild variant="outline" className="mt-4">
+            <Link href={`/${lang}/contact`}>{t.actions.contact}</Link>
+          </Button>
         </div>
       </div>
     </article>

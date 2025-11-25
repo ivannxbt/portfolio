@@ -1,0 +1,29 @@
+---
+title: "Chatbot RAG en Azure"
+date: "2025-02-20"
+summary: "Chatbot especializado para un corpus regulado usando Azure OpenAI, Cognitive Search y vectores optimizados para latencia."
+stack:
+  - Azure OpenAI
+  - Cognitive Search
+  - Azure Functions
+  - Redis Vector DB
+  - Application Insights
+tags:
+  - RAG
+  - Azure
+  - Prompt Engineering
+repo: "https://github.com/ivanncaamano/azure-rag-specialist"
+demo: "https://demo.ivancaamano.dev/azure-rag"
+highlight: "Redujo un 90% la latencia de recuperación y mejoró la precisión."
+---
+
+## Problema
+Los expertos necesitaban respuestas bilingües con referencia a PDFs de políticas, artículos de Confluence y tablas SQL. Los bots anteriores expiraban o alucinaban bajo carga.
+
+## Solución
+- Workers en Azure Functions normalizan la data y generan embeddings almacenados en Redis.
+- Prompts con plantillas y pruebas automáticas garantizan paridad ES/EN y cuentan con cadenas de fallback cuando falta contexto.
+- Telemetría con Application Insights y dashboards que trazan el costo por conversación.
+
+## Resultado
+El tiempo de respuesta pasó de ~12 segundos a menos de uno, con mayor confianza gracias a reranking adaptativo y citas automáticas.

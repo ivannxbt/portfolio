@@ -1,0 +1,29 @@
+---
+title: "Automatización batch IMM"
+date: "2025-02-05"
+summary: "Automatización de procesos IMM para BBVA con Python, Java y orquestación en Unix."
+stack:
+  - Python
+  - Java
+  - Unix
+  - Airflow
+  - PostgreSQL
+tags:
+  - Riesgo
+  - Automatización
+  - Banca
+repo: "https://github.com/ivanncaamano/imm-automation"
+demo: "https://demo.ivancaamano.dev/imm"
+highlight: "Orquesté 4 flujos críticos IMM con intervención manual casi nula."
+---
+
+## Desafío
+Los analistas ejecutaban batches nocturnos manualmente, recopilando logs de varios servidores y reiniciando flujos cuando faltaban archivos.
+
+## Solución
+- Refactoricé cálculos en servicios containerizados Python/Java.
+- Implementé automatización en Unix y scheduling con Airflow para manejar dependencias.
+- Agregué hooks de observabilidad y alertas en Slack para cada etapa del IMM.
+
+## Beneficio
+El tiempo de ejecución cayó, la intervención humana se volvió opcional y Auditoría obtuvo evidencia reproducible para las revisiones regulatorias.

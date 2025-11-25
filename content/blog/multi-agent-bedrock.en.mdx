@@ -1,0 +1,26 @@
+---
+title: "Designing Multi-Agent Systems with Amazon Bedrock"
+date: "2024-11-04"
+summary: "Patterns for coordinating Claude, Agents for Bedrock, and LangGraph so contract workflows stay observable and governed."
+tags:
+  - Bedrock
+  - Agents
+  - LangGraph
+---
+
+## Why multi-agent now?
+Enterprise teams rarely trust a single LLM call. Procurement and legal workflows need classifiers, summarizers, and planners operating with audit trails. Bedrock's managed agents plus LangGraph give us that orchestration layer without reinventing the runtime.
+
+## Architecture sketch
+1. **Ingress** — S3 event drops a contract, emits metadata to EventBridge.
+2. **Planner** — a LangGraph supervisor selects a Bedrock Agent (Claude 3.5) with a policy prompt and structured tool definitions.
+3. **Specialists** — each agent executes atomic tools (SageMaker endpoints, SAP APIs, Slack notifications) and returns JSON.
+4. **Evaluator** — RAGAS + heuristics grade the outputs and either escalate or publish to DynamoDB.
+
+## Observability concerns
+- Emit LangGraph spans to CloudWatch EMF; sampling hides PII but keeps latency percentiles.
+- Store every agent step plus tool arguments in DynamoDB with TTL—SOX friendly, low-cost.
+- Force evaluations to be multilingual: I run the same rubric in ES and EN to catch translation drift.
+
+## Takeaways
+Multi-agent setups succeed when the interface between steps is boring (JSON schemas + typed errors) and when evaluation is automated. Bedrock handles auth and scaling; LangGraph gives me deterministic flows; the rest is disciplined data engineering.

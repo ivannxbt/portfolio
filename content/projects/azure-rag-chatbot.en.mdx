@@ -1,0 +1,29 @@
+---
+title: "Azure RAG Specialist"
+date: "2025-02-20"
+summary: "Prompt-engineered chatbot for a regulated knowledge base using Azure OpenAI, Cognitive Search, and vector stores tuned for latency."
+stack:
+  - Azure OpenAI
+  - Cognitive Search
+  - Azure Functions
+  - Redis Vector DB
+  - Application Insights
+tags:
+  - RAG
+  - Azure
+  - Prompt Engineering
+repo: "https://github.com/ivanncaamano/azure-rag-specialist"
+demo: "https://demo.ivancaamano.dev/azure-rag"
+highlight: "Cut retrieval latency by 90% while improving answer precision."
+---
+
+## Problem
+Subject-matter experts needed bilingual answers referencing policy PDFs, Confluence articles, and SQL tables. Previous bots timed out or hallucinated under load.
+
+## Solution
+- Built ingestion workers in Azure Functions that normalize data into embeddings stored in Redis.
+- Crafted prompt templates with system tests for Spanish/English parity and fallback chains for missing context.
+- Added telemetry with Application Insights and dashboards tracing cost per conversation.
+
+## Result
+Response time fell from ~12 seconds to under one, and confidence scores improved thanks to adaptive reranking and automatic citation enforcement.

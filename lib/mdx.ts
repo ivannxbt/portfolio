@@ -1,86 +1,178 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { compileMDX } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import type { ReactNode } from "react";
+
+import type { Locale } from "@/lib/i18n";
 
 const contentDirectory = path.join(process.cwd(), "content");
 
-export interface MDXFrontmatter {
+type ContentType = "projects" | "blog";
+
+interface BaseFrontmatter {
   title: string;
-  description: string;
   date: string;
-  slug: string;
-  lang: string;
-  image?: string;
-  tags?: string[];
-  github?: string;
-  demo?: string;
+  summary: string;
+  tags: string[];
 }
 
-export interface MDXContent {
-  frontmatter: MDXFrontmatter;
+export interface ProjectFrontmatter extends BaseFrontmatter {
+  stack: string[];
+  repo: string;
+  demo: string;
+  highlight: string;
+}
+
+export type BlogFrontmatter = BaseFrontmatter;
+
+export interface ProjectEntry {
+  slug: string;
+  lang: Locale;
+  frontmatter: ProjectFrontmatter;
   content: string;
 }
 
-export function getContentBySlug(
-  type: "projects" | "blog",
-  slug: string,
-  lang: string
-): MDXContent | null {
-  try {
-    const filePath = path.join(contentDirectory, type, `${slug}.${lang}.mdx`);
-    const fileContents = fs.readFileSync(filePath, "utf8");
-    const { data, content } = matter(fileContents);
-
-    return {
-      frontmatter: {
-        ...data,
-        slug,
-        lang,
-      } as MDXFrontmatter,
-      content,
-    };
-  } catch {
-    // File not found or read error - return null to indicate content doesn't exist
-    return null;
-  }
+export interface BlogEntry {
+  slug: string;
+  lang: Locale;
+  frontmatter: BlogFrontmatter;
+  content: string;
 }
 
-export function getAllContent(
-  type: "projects" | "blog",
-  lang: string
-): MDXContent[] {
-  const contentPath = path.join(contentDirectory, type);
+export interface CompiledBlogPost {
+  slug: string;
+  lang: Locale;
+  frontmatter: BlogFrontmatter;
+  content: ReactNode;
+}
 
-  if (!fs.existsSync(contentPath)) {
-    return [];
+const toArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item));
   }
 
-  const files = fs.readdirSync(contentPath);
-  const langFiles = files.filter((file) => file.endsWith(`.${lang}.mdx`));
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
 
-  const contents = langFiles
-    .map((file) => {
-      const slug = file.replace(`.${lang}.mdx`, "");
-      return getContentBySlug(type, slug, lang);
+  return [];
+};
+
+const resolvePath = (type: ContentType, slug: string, lang: Locale) =>
+  path.join(contentDirectory, type, `${slug}.${lang}.mdx`);
+
+const readDirectory = (type: ContentType, lang: Locale) => {
+  const dir = path.join(contentDirectory, type);
+  if (!fs.existsSync(dir)) return [];
+
+  return fs
+    .readdirSync(dir)
+    .filter((file) => file.endsWith(`.${lang}.mdx`))
+    .map((file) => ({
+      file,
+      slug: file.replace(`.${lang}.mdx`, ""),
+      fullPath: path.join(dir, file),
+    }));
+};
+
+export function getProjects(lang: Locale): ProjectEntry[] {
+  return readDirectory("projects", lang)
+    .map(({ slug, fullPath }) => {
+      const rawFile = fs.readFileSync(fullPath, "utf8");
+      const { data, content } = matter(rawFile);
+
+      const frontmatter: ProjectFrontmatter = {
+        title: String(data.title ?? slug),
+        date: String(data.date ?? new Date().toISOString()),
+        summary: String(data.summary ?? ""),
+        stack: toArray(data.stack),
+        tags: toArray(data.tags),
+        repo: String(data.repo ?? ""),
+        demo: String(data.demo ?? ""),
+        highlight: String(data.highlight ?? ""),
+      };
+
+      return {
+        slug,
+        lang,
+        frontmatter,
+        content,
+      };
     })
-    .filter((content): content is MDXContent => content !== null)
     .sort(
       (a, b) =>
         new Date(b.frontmatter.date).getTime() -
         new Date(a.frontmatter.date).getTime()
     );
-
-  return contents;
 }
 
-export function getAllSlugs(type: "projects" | "blog"): string[] {
-  const contentPath = path.join(contentDirectory, type);
+export function getBlogPosts(lang: Locale): BlogEntry[] {
+  return readDirectory("blog", lang)
+    .map(({ slug, fullPath }) => {
+      const rawFile = fs.readFileSync(fullPath, "utf8");
+      const { data, content } = matter(rawFile);
 
-  if (!fs.existsSync(contentPath)) {
+      const frontmatter: BlogFrontmatter = {
+        title: String(data.title ?? slug),
+        date: String(data.date ?? new Date().toISOString()),
+        summary: String(data.summary ?? ""),
+        tags: toArray(data.tags),
+      };
+
+      return {
+        slug,
+        lang,
+        frontmatter,
+        content,
+      };
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.frontmatter.date).getTime() -
+        new Date(a.frontmatter.date).getTime()
+    );
+}
+
+export async function getCompiledBlogPost(
+  slug: string,
+  lang: Locale
+): Promise<CompiledBlogPost | null> {
+  const filePath = resolvePath("blog", slug, lang);
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+
+  const source = fs.readFileSync(filePath, "utf8");
+  const compiled = await compileMDX<BlogFrontmatter>({
+    source,
+    options: {
+      parseFrontmatter: true,
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+      },
+    },
+  });
+
+  return {
+    slug,
+    lang,
+    frontmatter: compiled.frontmatter,
+    content: compiled.content,
+  };
+}
+
+export function getAllSlugs(type: ContentType): string[] {
+  const dir = path.join(contentDirectory, type);
+  if (!fs.existsSync(dir)) {
     return [];
   }
 
-  const files = fs.readdirSync(contentPath);
+  const files = fs.readdirSync(dir);
   const slugs = new Set<string>();
 
   files.forEach((file) => {

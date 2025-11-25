@@ -17,12 +17,14 @@ export async function generateMetadata({
   const { lang } = await params;
   
   return {
-    title: lang === "es" 
-      ? "Portfolio | Desarrollador Full Stack" 
-      : "Portfolio | Full Stack Developer",
-    description: lang === "es"
-      ? "Un portfolio bilingüe que muestra proyectos y habilidades en desarrollo web."
-      : "A bilingual portfolio showcasing projects and skills in web development.",
+    title:
+      lang === "es"
+        ? "Ivan Caamano | Ingeniero de IA"
+        : "Ivan Caamano | AI Engineer",
+    description:
+      lang === "es"
+        ? "Portafolio bilingüe con agentes, RAG y operaciones de datos para empresas reguladas."
+        : "Bilingual portfolio featuring agents, RAG systems, and data operations for regulated teams.",
   };
 }
 

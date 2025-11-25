@@ -26,3 +26,51 @@ html {
   background: rgba(255, 255, 255, 0.2);
   color: white;
 }
+
+.markdown-body h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.markdown-body h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: #fafafa;
+}
+
+.markdown-body p {
+  margin-bottom: 1rem;
+  color: #d4d4d4;
+  line-height: 1.8;
+}
+
+.markdown-body ul {
+  padding-left: 1.25rem;
+  margin-bottom: 1.25rem;
+  color: #d4d4d4;
+}
+
+.markdown-body li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body pre {
+  background: #0f0f10;
+  border: 1px solid #27272a;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.markdown-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
+  font-size: 0.9rem;
+  color: #d4d4d4;
+}

@@ -1,0 +1,27 @@
+---
+title: "Pipeline de visión para lomo"
+date: "2025-01-10"
+summary: "Workflow de computer vision que clasifica y segmenta cortes de lomo, elevando la consistencia de clasificación en 80%."
+stack:
+  - PyTorch
+  - FastAPI
+  - AWS Lambda
+  - S3
+  - ClearML
+tags:
+  - Computer Vision
+  - Deep Learning
+  - MLOps
+repo: "https://github.com/ivanncaamano/beef-vision-pipeline"
+demo: "https://demo.ivancaamano.dev/beef-vision"
+highlight: "Mejora de consistencia del +80% en clasificación industrial."
+---
+
+## Pipeline
+Las imágenes llegan a S3, disparan un preprocessing en Lambda y pasan por un modelo de segmentación en PyTorch. Un servicio FastAPI expone inferencia y mapas de calor para los equipos de calidad.
+
+## MLOps
+Los entrenamientos registran métricas en ClearML y un monitor de deriva alerta cuando cambia la distribución de grasa. Los despliegues usan alias blue/green en Lambda para evitar downtime.
+
+## Resultado
+Los compradores reciben reportes estandarizados en español e inglés, reduciendo horas de revisión manual por lote y alineando decisiones de precio entre plantas.

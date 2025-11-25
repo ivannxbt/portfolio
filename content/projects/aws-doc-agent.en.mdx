@@ -1,0 +1,29 @@
+---
+title: "AWS Document Agent"
+date: "2025-03-15"
+summary: "Autonomous agent that assembles four classes of regulatory documents end-to-end using Bedrock, Step Functions, and guardrails."
+stack:
+  - AWS Bedrock
+  - LangChain
+  - Step Functions
+  - DynamoDB
+  - EventBridge
+tags:
+  - Agents
+  - Automation
+  - Serverless
+repo: "https://github.com/ivanncaamano/aws-document-agent"
+demo: "https://demo.ivancaamano.dev/doc-agent"
+highlight: "Removed 95% of manual effort for dynamic document creation."
+---
+
+## Scope
+Legal and operations teams generated four templates manually: onboarding packs, SLA annexes, ESG addenda, and vendor scorecards. Each document pulled from different APIs, spreadsheets, and knowledge bases.
+
+## Architecture
+- LangChain orchestrates tool-aware agents powered by Bedrock Claude.
+- Retrieval layer mixes Bedrock Knowledge Bases with S3 semantic stores for contextual grounding.
+- Step Functions manages validation, human approvals, and retries, persisting state in DynamoDB and emitting events to EventBridge webhooks.
+
+## Impact
+Documents now assemble in under two minutes with structured citations. FinOps dashboards track token usage per template, and guardrails enforce policy prompts before sending PDFs to clients.
