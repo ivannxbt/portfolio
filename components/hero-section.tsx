@@ -13,7 +13,7 @@ interface HeroCopy {
   role: string;
   description: string;
   availability: string;
-  metrics: { label: string; value: string }[];
+  metrics: ReadonlyArray<{ label: string; value: string }>;
 }
 
 interface HeroSectionProps {
