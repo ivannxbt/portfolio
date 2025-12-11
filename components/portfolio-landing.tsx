@@ -9,7 +9,6 @@ import React, {
 import {
   Github,
   Linkedin,
-  Mail,
   Menu,
   X,
   ArrowUpRight,
@@ -24,12 +23,38 @@ import {
   Loader2,
   Sun,
   Moon,
+  Twitter,
+  type LucideIcon,
 } from "lucide-react";
+import type { Locale } from "@/lib/i18n";
+import {
+  defaultContent,
+  type LandingContent,
+  type ProjectItem,
+  type BlogEntry,
+  type SocialPlatform,
+  type ProjectIcon,
+} from "@/content/site-content";
+import { GithubContributions } from "@/components/github-contributions";
 
-type Language = "en" | "es";
+type Language = Locale;
 type Theme = "dark" | "light";
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+const projectIconMap: Record<ProjectIcon, LucideIcon> = {
+  cloud: Cloud,
+  database: Database,
+  layers: Layers,
+};
+
+const socialIconMap: Record<SocialPlatform, LucideIcon> = {
+  github: Github,
+  linkedin: Linkedin,
+  twitter: Twitter,
+};
+
+const githubUsername = "ivannxbt";
 
 const callGemini = async (prompt: string, systemInstruction?: string) => {
   if (!apiKey) {
@@ -68,197 +93,6 @@ const callGemini = async (prompt: string, systemInstruction?: string) => {
   }
 };
 
-interface Content {
-  nav: {
-    home: string;
-    about: string;
-    projects: string;
-    blog: string;
-    contact: string;
-  };
-  hero: {
-    role: string;
-    greeting: string;
-    headline: string;
-    subheadline: string;
-    cta: string;
-    contact: string;
-  };
-  about: {
-    title: string;
-    summary: string;
-    educationTitle: string;
-    education1: string;
-    education2: string;
-  };
-  stack: {
-    title: string;
-  };
-  projects: {
-    title: string;
-    viewAll: string;
-  };
-  blog: {
-    title: string;
-    viewAll: string;
-  };
-  contact: {
-    title: string;
-    text: string;
-    email: string;
-  };
-  footer: {
-    copyright: string;
-  };
-}
-
-const content: Record<Language, Content> = {
-  en: {
-    nav: {
-      home: "Home",
-      about: "About",
-      projects: "Projects",
-      blog: "Experience",
-      contact: "Contact",
-    },
-    hero: {
-      role: "Telematics Engineer | AI & Data",
-      greeting: "Hi, I'm",
-      headline: "Turning technology into impactful results.",
-      subheadline:
-        "Telematics Engineer with deep expertise in AI/ML, DevOps, and Data Engineering. Focused on building scalable intelligent systems using Python, Cloud architectures, and Generative AI.",
-      cta: "View Case Studies",
-      contact: "Get in touch",
-    },
-    about: {
-      title: "About Me",
-      summary:
-        "I am a dedicated professional driven by the goal of transforming technology into real-world impact. With a strong foundation in Telematics and continuous learning in emerging AI technologies, I specialize in bridging the gap between complex data models and production-ready software solutions.",
-      educationTitle: "Education",
-      education1: "M.Eng. Network and Telematic Services (UPM)",
-      education2: "B.Eng. Telecommunications Technologies (UPM)",
-    },
-    stack: {
-      title: "Core Competencies",
-    },
-    projects: {
-      title: "Featured Work",
-      viewAll: "View Full CV",
-    },
-    blog: {
-      title: "Latest Insights",
-      viewAll: "Read all articles",
-    },
-    contact: {
-      title: "Let's Connect",
-      text: "Based in Madrid. Open to collaborations in AI, Data Engineering, and Blockchain projects.",
-      email: "ivanncaamano@gmail.com",
-    },
-    footer: {
-      copyright: "© 2025 Iván Caamaño. Built with Next.js.",
-    },
-  },
-  es: {
-    nav: {
-      home: "Inicio",
-      about: "Sobre mí",
-      projects: "Proyectos",
-      blog: "Experiencia",
-      contact: "Contacto",
-    },
-    hero: {
-      role: "Ingeniero Telemático | IA y Datos",
-      greeting: "Hola, soy",
-      headline: "Transformando tecnología en resultados de impacto.",
-      subheadline:
-        "Ingeniero Telemático con experiencia en IA/ML, DevOps e Ingeniería de Datos. Enfocado en construir sistemas inteligentes escalables usando Python, arquitecturas Cloud e IA Generativa.",
-      cta: "Ver Proyectos",
-      contact: "Contactar",
-    },
-    about: {
-      title: "Sobre mí",
-      summary:
-        "Soy un profesional dedicado, impulsado por el objetivo de transformar la tecnología en impacto real. Con una sólida base en Telemática y aprendizaje continuo en tecnologías emergentes de IA, me especializo en conectar modelos de datos complejos con soluciones de software listas para producción.",
-      educationTitle: "Educación",
-      education1: "Máster en Ingeniería de Redes y Servicios Telemáticos (UPM)",
-      education2:
-        "Grado en Ingeniería de Tecnologías y Serv. de Telecomunicación (UPM)",
-    },
-    stack: {
-      title: "Competencias Clave",
-    },
-    projects: {
-      title: "Trabajos Destacados",
-      viewAll: "Ver CV Completo",
-    },
-    blog: {
-      title: "Últimas Publicaciones",
-      viewAll: "Leer todo",
-    },
-    contact: {
-      title: "Conectemos",
-      text: "Basado en Madrid. Abierto a colaboraciones en proyectos de IA, Ingeniería de Datos y Blockchain.",
-      email: "ivanncaamano@gmail.com",
-    },
-    footer: {
-      copyright: "© 2025 Iván Caamaño. Creado con Next.js.",
-    },
-  },
-};
-const mockProjects = [
-  {
-    id: 1,
-    title: "AI Doc Generation Agent",
-    titleEs: "Agente Generador de Docs IA",
-    desc: "Designed and deployed an AWS-based agent automating production of 4 dynamic document types, reducing manual effort by 95%.",
-    descEs:
-      "Diseño y despliegue de un agente en AWS automatizando la producción de 4 tipos de documentos dinámicos, reduciendo el esfuerzo manual un 95%.",
-    tags: ["AWS", "Python", "LLMs", "Automation"],
-    icon: Cloud,
-  },
-  {
-    id: 2,
-    title: "Enterprise RAG Chatbot",
-    titleEs: "Chatbot RAG Empresarial",
-    desc: "Engineered prompting and RAG implementations in Azure, decreasing information retrieval latency by 90% for specialized queries.",
-    descEs:
-      "Ingeniería de prompts e implementación RAG en Azure, disminuyendo la latencia de recuperación de información un 90%.",
-    tags: ["Azure", "RAG", "LangChain", "Python"],
-    icon: Database,
-  },
-  {
-    id: 3,
-    title: "Radar ML Optimization",
-    titleEs: "Optimización ML para Radares",
-    desc: "Developed ML models for AESA radar data processing (Eurofighter), improving efficiency by 30% using TensorFlow and PyTorch.",
-    descEs:
-      "Desarrollo de modelos ML para procesamiento de datos de radar AESA (Eurofighter), mejorando la eficiencia un 30% con TensorFlow.",
-    tags: ["PyTorch", "TensorFlow", "Signal Proc", "Python"],
-    icon: Layers,
-  },
-];
-
-const mockPosts = [
-  {
-    id: 1,
-    date: "2025",
-    title: "Internal Model Method (IMM) Development Strategy",
-    titleEs: "Estrategia de Desarrollo del Internal Model Method (IMM)",
-  },
-  {
-    id: 2,
-    date: "2024",
-    title: "Optimizing Beef Loin Analysis with Deep Learning",
-    titleEs: "Optimizando el Análisis de Lomo de Vacuno con Deep Learning",
-  },
-  {
-    id: 3,
-    date: "2023",
-    title: "Real-time Data Processing in Defense Systems",
-    titleEs: "Procesamiento de Datos en Tiempo Real en Sistemas de Defensa",
-  },
-];
-
 const TechIcon = ({ label, theme }: { label: string; theme: Theme }) => (
   <span
     className={`text-xs font-mono px-2 py-1 rounded transition-colors cursor-default border ${
@@ -277,23 +111,23 @@ const ProjectCard = ({
   theme,
   aiEnabled,
 }: {
-  project: (typeof mockProjects)[number];
+  project: ProjectItem;
   lang: Language;
   theme: Theme;
   aiEnabled: boolean;
 }) => {
   const [insight, setInsight] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const IconComponent = projectIconMap[project.icon] ?? Layers;
 
   const handleGenerateInsight = async (e: ReactMouseEvent) => {
     e.preventDefault();
     if (insight || !aiEnabled) return;
 
     setLoading(true);
-    const desc = lang === "en" ? project.desc : project.descEs;
     const prompt = `Act as a senior software architect. Briefly analyze (max 40 words) why the tech stack [${project.tags.join(
       ", "
-    )}] is a good choice for a project described as: "${desc}". Respond in ${
+    )}] is a good choice for a project described as: "${project.desc}". Respond in ${
       lang === "en" ? "English" : "Spanish"
     }. Start directly with the reason.`;
 
@@ -318,7 +152,7 @@ const ProjectCard = ({
               : "bg-teal-50 text-teal-700 group-hover:bg-teal-100"
           }`}
         >
-          <project.icon size={24} strokeWidth={1.5} />
+          <IconComponent size={24} strokeWidth={1.5} />
         </div>
         <div className="flex gap-2">
           {aiEnabled ? (
@@ -418,30 +252,44 @@ const BlogRow = ({
   lang,
   theme,
 }: {
-  post: (typeof mockPosts)[number];
+  post: BlogEntry;
   lang: Language;
   theme: Theme;
-}) => (
-  <a
-    href="#"
-    className={`group flex items-baseline gap-6 py-4 border-b transition-colors px-2 ${
-      theme === "dark"
-        ? "border-neutral-900 hover:bg-neutral-900/30"
-        : "border-neutral-200 hover:bg-neutral-50"
-    }`}
-  >
-    <span className="text-xs font-mono text-neutral-500 shrink-0">{post.date}</span>
-    <h4
-      className={`text-base font-medium transition-colors ${
+}) => {
+  const link = post.url || `/${lang}/blog`;
+  const external = Boolean(post.url);
+  return (
+    <a
+      href={link}
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+      className={`group flex flex-col gap-1 rounded-xl px-3 py-3 transition-colors ${
         theme === "dark"
-          ? "text-neutral-300 group-hover:text-teal-400"
-          : "text-neutral-800 group-hover:text-teal-600"
+          ? "hover:bg-neutral-900/50"
+          : "hover:bg-neutral-50"
       }`}
     >
-      {lang === "en" ? post.title : post.titleEs}
-    </h4>
-  </a>
-);
+      <div className="flex items-center gap-4">
+        <span className="text-xs font-mono text-neutral-500">{post.date}</span>
+        <h4
+          className={`text-base font-medium transition-colors ${
+            theme === "dark"
+              ? "text-neutral-300 group-hover:text-teal-400"
+              : "text-neutral-800 group-hover:text-teal-600"
+          }`}
+        >
+          {post.title}
+        </h4>
+      </div>
+      <p
+        className={`text-sm whitespace-pre-line ${
+          theme === "dark" ? "text-neutral-500" : "text-neutral-600"
+        }`}
+      >
+        {post.summary}
+      </p>
+    </a>
+  );
+};
 
 const ChatWidget = ({ lang, theme }: { lang: Language; theme: Theme }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -615,12 +463,52 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
   const [theme, setTheme] = useState<Theme>("dark");
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const t = content[lang];
+  const [contentMap, setContentMap] =
+    useState<Record<Language, LandingContent>>(defaultContent);
+  const [contentLoading, setContentLoading] = useState(false);
+  const [contentError, setContentError] = useState<string | null>(null);
+  const t = contentMap[lang];
   const aiEnabled = Boolean(apiKey);
 
   useEffect(() => {
     setLang(initialLang);
   }, [initialLang]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadContent = async () => {
+      setContentLoading(true);
+      setContentError(null);
+      try {
+        const response = await fetch(`/api/content?lang=${lang}`, {
+          cache: "no-store",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch content.");
+        }
+        const payload = (await response.json()) as { data: LandingContent };
+        if (!cancelled && payload.data) {
+          setContentMap((prev) => ({ ...prev, [lang]: payload.data }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch content:", error);
+        if (!cancelled) {
+          setContentError("Using default content (unable to load latest data).");
+        }
+      } finally {
+        if (!cancelled) {
+          setContentLoading(false);
+        }
+      }
+    };
+
+    loadContent();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lang]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -761,6 +649,12 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
       )}
 
       <main className="relative z-10 max-w-5xl mx-auto px-6">
+        {(contentLoading || contentError) && (
+          <div className="pt-32 pb-4 text-xs font-mono text-neutral-500">
+            {contentLoading && <p>Refreshing site details…</p>}
+            {contentError && <p className="text-red-400">{contentError}</p>}
+          </div>
+        )}
         <section id="home" className="pt-40 pb-32 flex flex-col justify-center min-h-[80vh]">
           <div className="absolute top-20 right-0 -z-10 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] opacity-50" />
 
@@ -777,7 +671,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           </h1>
 
           <p
-            className={`text-lg max-w-2xl leading-relaxed mb-12 ${
+            className={`text-lg max-w-2xl leading-relaxed whitespace-pre-line mb-12 ${
               theme === "dark" ? "text-neutral-400" : "text-neutral-600"
             }`}
           >
@@ -830,6 +724,53 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
         </section>
 
         <section
+          id="activity"
+          className={`py-24 border-t ${
+            theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"
+          }`}
+        >
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
+                GitHub
+              </p>
+              <h2
+                className={`text-3xl font-bold ${
+                  theme === "dark" ? "text-white" : "text-neutral-900"
+                }`}
+              >
+                Recent contributions
+              </h2>
+              <p
+                className={`mt-3 max-w-2xl text-sm ${
+                  theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                }`}
+              >
+                Live snapshot of my commits pulled straight from GitHub using
+                the community Contributions API.
+              </p>
+            </div>
+            <a
+              href={`https://github.com/${githubUsername}`}
+              target="_blank"
+              rel="noreferrer"
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${
+                theme === "dark"
+                  ? "border-white/10 text-white hover:border-white/40"
+                  : "border-neutral-300 text-neutral-800 hover:border-neutral-500"
+              }`}
+            >
+              <Github size={16} />
+              View profile
+            </a>
+          </div>
+
+          <div className="mt-8">
+            <GithubContributions username={githubUsername} theme={theme} />
+          </div>
+        </section>
+
+        <section
           id="about"
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
         >
@@ -848,7 +789,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
             </div>
             <div>
               <p
-                className={`text-xl leading-relaxed mb-8 ${
+                className={`text-xl leading-relaxed whitespace-pre-line mb-8 ${
                   theme === "dark" ? "text-neutral-400" : "text-neutral-600"
                 }`}
               >
@@ -903,7 +844,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {mockProjects.map((project) => (
+            {t.projectItems.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
@@ -934,12 +875,12 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                 {t.blog.title}
               </h2>
               <div className="flex flex-col">
-                {mockPosts.map((post) => (
+                {t.blogPosts.map((post) => (
                   <BlogRow key={post.id} post={post} lang={lang} theme={theme} />
                 ))}
               </div>
               <a
-                href="#"
+                href={`/${lang}/blog`}
                 className={`inline-block mt-8 text-sm transition-colors ${
                   theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
                 }`}
@@ -953,7 +894,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                 {t.contact.title}
               </h2>
               <p
-                className={`mb-8 max-w-sm ${
+                className={`mb-8 max-w-sm whitespace-pre-line ${
                   theme === "dark" ? "text-neutral-400" : "text-neutral-600"
                 }`}
               >
@@ -971,34 +912,25 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               </a>
 
               <div className="flex gap-6 mt-12">
-                <a
-                  href="https://github.com/ivannxbt"
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`transition-colors ${
-                    theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-400 hover:text-black"
-                  }`}
-                >
-                  <Github size={22} />
-                </a>
-                <a
-                  href="https://linkedin.com/in/ivanncaamano"
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`transition-colors ${
-                    theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-400 hover:text-black"
-                  }`}
-                >
-                  <Linkedin size={22} />
-                </a>
-                <a
-                  href={`mailto:${t.contact.email}`}
-                  className={`transition-colors ${
-                    theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-400 hover:text-black"
-                  }`}
-                >
-                  <Mail size={22} />
-                </a>
+                {t.contact.socials.map((social) => {
+                  const Icon = socialIconMap[social.platform] ?? Github;
+                  return (
+                    <a
+                      key={social.url}
+                      href={social.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`transition-colors ${
+                        theme === "dark"
+                          ? "text-neutral-500 hover:text-white"
+                          : "text-neutral-400 hover:text-black"
+                      }`}
+                      aria-label={social.label}
+                    >
+                      <Icon size={22} />
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -1,0 +1,38 @@
+{
+  "en": {
+    "hero": {
+      "headline": "Welcome to my portfolio!",
+      "subheadline": "Currently AI & Software Engineer at @Avvale, and I do freelance too, plus heavily active on Twitter/X sharing my progress and story."
+    },
+    "about": {
+      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like here).\n\nInterests\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\nFun facts \nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\nCurrently learning to dance Salsa!\nI love reading about history, journalism, politics, economics and things about how our world works.\nMy favorite dish is my grandma's lasagna :)."
+    },
+    "contact": {
+      "text": "Based in Madrid. Always open to collaborate!",
+      "email": "ivanncaamano@gmail.com"
+    },
+    "blogPosts": [
+      {
+        "id": 1,
+        "title": "Internal Model Method (IMM) Development Strategy",
+        "date": "2025",
+        "summary": "How we structured IMM delivery with reproducible pipelines, automated validation, and governance hooks for banking teams.",
+        "url": ""
+      },
+      {
+        "id": 2,
+        "title": "Optimizing Beef Loin Analysis with Deep Learning",
+        "date": "2024",
+        "summary": "Lessons learned from designing a CV pipeline that keeps consistency up across protein manufacturing lines.",
+        "url": ""
+      },
+      {
+        "id": 3,
+        "title": "Real-time Data Processing in Defense Systems",
+        "date": "2023",
+        "summary": "Telemetry ingestion, denoising, and alerting patterns powering AESA radar analytics for mission-critical ops.",
+        "url": ""
+      }
+    ]
+  }
+}

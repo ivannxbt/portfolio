@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { isValidLocale, type Locale, locales } from "@/lib/i18n";
 
@@ -43,8 +42,7 @@ export default async function LangLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar lang={lang as Locale} />
-      <main className="flex-1 pt-16">{children}</main>
+      <main className="flex-1">{children}</main>
       <Footer lang={lang as Locale} />
     </div>
   );

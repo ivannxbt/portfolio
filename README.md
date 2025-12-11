@@ -9,6 +9,7 @@ A modern, dark-themed bilingual portfolio built with Next.js 15, Tailwind CSS, a
 - **Pages**: Home, About, Projects, Blog, Contact
 - **MDX Content**: Blog posts and projects using MDX for rich content
 - **API Routes**: `/api/chat` and `/api/summarize` endpoints
+- **Built-in CMS**: `/admin` screen to edit hero/about/contact copy across languages
 - **CV Download**: Downloadable CV/Resume button
 - **Responsive**: Mobile-first responsive design
 
@@ -22,6 +23,17 @@ A modern, dark-themed bilingual portfolio built with Next.js 15, Tailwind CSS, a
 - [Lucide React](https://lucide.dev/) - Icons
 
 ## Getting Started
+
+### Environment Setup
+
+Create a `.env.local` file in the root directory to enable AI + admin access:
+
+```
+NEXT_PUBLIC_GEMINI_API_KEY=your_api_key_here
+ADMIN_EMAIL=you@example.com
+ADMIN_PASSWORD=super-secure-password
+NEXTAUTH_SECRET=generate_a_random_string
+```
 
 ```bash
 # Install dependencies
@@ -41,6 +53,26 @@ npm run lint
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the portfolio.
+
+### Editing Content via Backend
+
+- Visit [`/admin`](http://localhost:3000/admin) while the dev server is running to access the lightweight CMS. If you're not signed in you'll be redirected to [`/admin/login`](http://localhost:3000/admin/login); use the credentials from `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+- Pick a language, edit the hero/about/contact fields, and press **Save changes**.  
+  The page issues a `PUT /api/content` request that persists overrides in `data/content-overrides.json`.
+- Scroll down to the **Blog entries** section to edit the list of articles (title, date label, summary, optional external URL). Changes instantly flow to the home page and the `/blog` route.
+- You can also script updates. Example:
+
+```bash
+curl -X PUT http://localhost:3000/api/content \
+  -H "Content-Type: application/json" \
+  -d '{
+        "lang": "en",
+        "content": {
+          "hero": { "headline": "New headline" },
+          "contact": { "email": "ivanncaamano@gmail.com" }
+        }
+      }'
+```
 
 ## Project Structure
 

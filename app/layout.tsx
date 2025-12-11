@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SessionProviders } from "@/components/session-provider";
 
 export const metadata: Metadata = {
   title: "Portfolio | Full Stack Developer",
@@ -14,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="antialiased bg-zinc-950 text-zinc-50 font-sans">
-        {children}
+        <SessionProviders>{children}</SessionProviders>
       </body>
     </html>
   );
