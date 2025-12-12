@@ -1,0 +1,24 @@
+# Portfolio Copilot Notes
+- **Stack Snapshot**: Next.js 15 App Router with TypeScript + Tailwind 4; entry `app/layout.tsx` forces dark `<html>` and wraps children in `SessionProviders` (NextAuth).
+- **Routing & Locales**: `app/page.tsx` redirects to `defaultLocale`; `app/[lang]/layout.tsx` validates via `lib/i18n.ts` and supplies metadata—keep params typed as Promises when creating sibling routes.
+- **Localization Helpers**: Use `getTranslations(lang)` and `isValidLocale` instead of hand-written strings; translation payloads live in `lib/i18n.ts` and power the `/[lang]/...` pages.
+- **Default Content Schema**: `content/site-content.ts` exports `defaultContent: Record<Locale, LandingContent>`; update both `en` and `es` objects when adding fields or sections.
+- **Content Overrides**: `lib/content-store.ts` merges overrides from `data/content-overrides.json` via `deepMerge`; always read content with `getLandingContent`/`getAllLandingContent` to respect overrides.
+- **Persisted Copy**: The overrides file is JSON on disk—admin writes append to existing keys, so preserve stable IDs (blog/project ids) to avoid duplicates when merging.
+- **Admin CMS**: `app/admin/page.tsx` is a giant `'use client'` form that edits the full `LandingContent`; it calls `/api/content?lang=..` for reads and `PUT /api/content` on save, so keep payload shapes in sync.
+- **Admin Login**: `app/admin/login/page.tsx` hits `signIn("credentials")`; configure `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `NEXTAUTH_SECRET` or the guard in `app/api/content/route.ts` will reject writes.
+- **Auth Options**: `lib/auth.ts` lowercases the email and falls back to `NEXT_PUBLIC_ADMIN_*` for Vercel previews—reuse these helpers instead of rolling new credential checks.
+- **Landing Experience**: `components/portfolio-landing.tsx` (ts-nocheck, `'use client'`) drives the home page; it sets CSS font vars from `contentMap[lang].theme`, refetches latest content from `/api/content`, and falls back to `defaultContent`.
+- **AI Assistant**: The landing component calls Gemini via `NEXT_PUBLIC_GEMINI_API_KEY`; leave `getFallbackResponse` intact so the chat widget still answers when the key is missing.
+- **External Widgets**: `components/github-contributions.tsx` fetches the public contributions API client-side; keep it out of server modules to avoid `fetch` during build.
+- **Blog Feed**: `app/[lang]/blog/page.tsx` seeds `BlogList` with defaults but the client refetches via `LandingContent.blogPosts`; each post needs `id`, `date`, `title`, `summary`, and optional `url` for external links.
+- **Projects Page**: `app/[lang]/projects/page.tsx` reads MDX through `lib/mdx.ts`; `ProjectCard` expects `frontmatter.highlight`, `stack`, and optional `repo/demo` URLs.
+- **MDX Convention**: Place localized files as `content/{projects,blog}/slug.en.mdx` and `.es`; `lib/mdx.ts` sorts by `date` and `getAllSlugs("blog")` prebuilds routes for every locale—missing translations trigger 404s.
+- **Blog Post Rendering**: `app/[lang]/blog/[slug]/page.tsx` uses `compileMDX` (remark-gfm) and renders tags/badges; ensure new frontmatter matches `BlogFrontmatter`.
+- **Contact Form**: `components/contact-form.tsx` currently alerts with the selected language; wire real submissions by keeping the translation prop contract unchanged.
+- **Shared UI**: shadcn components live in `components/ui/`; extend variants via `cn` helper from `lib/utils.ts` instead of duplicating class strings.
+- **Server-Only Modules**: `lib/content-store.ts` and `lib/mdx.ts` touch the filesystem—only import them in server components, route handlers, or `generateMetadata`/`generateStaticParams`.
+- **API Stubs**: `/api/chat` and `/api/summarize` return placeholder data; if you integrate `lib/ai.ts`, keep validation and error logging patterns used there.
+- **Env Expectations**: `.env.local` usually defines `NEXT_PUBLIC_GEMINI_API_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `NEXTAUTH_SECRET`; missing Gemini only removes AI responses, missing admin creds throws setup errors.
+- **Dev Commands**: Use `npm run dev` for local work, `npm run build`/`start` for prod checks, and `npm run lint` (ESLint 9) before commits; no test suite exists yet, so rely on lint + manual smoke of `/admin` and localized routes.
+- **Style System**: The dark theme uses Zinc + Teal tokens in `globals.css`; when adding light sections, ensure theme toggles in `PortfolioLanding` still flip both background and typographic colors.

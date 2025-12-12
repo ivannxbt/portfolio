@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Download } from "lucide-react";
 
@@ -127,11 +128,20 @@ export default async function AboutPage({ params }: PageProps) {
                 className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5"
               >
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-lg font-semibold text-white">
-                      {item.role}
-                    </p>
-                    <p className="text-sm text-zinc-400">{item.company}</p>
+                  <div className="flex items-center gap-4">
+                    <Image
+                      src={item.logo}
+                      alt={item.company}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                    <div>
+                      <p className="text-lg font-semibold text-white">
+                        {item.role}
+                      </p>
+                      <p className="text-sm text-zinc-400">{item.company}</p>
+                    </div>
                   </div>
                   <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
                     {item.period}

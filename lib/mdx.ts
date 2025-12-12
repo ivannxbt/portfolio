@@ -25,7 +25,9 @@ export interface ProjectFrontmatter extends BaseFrontmatter {
   highlight: string;
 }
 
-export type BlogFrontmatter = BaseFrontmatter;
+export interface BlogFrontmatter extends BaseFrontmatter {
+  image?: string;
+}
 
 export interface ProjectEntry {
   slug: string;
@@ -122,6 +124,7 @@ export function getBlogPosts(lang: Locale): BlogEntry[] {
         date: String(data.date ?? new Date().toISOString()),
         summary: String(data.summary ?? ""),
         tags: toArray(data.tags),
+        image: data.image ? String(data.image) : undefined,
       };
 
       return {

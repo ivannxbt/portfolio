@@ -57,8 +57,9 @@ Open [http://localhost:3000](http://localhost:3000) to view the portfolio.
 ### Editing Content via Backend
 
 - Visit [`/admin`](http://localhost:3000/admin) while the dev server is running to access the lightweight CMS. If you're not signed in you'll be redirected to [`/admin/login`](http://localhost:3000/admin/login); use the credentials from `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
-- Pick a language, edit the hero/about/contact fields, and press **Save changes**.  
-  The page issues a `PUT /api/content` request that persists overrides in `data/content-overrides.json`.
+- Pick a language, edit any section (navigation, hero, about, experience, projects, blog, contact, footer, and theme fonts), and press **Save changes**.  
+  The CMS issues a `PUT /api/content` request that persists overrides in `data/content-overrides.json`.
+- Long-form fields (hero subheadline, about summary, blog descriptions, project blurbs, contact copy, etc.) support Markdown for bold text, lists, and `[links](https://example.com)`.
 - Scroll down to the **Blog entries** section to edit the list of articles (title, date label, summary, optional external URL). Changes instantly flow to the home page and the `/blog` route.
 - You can also script updates. Example:
 

@@ -1,8 +1,8 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
 
-const adminEmail = (process.env.ADMIN_EMAIL || (process.env.NEXT_PUBLIC_ADMIN_EMAIL as string) || '').toLowerCase();
-const adminPassword = process.env.ADMIN_PASSWORD || process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+const adminEmail = (process.env.ADMIN_EMAIL ?? "").toLowerCase();
+const adminPassword = process.env.ADMIN_PASSWORD;
 
 export const authOptions: NextAuthOptions = {
   session: {

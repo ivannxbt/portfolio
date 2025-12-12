@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { isValidLocale, type Locale, locales } from "@/lib/i18n";
+import { isValidLocale, locales } from "@/lib/i18n";
 
 export async function generateStaticParams() {
   return locales.map((lang) => ({ lang }));

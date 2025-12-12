@@ -1,4 +1,5 @@
-﻿// @ts-nocheck
+﻿// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 'use client';
 import React, {
   useState,
@@ -6,32 +7,32 @@ import React, {
   useRef,
   type MouseEvent as ReactMouseEvent,
 } from "react";
+import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 import {
+  Cloud,
+  Database,
+  FileText,
   Github,
-  Linkedin,
   Menu,
   X,
   ArrowUpRight,
   Code2,
   BrainCircuit,
   Layers,
-  Database,
-  Cloud,
+  Linkedin,
   MessageSquare,
   Send,
   Sparkles,
   Loader2,
   Sun,
   Moon,
-  Twitter,
-  FileText,
   Briefcase,
   MapPin,
   Clock3,
+  Twitter,
   type LucideIcon,
 } from "lucide-react";
-import type { Locale } from "@/lib/i18n";
 import {
   defaultContent,
   type LandingContent,
@@ -39,95 +40,646 @@ import {
   type BlogEntry,
   type SocialPlatform,
   type ProjectIcon,
+  type StackIcon,
 } from "@/content/site-content";
 import { GithubContributions } from "@/components/github-contributions";
 
-type Language = Locale;
-type Theme = "dark" | "light";
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY?.trim();
 
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const SocialPreviewCard = ({
+    preview,
+    platform,
+    theme,
+  }: {
+    preview: LandingContent["contact"]["socials"][number]["preview"];
+    platform: SocialPlatform;
+    theme: Theme;
+  }) => {
+    if (!preview) return null;
 
-const projectIconMap: Record<ProjectIcon, LucideIcon> = {
-  cloud: Cloud,
-  database: Database,
-  layers: Layers,
-};
+    const isDark = theme === "dark";
+    const mutedText = isDark ? "text-neutral-400" : "text-neutral-600";
 
-const socialIconMap: Record<SocialPlatform, LucideIcon> = {
-  github: Github,
-  linkedin: Linkedin,
-  twitter: Twitter,
-  resume: FileText,
-};
+    return (
+      <div
+        className={`w-full rounded-3xl border px-5 py-6 shadow-2xl backdrop-blur-lg transition-all duration-300 ${
+          isDark
+            ? "bg-neutral-950/90 border-white/10 text-white"
+            : "bg-white border-neutral-200 text-neutral-900"
+        }`}
+      >
+        <div className="grid gap-5 lg:grid-cols-[1.05fr,0.95fr] items-stretch">
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              {preview.avatar ? (
+                <div className="relative h-14 w-14 overflow-hidden rounded-2xl border border-white/10">
+                  <Image
+                    src={preview.avatar}
+                    alt={`${preview.title} preview`}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="h-14 w-14 rounded-2xl bg-teal-500/20" />
+              )}
+              <div className="min-w-0">
+                <p className="text-base font-semibold leading-tight">{preview.title}</p>
+                <p className={`text-sm ${mutedText}`}>{preview.subtitle}</p>
+              </div>
+              {preview.badge && (
+                <span
+                  className={`ml-auto rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                    isDark ? "border-white/15 text-neutral-200" : "border-neutral-300 text-neutral-600"
+                  }`}
+                >
+                  {preview.badge}
+                </span>
+              )}
+            </div>
 
-const renderWithBold = (text: string) =>
-  text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => {
-    const isBold = part.startsWith("**") && part.endsWith("**");
-    return isBold ? (
-      <strong key={index}>{part.slice(2, -2)}</strong>
-    ) : (
-      <span key={index}>{part}</span>
+            <p className={`text-sm leading-relaxed ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>
+              {preview.description}
+            </p>
+
+            {preview.highlights?.length ? (
+              <ul className={`grid gap-2 text-sm ${isDark ? "text-neutral-200" : "text-neutral-700"}`}>
+                {preview.highlights.slice(0, 3).map((highlight) => (
+                  <li key={highlight} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
+                    {highlight}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
+            {preview.stats?.length ? (
+              <div className="grid grid-cols-2 gap-4">
+                {preview.stats.slice(0, 4).map((stat) => (
+                  <div
+                    key={stat.label}
+                    className={`rounded-2xl border px-4 py-3 ${
+                      isDark ? "border-white/10 bg-white/5" : "border-neutral-200 bg-neutral-50"
+                    }`}
+                  >
+                    <p className={`text-[11px] uppercase tracking-wide ${mutedText}`}>{stat.label}</p>
+                    <p className="text-lg font-semibold">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <PreviewWindow platform={platform} preview={preview} />
+        </div>
+      </div>
     );
-  });
+  };
+
+  type PreviewPalette = {
+    background: string;
+    glow: string;
+    border: string;
+    accent: string;
+    text: string;
+    muted: string;
+    chipBg: string;
+    chipText: string;
+  };
+
+  const previewPalettes: Record<SocialPlatform | "default", PreviewPalette> = {
+    github: {
+      background: "linear-gradient(135deg, #020617 0%, #0f172a 60%, #111827 100%)",
+      glow: "rgba(56, 189, 248, 0.25)",
+      border: "rgba(255,255,255,0.08)",
+      accent: "#58a6ff",
+      text: "rgba(255,255,255,0.92)",
+      muted: "rgba(255,255,255,0.6)",
+      chipBg: "rgba(88,166,255,0.15)",
+      chipText: "#cfe3ff",
+    },
+    linkedin: {
+      background: "linear-gradient(140deg, #0a4c94, #0a66c2)",
+      glow: "rgba(59,130,246,0.25)",
+      border: "rgba(255,255,255,0.18)",
+      accent: "#b9e0ff",
+      text: "#f5fbff",
+      muted: "rgba(255,255,255,0.7)",
+      chipBg: "rgba(255,255,255,0.15)",
+      chipText: "#ffffff",
+    },
+    twitter: {
+      background: "linear-gradient(135deg, #03111f, #0ea5e9)",
+      glow: "rgba(14,165,233,0.35)",
+      border: "rgba(255,255,255,0.12)",
+      accent: "#e0f7ff",
+      text: "#f0fbff",
+      muted: "rgba(224,247,255,0.8)",
+      chipBg: "rgba(255,255,255,0.18)",
+      chipText: "#ffffff",
+    },
+    resume: {
+      background: "linear-gradient(135deg, #f8fafc, #e2e8f0)",
+      glow: "rgba(59,130,246,0.15)",
+      border: "rgba(15,23,42,0.08)",
+      accent: "#0f172a",
+      text: "#0f172a",
+      muted: "#475467",
+      chipBg: "rgba(15,23,42,0.08)",
+      chipText: "#0f172a",
+    },
+    default: {
+      background: "linear-gradient(135deg, #0f172a, #1f2937)",
+      glow: "rgba(45,212,191,0.25)",
+      border: "rgba(255,255,255,0.1)",
+      accent: "#d1fae5",
+      text: "#f8fafc",
+      muted: "rgba(255,255,255,0.7)",
+      chipBg: "rgba(255,255,255,0.12)",
+      chipText: "#ffffff",
+    },
+  };
+
+  const socialIconMap: Record<SocialPlatform, LucideIcon> = {
+    github: Github,
+    linkedin: Linkedin,
+    twitter: Twitter,
+    resume: FileText,
+  };
+
+  const projectIconMap: Record<ProjectIcon, LucideIcon> = {
+    cloud: Cloud,
+    database: Database,
+    layers: Layers,
+  };
+
+  const PreviewWindow = ({
+    platform,
+    preview,
+  }: {
+    platform: SocialPlatform;
+    preview: LandingContent["contact"]["socials"][number]["preview"];
+  }) => {
+    const palette = previewPalettes[platform] ?? previewPalettes.default;
+    const isLight = platform === "resume";
+    const shortDescription = preview.description?.length
+      ? preview.description.length > 120
+        ? `${preview.description.slice(0, 120)}…`
+        : preview.description
+      : "";
+
+    const renderAvatar = (size = 48) => (
+      <div
+        className={`relative overflow-hidden rounded-full border ${
+          isLight ? "border-black/10" : "border-white/20"
+        }`}
+        style={{ width: size, height: size }}
+      >
+        {preview.avatar ? (
+          <Image src={preview.avatar} alt={`${preview.title} avatar`} fill sizes={`${size}px`} className="object-cover" />
+        ) : (
+          <div className="h-full w-full" style={{ backgroundColor: palette.chipBg }} />
+        )}
+      </div>
+    );
+
+    const renderGithubContent = () => {
+      const contributionColors = ["#0f172a", "#1e293b", "#2563eb", "#22d3ee", "#38bdf8"];
+      const stats = preview.stats?.slice(0, 3) ?? [];
+
+      return (
+        <div className="mt-4 flex flex-col gap-4">
+          <div className="flex items-start gap-3">
+            {renderAvatar(48)}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold" style={{ color: palette.text }}>
+                {preview.subtitle}
+              </p>
+              <p className="text-xs" style={{ color: palette.muted }}>
+                {shortDescription}
+              </p>
+            </div>
+            <span
+              className="rounded-full px-3 py-1 text-[10px] uppercase tracking-wide"
+              style={{ backgroundColor: palette.chipBg, color: palette.chipText }}
+            >
+              {preview.badge ?? "Active"}
+            </span>
+          </div>
+          <div className="grid grid-cols-12 gap-1">
+            {Array.from({ length: 84 }).map((_, idx) => (
+              <span
+                key={`gh-${idx}`}
+                className="h-2.5 w-2.5 rounded-[3px]"
+                style={{ backgroundColor: contributionColors[idx % contributionColors.length] }}
+              />
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-4 text-[11px]" style={{ color: palette.muted }}>
+            {stats.length
+              ? stats.map((stat) => (
+                  <span key={stat.label} className="font-medium">
+                    {stat.label}: <span style={{ color: palette.text }}>{stat.value}</span>
+                  </span>
+                ))
+              : (
+                  <span>Exploring repositories &mdash; stay tuned.</span>
+                )}
+          </div>
+        </div>
+      );
+    };
+
+    const renderLinkedinContent = () => {
+      const stats = preview.stats?.slice(0, 2) ?? [];
+
+      return (
+        <div className="mt-5 space-y-4">
+          <div className="rounded-2xl border border-white/20 bg-white/10 p-4 shadow-inner shadow-black/20">
+            <div className="flex items-center gap-3">
+              {renderAvatar(44)}
+              <div>
+                <p className="text-sm font-semibold" style={{ color: palette.text }}>
+                  {preview.subtitle}
+                </p>
+                <p className="text-xs" style={{ color: palette.muted }}>
+                  {shortDescription}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-[11px]">
+              {stats.length
+                ? stats.map((stat) => (
+                    <div key={stat.label}>
+                      <p style={{ color: palette.muted }}>{stat.label}</p>
+                      <p className="text-base font-semibold" style={{ color: palette.text }}>
+                        {stat.value}
+                      </p>
+                    </div>
+                  ))
+                : (
+                    <p style={{ color: palette.muted }}>
+                      Building connections across AI &amp; software teams.
+                    </p>
+                  )}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-white/15 bg-white/5 p-4 text-[11px]" style={{ color: palette.muted }}>
+            <p>Recent activity</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {["AI", "Data", "Advisory"].map((chip) => (
+                <span
+                  key={chip}
+                  className="rounded-full px-3 py-1 text-[10px] uppercase tracking-wide"
+                  style={{ backgroundColor: palette.chipBg, color: palette.chipText }}
+                >
+                  {chip}
+                </span>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center gap-2 text-[10px] uppercase tracking-wide" style={{ color: palette.accent }}>
+              <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
+              Available for conversations
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const renderTwitterContent = () => (
+      <div className="mt-5 space-y-4">
+        <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
+          <div className="flex items-center gap-3">
+            {renderAvatar(40)}
+            <div>
+              <p className="text-sm font-semibold" style={{ color: palette.text }}>
+                {preview.subtitle}
+              </p>
+              <p className="text-[11px] uppercase tracking-wide" style={{ color: palette.muted }}>
+                Live on @_ivvann
+              </p>
+            </div>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed" style={{ color: palette.text }}>
+            {shortDescription || "Shipping agents, sharing notes, answering DMs."}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-4 text-[11px]" style={{ color: palette.muted }}>
+            <span>❤️ 2.4k</span>
+            <span>🔁 640</span>
+            <span>💬 180</span>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-[11px]" style={{ color: palette.muted }}>
+          Spaces: &ldquo;RAG systems that actually ship&rdquo; · Today 19:00 CET
+        </div>
+      </div>
+    );
+
+    const renderResumeContent = () => (
+      <div className="mt-5 space-y-4 text-neutral-700">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between text-[11px] text-neutral-500">
+            <span>{preview.title}</span>
+            <span>{preview.stats?.find((stat) => stat.label.toLowerCase().includes("pages"))?.value ?? "2 pages"}</span>
+          </div>
+          <div className="mt-3 space-y-2 text-xs text-neutral-700">
+            {(preview.highlights ?? []).slice(0, 3).map((highlight) => (
+              <p key={highlight} className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-neutral-900/60" />
+                {highlight}
+              </p>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 text-[10px] text-neutral-500">
+          {[0, 1].map((page) => (
+            <div key={page} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+              <div className="h-2 w-14 rounded-full bg-neutral-200" />
+              <div className="mt-2 space-y-1">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={`line-${page}-${idx}`} className="h-1.5 w-full rounded-full bg-neutral-200/80" />
+                ))}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1">
+                {["Python", "Azure", "LLMs"].map((chip) => (
+                  <span key={`${chip}-${page}`} className="rounded-full bg-white px-2 py-0.5 text-[9px] uppercase tracking-wide text-neutral-600">
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    const renderContent = () => {
+      switch (platform) {
+        case "linkedin":
+          return renderLinkedinContent();
+        case "twitter":
+          return renderTwitterContent();
+        case "resume":
+          return renderResumeContent();
+        default:
+          return renderGithubContent();
+      }
+    };
+
+    return (
+      <div className="relative">
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 blur-[60px] opacity-70"
+          style={{ background: palette.glow }}
+          aria-hidden
+        />
+        <div
+          className={`relative h-full min-h-[240px] overflow-hidden rounded-[28px] border p-5 ${
+            isLight ? "text-neutral-900" : "text-white"
+          }`}
+          style={{ background: palette.background, borderColor: palette.border }}
+        >
+          <div className="flex items-center gap-2 text-[10px]" style={{ color: palette.muted }}>
+            <span className="flex gap-1">
+              <span className="h-2 w-2 rounded-full bg-red-400/80" />
+              <span className="h-2 w-2 rounded-full bg-amber-300/80" />
+              <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
+            </span>
+            <span className="uppercase tracking-[0.3em]">preview</span>
+          </div>
+          {renderContent()}
+        </div>
+      </div>
+    );
+  };
+
+type RichTextProps = {
+  text?: string;
+  className?: string;
+  linkClassName?: string;
+};
+
+const RichText = ({ text, className = "", linkClassName = "" }: RichTextProps) => {
+  if (!text?.trim()) {
+    return null;
+  }
+
+  return (
+    <div className={className}>
+      <ReactMarkdown
+        components={{
+          p: ({ children }) => <p className="leading-relaxed">{children}</p>,
+          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+            a: ({ href, children, ...props }) => {
+            const external = !!href && /^https?:/i.test(href);
+            return (
+              <a
+                href={href}
+                className={linkClassName}
+                target={external ? "_blank" : undefined}
+                rel={external ? "noreferrer" : undefined}
+                {...props}
+              >
+                {children}
+              </a>
+            );
+          },
+          ul: ({ children }) => <ul className="list-disc space-y-2 pl-6">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal space-y-2 pl-6">{children}</ol>,
+          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+          code: ({ children }) => (
+            <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">{children}</code>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-2 border-teal-500/50 pl-4 text-sm italic">
+              {children}
+            </blockquote>
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    </div>
+  );
+};
 
 const githubUsername = "ivannxbt";
+const BLOG_PREVIEW_COUNT = 3;
 
-type ContactPreview = {
-  title: string;
-  subtitle: string;
-  description: string;
-  highlights?: string[];
-  avatar?: string;
+type FallbackProfile = {
+  intro: string;
+  skills: string;
+  experience: string;
+  education: string;
+  location: string;
+  contact: string;
+  availability: string;
+  defaultMessage: string;
 };
 
-const contactPreviewContent: Record<string, ContactPreview> = {
-  github: {
-    title: "GitHub / ivannxbt",
-    subtitle: "AI & Data Engineer",
-    description: "Latest experiments with RAG, LangChain, and ML infra. Frequent commits across Python + cloud stacks.",
-    highlights: ["Python", "AWS", "RAG"],
-    avatar: "/profile.jpeg",
+const fallbackChatProfile: Record<Language, FallbackProfile> = {
+  en: {
+    intro:
+      "I'm Iván Caamaño, a telematics engineer focused on AI, data, and software systems in Madrid.",
+    skills:
+      "Daily toolbox: Python, TypeScript, SQL, LangChain, PyTorch, TensorFlow, AWS, Azure, Databricks, Docker, Terraform, and CI/CD.",
+    experience:
+      "Recent deliveries include document-generation agents and RAG copilots at Avvale, IMM risk tooling for BBVA at NFQ, and ML optimization for Indra's defense division.",
+    education:
+      "I earned both a Master's in Network & Telematic Services and a Bachelor's in Telecommunications Engineering from Universidad Politécnica de Madrid.",
+    location: "Based in Madrid, Spain, collaborating remotely when needed.",
+    contact:
+      "Best contact: ivanncaamano@gmail.com. You can also reach me as @ivannxbt on GitHub and @_ivvann on X/LinkedIn.",
+    availability:
+      "Currently at Avvale leading AI programs while open to consulting or advisory projects with tangible impact.",
+    defaultMessage: "Feel free to ask about my skills, education, experience, or availability.",
   },
-  linkedin: {
-    title: "LinkedIn",
-    subtitle: "Network with engineering leaders",
-    description: "Career snapshots, speaking gigs, and the playbooks I use to deliver AI initiatives at enterprise scale.",
-    highlights: ["Case studies", "Hiring", "Open to talk"],
-    avatar: "/profile.jpeg",
-  },
-  twitter: {
-    title: "X / @_ivvann",
-    subtitle: "Build in public",
-    description: "Daily notes on agents, LLM stacks, and lessons from consulting. Expect candid takes and prototypes.",
-    highlights: ["Threads", "Prototypes", "AMA"],
-    avatar: "/profile.jpeg",
-  },
-  resume: {
-    title: "Resume",
-    subtitle: "Download CV (PDF)",
-    description: "One-page overview with projects, impact metrics, and tech stack highlights.",
-    highlights: ["PDF", "Up to date", "1 page"],
-    avatar: "/icons/ivan-orb.svg",
-  },
-  email: {
-    title: "Email",
-    subtitle: "ivanncaamano@gmail.com",
-    description: "Drops straight into my inbox. Ideal for projects, advisory, or collaborations in AI & software.",
-    highlights: ["Fast reply", "Madrid", "Remote"],
-    avatar: "/profile.jpeg",
-  },
-  default: {
-    title: "Let’s connect",
-    subtitle: "Say hi",
-    description: "Reach out for collaborations, speaking, or to jam on AI systems.",
-    highlights: ["AI", "Data", "Consulting"],
-    avatar: "/profile.jpeg",
+  es: {
+    intro:
+      "Soy Iván Caamaño, ingeniero en telemática especializado en IA, datos y software con base en Madrid.",
+    skills:
+      "Mi caja de herramientas diaria incluye Python, TypeScript, SQL, LangChain, PyTorch, TensorFlow, AWS, Azure, Databricks, Docker y Terraform.",
+    experience:
+      "He liderado agentes de generación documental y copilotos RAG en Avvale, construido software de riesgo IMM para BBVA desde NFQ y optimizado modelos ML en la división de defensa de Indra.",
+    education:
+      "Completé el Máster en Servicios de Red y Telemática y el Grado en Ingeniería de Telecomunicación en la Universidad Politécnica de Madrid.",
+    location: "Resido en Madrid, España, y colaboro con equipos distribuidos.",
+    contact:
+      "Puedes escribirme a ivanncaamano@gmail.com o encontrarme como @ivannxbt en GitHub y @_ivvann en X/LinkedIn.",
+    availability:
+      "Actualmente trabajo en Avvale liderando iniciativas de IA y estoy abierto a colaboraciones o consultorías con buen encaje.",
+    defaultMessage: "Pregunta lo que necesites sobre mis habilidades, formación, experiencia o disponibilidad.",
   },
 };
 
-const callGemini = async (prompt: string, systemInstruction?: string) => {
+const fallbackTopicMatchers: Array<{
+  keywords: string[];
+  getAnswer: (profile: FallbackProfile) => string;
+}> = [
+  {
+    keywords: ["who", "quien", "quién", "about you", "sobre ti", "eres"],
+    getAnswer: (profile) => `${profile.intro} ${profile.availability}`,
+  },
+  {
+    keywords: [
+      "skill",
+      "skills",
+      "stack",
+      "technology",
+      "technologies",
+      "tech",
+      "tool",
+      "tools",
+      "habilidad",
+      "habilidades",
+      "tecnologia",
+      "tecnología",
+      "tecnologias",
+      "herramienta",
+      "herramientas",
+    ],
+    getAnswer: (profile) => profile.skills,
+  },
+  {
+    keywords: [
+      "experience",
+      "experiences",
+      "project",
+      "projects",
+      "job",
+      "jobs",
+      "work",
+      "role",
+      "roles",
+      "career",
+      "exp",
+      "proyecto",
+      "proyectos",
+      "trayectoria",
+    ],
+    getAnswer: (profile) => profile.experience,
+  },
+  {
+    keywords: [
+      "education",
+      "degree",
+      "school",
+      "study",
+      "studies",
+      "master",
+      "bachelor",
+      "universidad",
+      "formacion",
+      "formación",
+    ],
+    getAnswer: (profile) => profile.education,
+  },
+  {
+    keywords: [
+      "where",
+      "based",
+      "location",
+      "city",
+      "ubicado",
+      "ubicación",
+      "ubicacion",
+      "ciudad",
+    ],
+    getAnswer: (profile) => profile.location,
+  },
+  {
+    keywords: [
+      "availability",
+      "available",
+      "consulting",
+      "open",
+      "contratar",
+      "disponible",
+      "colaborar",
+      "colaboración",
+    ],
+    getAnswer: (profile) => profile.availability,
+  },
+  {
+    keywords: [
+      "contact",
+      "email",
+      "reach",
+      "correo",
+      "escribirte",
+      "contarte",
+      "contacto",
+    ],
+    getAnswer: (profile) => profile.contact,
+  },
+];
+
+const getFallbackResponse = (prompt: string, lang: Language) => {
+  const profile = fallbackChatProfile[lang] ?? fallbackChatProfile.en;
+  const normalized = prompt.toLowerCase();
+  const match = fallbackTopicMatchers.find(({ keywords }) =>
+    keywords.some((keyword) => normalized.includes(keyword))
+  );
+
+  if (match) {
+    return match.getAnswer(profile);
+  }
+
+  return `${profile.intro} ${profile.defaultMessage}`;
+};
+
+const callGemini = async ({
+  prompt,
+  systemInstruction,
+  fallback,
+}: {
+  prompt: string;
+  systemInstruction?: string;
+  fallback?: () => string;
+}) => {
   if (!apiKey) {
-    return "AI key not configured. Add NEXT_PUBLIC_GEMINI_API_KEY to use this feature.";
+    return fallback?.() ?? "AI key not configured. Add NEXT_PUBLIC_GEMINI_API_KEY to use this feature.";
   }
 
   try {
@@ -158,7 +710,7 @@ const callGemini = async (prompt: string, systemInstruction?: string) => {
     );
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Error connecting to AI service. Please try again later.";
+    return fallback?.() ?? "Error connecting to AI service. Please try again later.";
   }
 };
 
@@ -174,48 +726,11 @@ const TechIcon = ({ label, theme }: { label: string; theme: Theme }) => (
   </span>
 );
 
-const ContactPreviewCard = ({
-  preview,
-  theme,
-  active,
-}: {
-  preview: ContactPreview;
-  theme: Theme;
-} & { active: boolean }) => (
-  <div
-    className={`pointer-events-none absolute left-1/2 top-full z-20 mt-4 w-72 -translate-x-1/2 rounded-3xl border p-4 shadow-2xl transition-all duration-200 ${
-      active ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
-    } ${theme === "dark" ? "bg-[#0f0f0f] border-white/5" : "bg-white border-black/5"}`}
-    aria-hidden={!active}
-  >
-    <div className="flex items-center gap-3">
-      <div className="relative h-12 w-12 overflow-hidden rounded-full border border-white/10">
-        <Image src={preview.avatar ?? "/profile.jpeg"} alt={preview.title} fill className="object-cover" sizes="48px" />
-      </div>
-      <div>
-        <p className="text-sm font-semibold">{preview.title}</p>
-        <p className="text-xs text-neutral-500">{preview.subtitle}</p>
-      </div>
-    </div>
-    <p className={`mt-3 text-xs leading-relaxed ${theme === "dark" ? "text-neutral-300" : "text-neutral-600"}`}>
-      {preview.description}
-    </p>
-    {preview.highlights && (
-      <div className="mt-3 flex flex-wrap gap-2">
-        {preview.highlights.map((item) => (
-          <span
-            key={item}
-            className={`text-[10px] uppercase tracking-widest rounded-full px-3 py-1 ${
-              theme === "dark" ? "bg-white/5 text-neutral-300" : "bg-neutral-900/5 text-neutral-600"
-            }`}
-          >
-            {item}
-          </span>
-        ))}
-      </div>
-    )}
-  </div>
-);
+const stackIconMap: Record<StackIcon, LucideIcon> = {
+  code: Code2,
+  layers: Layers,
+  brain: BrainCircuit,
+};
 
 const ContactShowcase = ({
   contact,
@@ -227,6 +742,52 @@ const ContactShowcase = ({
   lang: Language;
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [activePreview, setActivePreview] = useState<
+    | {
+        preview: LandingContent["contact"]["socials"][number]["preview"];
+        platform: SocialPlatform;
+      }
+    | null
+  >(null);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const previewTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const hidePreview = (immediate = false) => {
+    if (previewTimeout.current) {
+      clearTimeout(previewTimeout.current);
+    }
+    if (immediate) {
+      setActivePreview(null);
+      setActiveKey(null);
+      return;
+    }
+    previewTimeout.current = setTimeout(() => {
+      setActivePreview(null);
+      setActiveKey(null);
+    }, 120);
+  };
+
+  const showPreview = (
+    key: string,
+    platform?: SocialPlatform,
+    preview?: LandingContent["contact"]["socials"][number]["preview"]
+  ) => {
+    if (!preview || !platform) {
+      hidePreview(true);
+      return;
+    }
+    if (previewTimeout.current) {
+      clearTimeout(previewTimeout.current);
+    }
+    setActivePreview({ preview, platform });
+    setActiveKey(key);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (previewTimeout.current) clearTimeout(previewTimeout.current);
+    };
+  }, []);
 
   const copyEmail = async (value: string, key: string) => {
     try {
@@ -244,53 +805,89 @@ const ContactShowcase = ({
       label: social.label,
       href: social.url,
       type: "link" as const,
+      icon: socialIconMap[social.platform] ?? Github,
+      platform: social.platform,
+      preview: social.preview,
     })),
     {
       key: "email",
       label: lang === "en" ? "Copy Email" : "Copiar email",
       value: contact.email,
       type: "copy" as const,
+      icon: Send,
     },
   ];
 
   return (
     <div
-      className={`mb-10 flex flex-wrap items-center gap-4 rounded-2xl border px-4 py-3 ${
+      className={`relative mb-10 flex flex-wrap items-center gap-4 rounded-2xl border px-4 py-3 ${
         theme === "dark" ? "border-white/10 bg-white/5" : "border-neutral-200 bg-white"
       }`}
+      onMouseLeave={() => hidePreview()}
     >
-      <div className="flex flex-wrap items-center gap-4">
-        {items.map((item) =>
-          item.type === "link" ? (
-            <a
-              key={item.key}
-              href={item.href}
-              target="_blank"
-              rel="noreferrer"
-              className={`text-sm font-medium tracking-wide ${
-                theme === "dark" ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-neutral-900"
-              }`}
-            >
-              {item.label}
-            </a>
-          ) : (
+      <div className="flex flex-wrap items-center gap-2 md:gap-4">
+        {items.map((item) => {
+          const Icon = item.icon;
+          const isActive = item.key === activeKey;
+          const baseColor =
+            theme === "dark"
+              ? isActive
+                ? "text-white border-white/30 bg-white/10"
+                : "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
+              : isActive
+              ? "text-neutral-900 border-neutral-900/20 bg-neutral-900/5"
+              : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400";
+
+          if (item.type === "link") {
+            return (
+              <a
+                key={item.key}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                onMouseEnter={() => showPreview(item.key, item.platform, item.preview)}
+                onFocus={() => showPreview(item.key, item.platform, item.preview)}
+                onBlur={() => hidePreview(true)}
+                className={`flex items-center gap-2.5 rounded-full border px-3 py-1.5 text-sm font-medium tracking-wide transition-colors ${baseColor}`}
+              >
+                <Icon aria-hidden size={16} className="shrink-0" />
+                <span>{item.label}</span>
+              </a>
+            );
+          }
+
+          return (
             <button
               key={item.key}
               type="button"
               onClick={() => copyEmail(item.value, item.key)}
-              className={`text-sm font-medium tracking-wide focus:outline-none ${
-                theme === "dark" ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-neutral-900"
+              onMouseEnter={() => hidePreview(true)}
+              className={`text-sm font-medium tracking-wide flex items-center gap-2 rounded-full border px-3 py-1.5 focus:outline-none transition-colors ${
+                theme === "dark"
+                  ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
+                  : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400"
               }`}
             >
+              <Icon size={16} />
               {copiedKey === item.key
                 ? lang === "en"
                   ? "Copied!"
                   : "¡Copiado!"
                 : item.label}
             </button>
-          )
-        )}
+          );
+        })}
       </div>
+
+      {activePreview && (
+        <div className="pointer-events-none absolute left-0 top-full hidden w-full max-w-lg translate-y-4 md:block lg:max-w-xl z-20">
+          <SocialPreviewCard
+            preview={activePreview.preview}
+            platform={activePreview.platform}
+            theme={theme}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -321,7 +918,7 @@ const ProjectCard = ({
       lang === "en" ? "English" : "Spanish"
     }. Start directly with the reason.`;
 
-    const result = await callGemini(prompt);
+    const result = await callGemini({ prompt });
     setInsight(result);
     setLoading(false);
   };
@@ -392,15 +989,19 @@ const ProjectCard = ({
             : "text-neutral-800 group-hover:text-teal-700"
         }`}
       >
-        {lang === "en" ? project.title : project.titleEs}
+        {project.title}
       </h3>
-      <p
+      <RichText
+        text={project.desc}
         className={`text-sm leading-relaxed mb-6 flex-grow ${
           theme === "dark" ? "text-neutral-500" : "text-neutral-600"
         }`}
-      >
-        {lang === "en" ? project.desc : project.descEs}
-      </p>
+        linkClassName={
+          theme === "dark"
+            ? "text-teal-400 underline underline-offset-4 hover:text-white"
+            : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+        }
+      />
 
       {insight && (
         <div
@@ -441,43 +1042,70 @@ const BlogRow = ({
   post,
   lang,
   theme,
+  readMoreLabel,
 }: {
   post: BlogEntry;
   lang: Language;
   theme: Theme;
+  readMoreLabel: string;
 }) => {
-  const link = post.url || `/${lang}/blog`;
-  const external = Boolean(post.url);
+  const link = post.url?.trim() ? post.url : `/${lang}/blog`;
+  const external = Boolean(post.url && /^https?:/i.test(post.url));
+  const coverImage = post.image?.trim() || "/blog/default.svg";
   return (
-    <a
-      href={link}
-      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-      className={`group flex flex-col gap-1 rounded-xl px-3 py-3 transition-colors ${
-        theme === "dark"
-          ? "hover:bg-neutral-900/50"
-          : "hover:bg-neutral-50"
+    <article
+      className={`group flex gap-4 rounded-2xl px-3 py-3 transition-colors ${
+        theme === "dark" ? "hover:bg-neutral-900/50" : "hover:bg-white"
       }`}
     >
-      <div className="flex items-center gap-4">
-        <span className="text-xs font-mono text-neutral-500">{post.date}</span>
-        <h4
-          className={`text-base font-medium transition-colors ${
-            theme === "dark"
-              ? "text-neutral-300 group-hover:text-teal-400"
-              : "text-neutral-800 group-hover:text-teal-600"
-          }`}
-        >
-          {post.title}
-        </h4>
-      </div>
-      <p
-        className={`text-sm whitespace-pre-line ${
-          theme === "dark" ? "text-neutral-500" : "text-neutral-600"
+      <div
+        className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border ${
+          theme === "dark" ? "border-neutral-800 bg-neutral-900/50" : "border-neutral-200 bg-white"
         }`}
       >
-        {post.summary}
-      </p>
-    </a>
+        <Image
+          src={coverImage}
+          alt={`${post.title} cover`}
+          fill
+          sizes="64px"
+          className="object-cover"
+        />
+      </div>
+      <div className="flex flex-1 flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-xs font-mono text-neutral-500">{post.date}</span>
+          <h4
+            className={`text-base font-medium transition-colors ${
+              theme === "dark"
+                ? "text-neutral-300 group-hover:text-teal-400"
+                : "text-neutral-800 group-hover:text-teal-600"
+            }`}
+          >
+            {post.title}
+          </h4>
+        </div>
+        <RichText
+          text={post.summary}
+          className={`text-sm ${
+            theme === "dark" ? "text-neutral-500" : "text-neutral-600"
+          }`}
+          linkClassName={
+            theme === "dark"
+              ? "text-teal-400 underline underline-offset-4 hover:text-white"
+              : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+          }
+        />
+        <a
+          href={link}
+          className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+            theme === "dark" ? "text-teal-400" : "text-teal-600"
+          }`}
+          {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+        >
+          {readMoreLabel} &rarr;
+        </a>
+      </div>
+    </article>
   );
 };
 
@@ -505,11 +1133,22 @@ const ExperienceCard = ({
         )}
       </div>
       <div
-        className={`p-3 rounded-full ${
+        className={`flex h-12 w-12 items-center justify-center rounded-full ${
           theme === "dark" ? "bg-neutral-900 text-neutral-300" : "bg-teal-50 text-teal-700"
         }`}
       >
-        <Briefcase size={18} strokeWidth={1.5} />
+        {item.companyLogo ? (
+          <Image
+            src={item.companyLogo}
+            alt={item.companyLogoAlt ?? item.company ?? "Company logo"}
+            width={32}
+            height={32}
+            className="h-8 w-8 object-contain"
+            aria-hidden={item.companyLogoAlt ? undefined : true}
+          />
+        ) : (
+          <Briefcase size={18} strokeWidth={1.5} />
+        )}
       </div>
     </div>
 
@@ -553,16 +1192,21 @@ const ChatWidget = ({
   variant?: "floating" | "inline";
 }) => {
   const isInline = variant === "inline";
+  const assistantGreeting =
+    lang === "en"
+      ? "Hi! I'm Ivan's AI Assistant. Ask me anything about his experience or skills."
+      : "¡Hola! Soy el asistente IA de Iván. Pregúntame lo que quieras sobre su experiencia o habilidades.";
   const [isOpen, setIsOpen] = useState(isInline);
-  const [messages, setMessages] = useState<{ role: "user" | "model"; text: string }[]>([
-    {
-      role: "model",
-      text:
-        lang === "en"
-          ? "Hi! I'm Ivan's AI Assistant. Ask me anything about his experience or skills."
-          : "¡Hola! Soy el asistente IA de Iván. Pregúntame lo que quieras sobre su experiencia o habilidades.",
-    },
-  ]);
+  const [messages, setMessages] = useState<{ role: "user" | "model"; text: string }[]>(() =>
+    isInline
+      ? []
+      : [
+          {
+            role: "model",
+            text: assistantGreeting,
+          },
+        ]
+  );
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -571,7 +1215,10 @@ const ChatWidget = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(scrollToBottom, [messages, isOpen]);
+  useEffect(() => {
+    if (isInline) return;
+    scrollToBottom();
+  }, [messages, isOpen, isInline]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -592,11 +1239,71 @@ const ChatWidget = ({
       - Language: Respond in ${lang === "en" ? "English" : "Spanish"}.
     `;
 
-    const reply = await callGemini(userMsg, systemContext);
+    const reply = await callGemini({
+      prompt: userMsg,
+      systemInstruction: systemContext,
+      fallback: () => getFallbackResponse(userMsg, lang),
+    });
 
     setMessages((prev) => [...prev, { role: "model", text: reply }]);
     setIsLoading(false);
   };
+
+  if (isInline) {
+    const lastAssistantMessage = [...messages].reverse().find((msg) => msg.role === "model");
+    return (
+      <div>
+        <div
+          className={`flex gap-3 rounded-full border px-4 py-2 ${
+            theme === "dark"
+              ? "bg-neutral-950 border-neutral-900"
+              : "bg-white border-neutral-200 shadow-sm"
+          }`}
+        >
+          <input
+            type="text"
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            onKeyDown={(event) => event.key === "Enter" && handleSend()}
+            placeholder={lang === "en" ? "Ask about my skills..." : "Pregunta sobre mis skills..."}
+            className={`flex-1 bg-transparent text-sm focus:outline-none ${
+              theme === "dark" ? "text-white placeholder:text-neutral-500" : "text-neutral-900"
+            }`}
+          />
+          <button
+            onClick={handleSend}
+            disabled={isLoading || !input.trim()}
+            className={`rounded-full px-3 py-1 text-sm font-semibold transition ${
+              theme === "dark"
+                ? "bg-teal-600 text-white hover:bg-teal-500 disabled:bg-neutral-800"
+                : "bg-neutral-900 text-white hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-500"
+            } disabled:cursor-not-allowed`}
+          >
+            {lang === "en" ? "Send" : "Enviar"}
+          </button>
+        </div>
+        <div className="mt-3 min-h-[32px] text-sm">
+          {isLoading && (
+            <div className="inline-flex items-center gap-2 text-teal-500">
+              <Loader2 size={16} className="animate-spin" />
+              <span>{lang === "en" ? "Thinking..." : "Pensando..."}</span>
+            </div>
+          )}
+          {!isLoading && lastAssistantMessage && (
+            <div
+              className={`rounded-2xl px-4 py-3 ${
+                theme === "dark"
+                  ? "bg-teal-900/20 text-teal-100 border border-teal-900/40"
+                  : "bg-teal-50 text-teal-900 border border-teal-100"
+              }`}
+            >
+              {lastAssistantMessage.text}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -736,12 +1443,36 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
     useState<Record<Language, LandingContent>>(defaultContent);
   const [contentLoading, setContentLoading] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
+  const [showAllPosts, setShowAllPosts] = useState(false);
   const t = contentMap[lang];
   const aiEnabled = Boolean(apiKey);
+  const stackSections = t.stack.sections ?? [];
+  const canToggleBlogPosts = t.blogPosts.length > BLOG_PREVIEW_COUNT;
+  const blogPostsToRender =
+    showAllPosts || !canToggleBlogPosts
+      ? t.blogPosts
+      : t.blogPosts.slice(0, BLOG_PREVIEW_COUNT);
 
   useEffect(() => {
     setLang(initialLang);
   }, [initialLang]);
+
+  useEffect(() => {
+    setShowAllPosts(false);
+  }, [lang]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    const nextTheme = {
+      bodyFont: t.theme?.bodyFont ?? fallbackThemeSettings.bodyFont,
+      headingFont: t.theme?.headingFont ?? fallbackThemeSettings.headingFont,
+      monoFont: t.theme?.monoFont ?? fallbackThemeSettings.monoFont,
+    };
+    root.style.setProperty("--font-body", nextTheme.bodyFont);
+    root.style.setProperty("--font-heading", nextTheme.headingFont);
+    root.style.setProperty("--font-mono", nextTheme.monoFont);
+  }, [t.theme]);
 
   useEffect(() => {
     let cancelled = false;
@@ -823,9 +1554,15 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
             }`}
           >
             <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/10 bg-white/5">
-              <Image src="/icons/ivan-orb.svg" alt="Iván Caamaño logo" fill className="object-cover" sizes="32px" />
+              <Image
+                src={t.branding.favicon || "/icons/ivan-orb.svg"}
+                alt={t.branding.logoText || "Portfolio logo"}
+                fill
+                className="object-cover"
+                sizes="32px"
+              />
             </div>
-            <span>Iván Caamaño</span>
+            <span>{t.branding.logoText || "Portfolio"}</span>
           </div>
 
           <nav
@@ -938,16 +1675,21 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
             {t.hero.headline}
           </h1>
 
-          <p
-            className={`text-lg max-w-2xl leading-relaxed whitespace-pre-line mb-12 ${
+          <RichText
+            text={t.hero.subheadline}
+            className={`text-lg max-w-2xl mb-12 ${
               theme === "dark" ? "text-neutral-400" : "text-neutral-600"
             }`}
-          >
-            {t.hero.subheadline}
-          </p>
+            linkClassName={
+              theme === "dark"
+                ? "text-teal-400 underline underline-offset-4 hover:text-white"
+                : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+            }
+          />
 
           <div className="flex flex-wrap items-center gap-6">
-            <button
+            <a
+              href="#projects"
               className={`px-8 py-4 font-semibold rounded-full transition-all flex items-center gap-2 ${
                 theme === "dark"
                   ? "bg-white text-black hover:bg-neutral-200"
@@ -955,9 +1697,9 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               }`}
             >
               {t.hero.cta}
-            </button>
+            </a>
             <a
-              href="mailto:ivanncaamano@gmail.com"
+              href={`mailto:${t.contact.email}`}
               className={`px-8 py-4 font-medium transition-colors border-b border-transparent ${
                 theme === "dark"
                   ? "text-neutral-400 hover:text-white hover:border-white"
@@ -968,45 +1710,9 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
             </a>
           </div>
 
-          {aiEnabled && (
-            <div
-              className={`mt-16 p-6 md:p-8 rounded-3xl border ${
-                theme === "dark"
-                  ? "border-neutral-900/60 bg-neutral-900/40"
-                  : "border-neutral-200 bg-white/70 backdrop-blur"
-              }`}
-            >
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm uppercase tracking-[0.25em] text-teal-400">
-                    {lang === "en" ? "Ask me anything" : "Pregúntame algo"}
-                  </p>
-                  <h3
-                    className={`text-2xl font-bold ${
-                      theme === "dark" ? "text-white" : "text-neutral-900"
-                    }`}
-                  >
-                    {lang === "en"
-                      ? "Chat with my AI assistant"
-                      : "Habla con mi asistente IA"}
-                  </h3>
-                  <p
-                    className={`text-sm max-w-2xl ${
-                      theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-                    }`}
-                  >
-                    {lang === "en"
-                      ? "Get quick answers about my experience, projects, or availability."
-                      : "Obtén respuestas rápidas sobre mi experiencia, proyectos o disponibilidad."}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <ChatWidget lang={lang} theme={theme} variant="inline" />
-              </div>
-            </div>
-          )}
+          <div className="mt-16">
+            <ChatWidget lang={lang} theme={theme} variant="inline" />
+          </div>
         </section>
 
         <section
@@ -1046,39 +1752,15 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               </div>
             </div>
             <div>
-              <p
-                className={`text-xl leading-relaxed whitespace-pre-line mb-8 ${
-                  theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-                }`}
-              >
-                {renderWithBold(t.about.summary)}
-              </p>
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <h4
-                    className={`font-medium mb-2 flex items-center gap-2 ${
-                      theme === "dark" ? "text-white" : "text-neutral-900"
-                    }`}
-                  >
-                    <Code2 size={16} /> Engineering
-                  </h4>
-                  <p className="text-sm text-neutral-500">
-                    DevOps (Docker, K8s), Software Architecture, Cloud (AWS, Azure).
-                  </p>
-                </div>
-                <div>
-                  <h4
-                    className={`font-medium mb-2 flex items-center gap-2 ${
-                      theme === "dark" ? "text-white" : "text-neutral-900"
-                    }`}
-                  >
-                    <BrainCircuit size={16} /> AI & Data
-                  </h4>
-                  <p className="text-sm text-neutral-500">
-                    RAG, LLMs, Deep Learning, Computer Vision, Data Pipelines.
-                  </p>
-                </div>
-              </div>
+              <RichText
+                text={t.about.summary}
+                className={`text-xl mb-8 ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}
+                linkClassName={
+                  theme === "dark"
+                    ? "text-teal-400 underline underline-offset-4 hover:text-white"
+                    : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+                }
+              />
             </div>
           </div>
         </section>
@@ -1137,7 +1819,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
-                Work
+                Experience
               </p>
               <h2 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
                 {t.experience.title}
@@ -1149,20 +1831,54 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               >
                 {t.experience.subtitle}
               </p>
+              {stackSections.length > 0 && (
+                <>
+                  {t.stack.title && (
+                    <p className={`mt-6 text-xs tracking-[0.3em] uppercase ${theme === "dark" ? "text-neutral-500" : "text-neutral-500"}`}>
+                      {t.stack.title}
+                    </p>
+                  )}
+                  <div className="grid gap-6 mt-8 md:grid-cols-3">
+                    {stackSections.map((section) => {
+                      const Icon = stackIconMap[section.icon] ?? Code2;
+                      return (
+                        <div
+                          key={section.title}
+                          className={`rounded-2xl border p-5 ${
+                            theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 mb-4">
+                            <div
+                              className={`p-2 rounded-full ${
+                                theme === "dark" ? "bg-neutral-900 text-neutral-100" : "bg-teal-50 text-teal-700"
+                              }`}
+                            >
+                              <Icon size={18} />
+                            </div>
+                            <div>
+                              <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+                                {section.title}
+                              </p>
+                              {section.description && (
+                                <p className={`text-xs ${theme === "dark" ? "text-neutral-500" : "text-neutral-500"}`}>
+                                  {section.description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {section.items.map((item) => (
+                              <TechIcon key={item} label={item} theme={theme} />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
-            <a
-              href="/cv_iacc.pdf"
-              target="_blank"
-              rel="noreferrer"
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${
-                theme === "dark"
-                  ? "border-white/10 text-white hover:border-white/40"
-                  : "border-neutral-300 text-neutral-800 hover:border-neutral-500"
-              }`}
-            >
-              <FileText size={16} />
-              {t.experience.cta}
-            </a>
           </div>
 
           <div className="grid gap-6">
@@ -1216,69 +1932,101 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           id="blog"
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
         >
-          <div className="grid md:grid-cols-2 gap-20">
-            <div>
-              <h2 className={`text-2xl font-bold mb-8 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
-                {t.blog.title}
-              </h2>
-              <div className="flex flex-col">
-                {t.blogPosts.map((post) => (
-                  <BlogRow key={post.id} post={post} lang={lang} theme={theme} />
-                ))}
-              </div>
-              <a
-                href={`/${lang}/blog`}
-                className={`inline-block mt-8 text-sm transition-colors ${
-                  theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
-                }`}
-              >
-                {t.blog.viewAll} &rarr;
-              </a>
+          <div className="max-w-3xl">
+            <h2 className={`text-2xl font-bold mb-8 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
+              {t.blog.title}
+            </h2>
+            <RichText
+              text={t.blog.description}
+              className={`text-sm mb-6 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
+              linkClassName={
+                theme === "dark"
+                  ? "text-teal-400 underline underline-offset-4 hover:text-white"
+                  : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+              }
+            />
+            <div className="flex flex-col">
+              {blogPostsToRender.length ? (
+                blogPostsToRender.map((post) => (
+                  <BlogRow key={post.id} post={post} lang={lang} theme={theme} readMoreLabel={t.blog.readMore} />
+                ))
+              ) : (
+                <p className={`text-sm ${theme === "dark" ? "text-neutral-600" : "text-neutral-500"}`}>{t.blog.empty}</p>
+              )}
             </div>
-
-            <div id="contact">
-              <h2 className={`text-2xl font-bold mb-6 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
-                {t.contact.title}
-              </h2>
-              <p
-                className={`mb-8 max-w-sm whitespace-pre-line ${
-                  theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+            {canToggleBlogPosts && (
+              <button
+                type="button"
+                onClick={() => setShowAllPosts((prev) => !prev)}
+                className={`mt-6 text-sm font-medium transition-colors ${
+                  theme === "dark" ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"
                 }`}
+                aria-expanded={showAllPosts}
               >
-                {t.contact.text}
-              </p>
-              <a
-                href={`mailto:${t.contact.email}`}
-                className={`text-xl md:text-2xl font-medium transition-colors border-b-2 pb-1 ${
-                  theme === "dark"
-                    ? "text-white border-neutral-800 hover:text-teal-400 hover:border-teal-400"
-                    : "text-neutral-900 border-neutral-200 hover:text-teal-600 hover:border-teal-600"
-                }`}
-              >
-                {t.contact.email}
-              </a>
+                {showAllPosts ? t.blog.viewLess : t.blog.viewMore}
+              </button>
+            )}
+            <a
+              href={`/${lang}/blog`}
+              className={`inline-block mt-8 text-sm transition-colors ${
+                theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
+              }`}
+            >
+              {t.blog.viewAll} &rarr;
+            </a>
+          </div>
+        </section>
 
-              <div className="flex gap-6 mt-12">
-                {t.contact.socials.map((social) => {
-                  const Icon = socialIconMap[social.platform] ?? Github;
-                  return (
-                    <a
-                      key={social.url}
-                      href={social.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={`transition-colors ${
-                        theme === "dark"
-                          ? "text-neutral-500 hover:text-white"
-                          : "text-neutral-400 hover:text-black"
-                      }`}
-                      aria-label={social.label}
-                    >
-                      <Icon size={22} />
-                    </a>
-                  );
-                })}
-              </div>
+        <section
+          id="contact"
+          className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
+        >
+          <div className="max-w-3xl">
+            <h2 className={`text-2xl font-bold mb-6 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
+              {t.contact.title}
+            </h2>
+            <RichText
+              text={t.contact.text}
+              className={`mb-8 max-w-2xl ${
+                theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+              }`}
+              linkClassName={
+                theme === "dark"
+                  ? "text-teal-400 underline underline-offset-4 hover:text-white"
+                  : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+              }
+            />
+            <a
+              href={`mailto:${t.contact.email}`}
+              className={`text-xl md:text-2xl font-medium transition-colors border-b-2 pb-1 ${
+                theme === "dark"
+                  ? "text-white border-neutral-800 hover:text-teal-400 hover:border-teal-400"
+                  : "text-neutral-900 border-neutral-200 hover:text-teal-600 hover:border-teal-600"
+              }`}
+            >
+              {t.contact.email}
+            </a>
+
+            <div className="flex flex-wrap gap-6 mt-12">
+              {t.contact.socials.map((social) => {
+                const Icon = socialIconMap[social.platform] ?? Github;
+                return (
+                  <a
+                    key={social.url}
+                    href={social.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`transition-colors ${
+                      theme === "dark"
+                        ? "text-neutral-500 hover:text-white"
+                        : "text-neutral-400 hover:text-black"
+                    }`}
+                    aria-label={social.label}
+                  >
+                    <Icon size={22} />
+                  </a>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -1313,7 +2061,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
         </div>
       </footer>
 
-      {aiEnabled && <ChatWidget lang={lang} theme={theme} />}
+      <ChatWidget lang={lang} theme={theme} />
     </div>
   );
 }

@@ -67,6 +67,7 @@ export const translations = {
           period: "Mar 2025 – Present",
           description:
             "Designed a document-generation agent on AWS, optimized Azure RAG chatbots, and shipped a computer-vision pipeline for beef classification.",
+          logo: "/icons/avvale.svg",
         },
         {
           role: "Software Associate Consultant",
@@ -74,6 +75,7 @@ export const translations = {
           period: "Jan 2025 – Mar 2025",
           description:
             "Built IMM risk processes for BBVA using Python, Java, and Unix automation, reducing manual execution across four batch workflows.",
+          logo: "/icons/nfq.svg",
         },
         {
           role: "Defense & Security Systems Intern",
@@ -81,6 +83,7 @@ export const translations = {
           period: "Sep 2021 – Jul 2022",
           description:
             "Collaborated on Eurofighter radar digitalization and developed ML models for AESA signal denoising and pattern detection.",
+          logo: "/icons/indra.svg",
         },
       ],
       expertiseTitle: "Focus areas",
@@ -239,6 +242,7 @@ export const translations = {
           period: "Mar 2025 – Actualidad",
           description:
             "Diseñé un agente generador de documentos en AWS, optimicé un chatbot RAG en Azure y lancé un pipeline de visión para clasificación de lomo.",
+          logo: "/icons/avvale.svg",
         },
         {
           role: "Software Associate Consultant",
@@ -246,6 +250,7 @@ export const translations = {
           period: "Ene 2025 – Mar 2025",
           description:
             "Desarrollé procesos de riesgo IMM para BBVA con Python, Java y automatización en Unix, reduciendo ejecución manual en cuatro flujos batch.",
+          logo: "/icons/nfq.svg",
         },
         {
           role: "Intern, Defense & Security Systems",
@@ -253,6 +258,7 @@ export const translations = {
           period: "Sep 2021 – Jul 2022",
           description:
             "Apoyé la digitalización de radares del Eurofighter y desarrollé modelos ML para detección de patrones y reducción de ruido en señales AESA.",
+          logo: "/icons/indra.svg",
         },
       ],
       expertiseTitle: "Áreas de enfoque",

@@ -3,7 +3,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import type { LandingContent } from "@/content/site-content";
+import {
+  defaultContent,
+  type LandingContent,
+  type ProjectItem,
+  type ExperienceItem,
+  type SocialLink,
+  type BlogEntry,
+  type ProjectIcon,
+  type SocialPlatform,
+  type StackSection,
+  type StackIcon,
+} from "@/content/site-content";
 
 type LanguageOption = {
   value: "en" | "es";
@@ -12,54 +23,72 @@ type LanguageOption = {
 
 const languages: LanguageOption[] = [
   { value: "en", label: "English" },
-  { value: "es", label: "Espa?ol" },
+  { value: "es", label: "Spanish" },
 ];
 
-type BlogFormEntry = {
-  id: number;
-  title: string;
-  date: string;
-  summary: string;
-  url: string;
+const projectIconOptions: ProjectIcon[] = ["cloud", "database", "layers"];
+const socialPlatformOptions: SocialPlatform[] = ["github", "linkedin", "twitter", "resume"];
+const stackIconOptions: StackIcon[] = ["code", "layers", "brain"];
+
+const fallbackTheme = defaultContent.en.theme ?? {
+  bodyFont: "Space Grotesk, system-ui, sans-serif",
+  headingFont: "Space Grotesk, system-ui, sans-serif",
+  monoFont: "IBM Plex Mono, ui-monospace, monospace",
 };
 
-type EditableFields = {
-  brandingTitle: string;
-  brandingDescription: string;
-  brandingFavicon: string;
-  heroHeadline: string;
-  heroSubheadline: string;
-  aboutSummary: string;
-  contactText: string;
-  contactEmail: string;
-  blogPosts: BlogFormEntry[];
-};
+const cloneContent = (data: LandingContent): LandingContent =>
+  JSON.parse(JSON.stringify(data)) as LandingContent;
 
-const newBlogEntry = (): BlogFormEntry => ({
+const createBlogEntry = (): BlogEntry => ({
   id: Date.now(),
   title: "",
   date: new Date().getFullYear().toString(),
   summary: "",
   url: "",
+  image: "/blog/default.svg",
 });
 
-const emptyFields: EditableFields = {
-  brandingTitle: "",
-  brandingDescription: "",
-  brandingFavicon: "",
-  heroHeadline: "",
-  heroSubheadline: "",
-  aboutSummary: "",
-  contactText: "",
-  contactEmail: "",
-  blogPosts: [newBlogEntry()],
-};
+const createProject = (): ProjectItem => ({
+  id: Date.now(),
+  icon: "cloud",
+  title: "",
+  desc: "",
+  tags: [],
+});
+
+const createExperienceRole = (): ExperienceItem => ({
+  role: "",
+  company: "",
+  period: "",
+  location: "",
+  summary: "",
+  bullets: [""],
+});
+
+const createSocialLink = (): SocialLink => ({
+  label: "",
+  url: "",
+  platform: "github",
+});
+
+const createStackSection = (): StackSection => ({
+  title: "",
+  description: "",
+  icon: "code",
+  items: [],
+});
+
+const parseStackItems = (input: string) =>
+  input
+    .split(/,|\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 
 export default function AdminPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [lang, setLang] = useState<"en" | "es">("en");
-  const [fields, setFields] = useState<EditableFields>(emptyFields);
+  const [content, setContent] = useState<LandingContent | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -78,33 +107,19 @@ export default function AdminPage() {
           signal: controller.signal,
           cache: "no-store",
         });
-        if (!response.ok) throw new Error("Failed to load content.");
+        if (!response.ok) {
+          throw new Error("Failed to load content.");
+        }
         const payload = (await response.json()) as { data: LandingContent };
-        const data = payload.data;
-        setFields({
-          brandingTitle: data.branding?.title ?? "",
-          brandingDescription: data.branding?.description ?? "",
-          brandingFavicon: data.branding?.favicon ?? "",
-          heroHeadline: data.hero.headline ?? "",
-          heroSubheadline: data.hero.subheadline ?? "",
-          aboutSummary: data.about.summary ?? "",
-          contactText: data.contact.text ?? "",
-          contactEmail: data.contact.email ?? "",
-          blogPosts:
-            data.blogPosts?.map((post, index) => ({
-              id: post.id ?? index + 1,
-              title: post.title ?? "",
-              date: post.date ?? "",
-              summary: post.summary ?? "",
-              url: post.url ?? "",
-            })) ?? [newBlogEntry()],
-        });
+        const data = payload.data ?? defaultContent[lang];
+        setContent(cloneContent(data));
       } catch (err) {
         if (controller.signal.aborted || (err as DOMException)?.name === "AbortError") {
           return;
         }
         console.error("Admin load error", err);
-        setError("Unable to load content.");
+        setError("Unable to load content. Showing defaults.");
+        setContent(cloneContent(defaultContent[lang]));
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -116,79 +131,30 @@ export default function AdminPage() {
     return () => controller.abort();
   }, [lang, session]);
 
-  const handleInputChange = (
-    key: keyof EditableFields,
-    value: string | BlogFormEntry[]
-  ) => {
-    setFields((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleBlogChange = (
-    index: number,
-    field: keyof BlogFormEntry,
-    value: string
-  ) => {
-    setFields((prev) => {
-      const next = prev.blogPosts.slice();
-      next[index] = { ...next[index], [field]: value };
-      return { ...prev, blogPosts: next };
-    });
-  };
-
-  const addBlogEntry = () => {
-    setFields((prev) => ({
-      ...prev,
-      blogPosts: [...prev.blogPosts, newBlogEntry()],
-    }));
-  };
-
-  const removeBlogEntry = (index: number) => {
-    setFields((prev) => {
-      const next = prev.blogPosts.slice();
-      next.splice(index, 1);
-      return { ...prev, blogPosts: next.length ? next : [newBlogEntry()] };
-    });
+  const updateContent = (updater: (current: LandingContent) => LandingContent) => {
+    setContent((prev) => (prev ? updater(prev) : prev));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!content) return;
+
     setSaving(true);
-    setMessage(null);
     setError(null);
+    setMessage(null);
     try {
       const response = await fetch("/api/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lang,
-          content: {
-            hero: {
-              headline: fields.heroHeadline,
-              subheadline: fields.heroSubheadline,
-            },
-            branding: {
-              title: fields.brandingTitle,
-              description: fields.brandingDescription,
-              favicon: fields.brandingFavicon,
-            },
-            about: {
-              summary: fields.aboutSummary,
-            },
-            contact: {
-              text: fields.contactText,
-              email: fields.contactEmail,
-            },
-            blogPosts: fields.blogPosts.map((post) => ({
-              id: post.id,
-              title: post.title,
-              date: post.date,
-              summary: post.summary,
-              url: post.url,
-            })),
-          },
-        }),
+        body: JSON.stringify({ lang, content }),
       });
-      if (!response.ok) throw new Error("Failed to save content.");
+      if (!response.ok) {
+        throw new Error("Failed to save content.");
+      }
+      const payload = (await response.json()) as { data: LandingContent };
+      if (payload.data) {
+        setContent(cloneContent(payload.data));
+      }
       setMessage("Content updated successfully.");
     } catch (err) {
       console.error("Admin save error", err);
@@ -201,7 +167,7 @@ export default function AdminPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center">
-        <p className="text-sm text-zinc-400">Checking session?</p>
+        <p className="text-sm text-zinc-400">Checking session...</p>
       </div>
     );
   }
@@ -225,9 +191,19 @@ export default function AdminPage() {
     );
   }
 
+  if (!content) {
+    return (
+      <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center">
+        <p className="text-sm text-zinc-400">Loading content...</p>
+      </div>
+    );
+  }
+
+  const themeSettings = content.theme ?? fallbackTheme;
+
   return (
     <div className="min-h-screen bg-[#050505] text-white px-6 py-12">
-      <div className="mx-auto w-full max-w-3xl space-y-8">
+      <div className="mx-auto w-full max-w-4xl space-y-8">
         <header>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -242,7 +218,8 @@ export default function AdminPage() {
             </button>
           </div>
           <p className="mt-3 text-sm text-zinc-400">
-            Toggle a language, edit the fields, and press save to update what appears on the landing page.
+            Toggle a language, edit the fields, and press save to update the bilingual landing page. Long-form
+            text areas support Markdown (bold, links, and lists).
           </p>
         </header>
 
@@ -258,6 +235,7 @@ export default function AdminPage() {
                     ? "bg-teal-500 text-black"
                     : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
                 }`}
+                disabled={loading || saving}
               >
                 {option.label}
               </button>
@@ -266,121 +244,405 @@ export default function AdminPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <fieldset className="rounded-2xl border border-white/5 p-6">
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
             <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Branding & SEO</legend>
-            <p className="text-xs text-zinc-500">
-              Update the browser tab title, description, and favicon URL used across the site.
-            </p>
-            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
               Page title
               <input
                 type="text"
-                value={fields.brandingTitle}
-                onChange={(event) => handleInputChange("brandingTitle", event.target.value)}
+                value={content.branding.title}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    branding: { ...prev.branding, title: event.target.value },
+                  }))
+                }
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 disabled={loading}
               />
             </label>
-            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
               Description
               <textarea
-                value={fields.brandingDescription}
-                onChange={(event) => handleInputChange("brandingDescription", event.target.value)}
+                value={content.branding.description}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    branding: { ...prev.branding, description: event.target.value },
+                  }))
+                }
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 rows={3}
                 disabled={loading}
               />
             </label>
-            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Logo text
+              <input
+                type="text"
+                value={content.branding.logoText}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    branding: { ...prev.branding, logoText: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
               Favicon URL (PNG/SVG/ICO)
               <input
                 type="text"
-                value={fields.brandingFavicon}
-                onChange={(event) => handleInputChange("brandingFavicon", event.target.value)}
+                value={content.branding.favicon}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    branding: { ...prev.branding, favicon: event.target.value },
+                  }))
+                }
                 placeholder="/icons/ivan-orb.svg"
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 disabled={loading}
               />
             </label>
           </fieldset>
-          <fieldset className="rounded-2xl border border-white/5 p-6">
-            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Hero</legend>
-            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
-              Headline
+
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Navigation</legend>
+            <div className="grid gap-4 md:grid-cols-2">
+              {(Object.keys(content.nav) as Array<keyof typeof content.nav>).map((key) => (
+                <label key={key} className="block text-xs uppercase tracking-widest text-zinc-400">
+                  {key}
+                  <input
+                    type="text"
+                    value={content.nav[key]}
+                    onChange={(event) =>
+                      updateContent((prev) => ({
+                        ...prev,
+                        nav: { ...prev.nav, [key]: event.target.value },
+                      }))
+                    }
+                    className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                    disabled={loading}
+                  />
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Theme fonts</legend>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Body font stack
               <input
                 type="text"
-                value={fields.heroHeadline}
-                onChange={(event) => handleInputChange("heroHeadline", event.target.value)}
+                value={themeSettings.bodyFont}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    theme: { ...(prev.theme ?? fallbackTheme), bodyFont: event.target.value },
+                  }))
+                }
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 disabled={loading}
               />
             </label>
-            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
-              Subheadline
-              <textarea
-                value={fields.heroSubheadline}
-                onChange={(event) => handleInputChange("heroSubheadline", event.target.value)}
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Heading font stack
+              <input
+                type="text"
+                value={themeSettings.headingFont}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    theme: { ...(prev.theme ?? fallbackTheme), headingFont: event.target.value },
+                  }))
+                }
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
-                rows={3}
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Mono font stack
+              <input
+                type="text"
+                value={themeSettings.monoFont ?? ""}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    theme: { ...(prev.theme ?? fallbackTheme), monoFont: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 disabled={loading}
               />
             </label>
           </fieldset>
 
-          <fieldset className="rounded-2xl border border-white/5 p-6">
-            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">About</legend>
-            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
-              Summary
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Hero</legend>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Greeting
+                <input
+                  type="text"
+                  value={content.hero.greeting}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      hero: { ...prev.hero, greeting: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Role
+                <input
+                  type="text"
+                  value={content.hero.role}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      hero: { ...prev.hero, role: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+            </div>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Headline
+              <input
+                type="text"
+                value={content.hero.headline}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    hero: { ...prev.hero, headline: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Subheadline (Markdown enabled)
               <textarea
-                value={fields.aboutSummary}
-                onChange={(event) => handleInputChange("aboutSummary", event.target.value)}
+                value={content.hero.subheadline}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    hero: { ...prev.hero, subheadline: event.target.value },
+                  }))
+                }
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 rows={4}
                 disabled={loading}
               />
             </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Primary CTA label
+                <input
+                  type="text"
+                  value={content.hero.cta}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      hero: { ...prev.hero, cta: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Contact CTA label
+                <input
+                  type="text"
+                  value={content.hero.contact}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      hero: { ...prev.hero, contact: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+            </div>
           </fieldset>
 
-          <fieldset className="rounded-2xl border border-white/5 p-6">
-            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Contact</legend>
-            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
-              Email
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">About</legend>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Title
               <input
-                type="email"
-                value={fields.contactEmail}
-                onChange={(event) => handleInputChange("contactEmail", event.target.value)}
+                type="text"
+                value={content.about.title}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    about: { ...prev.about, title: event.target.value },
+                  }))
+                }
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 disabled={loading}
               />
             </label>
-            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
-              Body copy
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Summary (Markdown enabled)
               <textarea
-                value={fields.contactText}
-                onChange={(event) => handleInputChange("contactText", event.target.value)}
+                value={content.about.summary}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    about: { ...prev.about, summary: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                rows={4}
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Education section title
+              <input
+                type="text"
+                value={content.about.educationTitle}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    about: { ...prev.about, educationTitle: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Education entry 1
+                <input
+                  type="text"
+                  value={content.about.education1}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      about: { ...prev.about, education1: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Education entry 2
+                <input
+                  type="text"
+                  value={content.about.education2}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      about: { ...prev.about, education2: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Experience & stack</legend>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Section title
+              <input
+                type="text"
+                value={content.experience.title}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    experience: { ...prev.experience, title: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Subtitle
+              <textarea
+                value={content.experience.subtitle}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    experience: { ...prev.experience, subtitle: event.target.value },
+                  }))
+                }
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 rows={3}
                 disabled={loading}
               />
             </label>
-          </fieldset>
-
-          <fieldset className="rounded-2xl border border-white/5 p-6">
-            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Blog entries</legend>
-            <p className="text-xs text-zinc-500">
-              Update the list that surfaces on the home and blog pages. Add a URL if the article lives elsewhere.
-            </p>
-
-            <div className="mt-4 space-y-6">
-              {fields.blogPosts.map((post, index) => (
-                <div key={post.id} className="space-y-3 rounded-2xl border border-white/10 p-4">
-                  <div className="flex items-center justify-between text-xs text-zinc-500">
-                    <span>Entry {index + 1}</span>
-                    {fields.blogPosts.length > 1 && (
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Download CTA label
+              <input
+                type="text"
+                value={content.experience.cta}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    experience: { ...prev.experience, cta: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Stack label
+              <input
+                type="text"
+                value={content.stack.title}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    stack: { ...prev.stack, title: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <div className="space-y-4">
+              <p className="text-xs uppercase tracking-widest text-zinc-400">Stack sections</p>
+              {(content.stack.sections ?? []).map((section, sectionIndex) => (
+                <div key={`${section.title}-${sectionIndex}`} className="rounded-xl border border-white/10 p-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Section {sectionIndex + 1}</span>
+                    {(content.stack.sections?.length ?? 0) > 1 && (
                       <button
                         type="button"
-                        onClick={() => removeBlogEntry(index)}
+                        onClick={() =>
+                          updateContent((prev) => {
+                            const sections = [...(prev.stack.sections ?? [])];
+                            sections.splice(sectionIndex, 1);
+                            return {
+                              ...prev,
+                              stack: { ...prev.stack, sections },
+                            };
+                          })
+                        }
                         className="text-red-400 hover:text-red-200"
+                        disabled={loading}
                       >
                         Remove
                       </button>
@@ -390,29 +652,667 @@ export default function AdminPage() {
                     Title
                     <input
                       type="text"
-                      value={post.title}
-                      onChange={(event) => handleBlogChange(index, "title", event.target.value)}
+                      value={section.title}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const sections = [...(prev.stack.sections ?? [])];
+                          sections[sectionIndex] = {
+                            ...sections[sectionIndex],
+                            title: event.target.value,
+                          };
+                          return { ...prev, stack: { ...prev.stack, sections } };
+                        })
+                      }
                       className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                       disabled={loading}
                     />
                   </label>
                   <label className="block text-xs uppercase tracking-widest text-zinc-400">
-                    Year / date label
-                    <input
-                      type="text"
-                      value={post.date}
-                      onChange={(event) => handleBlogChange(index, "date", event.target.value)}
+                    Description
+                    <textarea
+                      value={section.description}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const sections = [...(prev.stack.sections ?? [])];
+                          sections[sectionIndex] = {
+                            ...sections[sectionIndex],
+                            description: event.target.value,
+                          };
+                          return { ...prev, stack: { ...prev.stack, sections } };
+                        })
+                      }
+                      rows={2}
                       className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                       disabled={loading}
                     />
                   </label>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                    Icon
+                    <select
+                      value={section.icon}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const sections = [...(prev.stack.sections ?? [])];
+                          sections[sectionIndex] = {
+                            ...sections[sectionIndex],
+                            icon: event.target.value as StackIcon,
+                          };
+                          return { ...prev, stack: { ...prev.stack, sections } };
+                        })
+                      }
+                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                      disabled={loading}
+                    >
+                      {stackIconOptions.map((icon) => (
+                        <option key={icon} value={icon}>
+                          {icon}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                    Items (comma or newline separated)
+                    <textarea
+                      value={section.items.join(", ")}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const sections = [...(prev.stack.sections ?? [])];
+                          sections[sectionIndex] = {
+                            ...sections[sectionIndex],
+                            items: parseStackItems(event.target.value),
+                          };
+                          return { ...prev, stack: { ...prev.stack, sections } };
+                        })
+                      }
+                      rows={3}
+                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                      disabled={loading}
+                    />
+                  </label>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    stack: {
+                      ...prev.stack,
+                      sections: [...(prev.stack.sections ?? []), createStackSection()],
+                    },
+                  }))
+                }
+                className="text-sm text-teal-300 hover:text-teal-100 underline-offset-4 hover:underline"
+                disabled={loading}
+              >
+                Add stack section
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {content.experience.roles.map((role, index) => (
+                <div key={`${role.role}-${index}`} className="rounded-xl border border-white/10 p-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Role {index + 1}</span>
+                    {content.experience.roles.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateContent((prev) => {
+                            const roles = prev.experience.roles.slice();
+                            roles.splice(index, 1);
+                            return {
+                              ...prev,
+                              experience: { ...prev.experience, roles: roles.length ? roles : [createExperienceRole()] },
+                            };
+                          })
+                        }
+                        className="text-red-400 hover:text-red-200"
+                        disabled={loading}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Role
+                      <input
+                        type="text"
+                        value={role.role}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const roles = prev.experience.roles.slice();
+                            roles[index] = { ...roles[index], role: event.target.value };
+                            return { ...prev, experience: { ...prev.experience, roles } };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Company
+                      <input
+                        type="text"
+                        value={role.company ?? ""}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const roles = prev.experience.roles.slice();
+                            roles[index] = { ...roles[index], company: event.target.value };
+                            return { ...prev, experience: { ...prev.experience, roles } };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Period
+                      <input
+                        type="text"
+                        value={role.period}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const roles = prev.experience.roles.slice();
+                            roles[index] = { ...roles[index], period: event.target.value };
+                            return { ...prev, experience: { ...prev.experience, roles } };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Location
+                      <input
+                        type="text"
+                        value={role.location}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const roles = prev.experience.roles.slice();
+                            roles[index] = { ...roles[index], location: event.target.value };
+                            return { ...prev, experience: { ...prev.experience, roles } };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                  </div>
                   <label className="block text-xs uppercase tracking-widest text-zinc-400">
                     Summary
                     <textarea
-                      value={post.summary}
-                      onChange={(event) => handleBlogChange(index, "summary", event.target.value)}
+                      value={role.summary}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const roles = prev.experience.roles.slice();
+                          roles[index] = { ...roles[index], summary: event.target.value };
+                          return { ...prev, experience: { ...prev.experience, roles } };
+                        })
+                      }
                       className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                       rows={3}
+                      disabled={loading}
+                    />
+                  </label>
+                  <div className="space-y-2">
+                    <p className="text-xs uppercase tracking-widest text-zinc-400">Highlights</p>
+                    {role.bullets.map((bullet, bulletIndex) => (
+                      <div key={bulletIndex} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={bullet}
+                          onChange={(event) =>
+                            updateContent((prev) => {
+                              const roles = prev.experience.roles.slice();
+                              const bullets = roles[index].bullets.slice();
+                              bullets[bulletIndex] = event.target.value;
+                              roles[index] = { ...roles[index], bullets };
+                              return { ...prev, experience: { ...prev.experience, roles } };
+                            })
+                          }
+                          className="flex-1 rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                          disabled={loading}
+                        />
+                        {role.bullets.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateContent((prev) => {
+                                const roles = prev.experience.roles.slice();
+                                const bullets = roles[index].bullets.slice();
+                                bullets.splice(bulletIndex, 1);
+                                roles[index] = { ...roles[index], bullets: bullets.length ? bullets : [""] };
+                                return { ...prev, experience: { ...prev.experience, roles } };
+                              })
+                            }
+                            className="rounded-lg border border-white/10 px-3 text-sm text-red-400 hover:text-red-200"
+                            disabled={loading}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateContent((prev) => {
+                          const roles = prev.experience.roles.slice();
+                          roles[index] = { ...roles[index], bullets: [...roles[index].bullets, ""] };
+                          return { ...prev, experience: { ...prev.experience, roles } };
+                        })
+                      }
+                      className="w-full rounded-lg border border-dashed border-white/20 py-2 text-xs text-zinc-300 hover:border-white/50"
+                      disabled={loading}
+                    >
+                      + Add bullet
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                updateContent((prev) => ({
+                  ...prev,
+                  experience: { ...prev.experience, roles: [...prev.experience.roles, createExperienceRole()] },
+                }))
+              }
+              className="w-full rounded-xl border border-dashed border-white/20 py-3 text-sm text-zinc-300 hover:border-white/50"
+              disabled={loading}
+            >
+              + Add role
+            </button>
+          </fieldset>
+
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Projects</legend>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Section title
+                <input
+                  type="text"
+                  value={content.projects.title}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      projects: { ...prev.projects, title: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                View all label
+                <input
+                  type="text"
+                  value={content.projects.viewAll}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      projects: { ...prev.projects, viewAll: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+            </div>
+
+            <div className="space-y-4">
+              {content.projectItems.map((project, index) => (
+                <div key={project.id} className="rounded-xl border border-white/10 p-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Project {index + 1}</span>
+                    {content.projectItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateContent((prev) => {
+                            const projectItems = prev.projectItems.slice();
+                            projectItems.splice(index, 1);
+                            return { ...prev, projectItems: projectItems.length ? projectItems : [createProject()] };
+                          })
+                        }
+                        className="text-red-400 hover:text-red-200"
+                        disabled={loading}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      ID
+                      <input
+                        type="number"
+                        value={project.id}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const projectItems = prev.projectItems.slice();
+                            projectItems[index] = { ...projectItems[index], id: Number(event.target.value) };
+                            return { ...prev, projectItems };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400 md:col-span-2">
+                      Title
+                      <input
+                        type="text"
+                        value={project.title}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const projectItems = prev.projectItems.slice();
+                            projectItems[index] = { ...projectItems[index], title: event.target.value };
+                            return { ...prev, projectItems };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                  </div>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                    Description (Markdown enabled)
+                    <textarea
+                      value={project.desc}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const projectItems = prev.projectItems.slice();
+                          projectItems[index] = { ...projectItems[index], desc: event.target.value };
+                          return { ...prev, projectItems };
+                        })
+                      }
+                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                      rows={3}
+                      disabled={loading}
+                    />
+                  </label>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Icon
+                      <select
+                        value={project.icon}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const projectItems = prev.projectItems.slice();
+                            projectItems[index] = { ...projectItems[index], icon: event.target.value as ProjectIcon };
+                            return { ...prev, projectItems };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      >
+                        {projectIconOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Tags (comma separated)
+                      <input
+                        type="text"
+                        value={project.tags.join(", ")}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const projectItems = prev.projectItems.slice();
+                            projectItems[index] = {
+                              ...projectItems[index],
+                              tags: event.target.value
+                                .split(",")
+                                .map((tag) => tag.trim())
+                                .filter(Boolean),
+                            };
+                            return { ...prev, projectItems };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                updateContent((prev) => ({
+                  ...prev,
+                  projectItems: [...prev.projectItems, createProject()],
+                }))
+              }
+              className="w-full rounded-xl border border-dashed border-white/20 py-3 text-sm text-zinc-300 hover:border-white/50"
+              disabled={loading}
+            >
+              + Add project
+            </button>
+          </fieldset>
+
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Blog</legend>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Section title
+              <input
+                type="text"
+                value={content.blog.title}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    blog: { ...prev.blog, title: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Description (Markdown enabled)
+              <textarea
+                value={content.blog.description}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    blog: { ...prev.blog, description: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                rows={3}
+                disabled={loading}
+              />
+            </label>
+            <div className="grid gap-4 md:grid-cols-3">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                View all label
+                <input
+                  type="text"
+                  value={content.blog.viewAll}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      blog: { ...prev.blog, viewAll: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                View more label
+                <input
+                  type="text"
+                  value={content.blog.viewMore}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      blog: { ...prev.blog, viewMore: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                View less label
+                <input
+                  type="text"
+                  value={content.blog.viewLess}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      blog: { ...prev.blog, viewLess: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+            </div>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Read more label
+              <input
+                type="text"
+                value={content.blog.readMore}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    blog: { ...prev.blog, readMore: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Empty state copy
+              <input
+                type="text"
+                value={content.blog.empty}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    blog: { ...prev.blog, empty: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+
+            <div className="space-y-4">
+              {content.blogPosts.map((post, index) => (
+                <div key={post.id} className="rounded-xl border border-white/10 p-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Entry {index + 1}</span>
+                    {content.blogPosts.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateContent((prev) => {
+                            const blogPosts = prev.blogPosts.slice();
+                            blogPosts.splice(index, 1);
+                            return { ...prev, blogPosts: blogPosts.length ? blogPosts : [createBlogEntry()] };
+                          })
+                        }
+                        className="text-red-400 hover:text-red-200"
+                        disabled={loading}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      ID
+                      <input
+                        type="number"
+                        value={post.id}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const blogPosts = prev.blogPosts.slice();
+                            blogPosts[index] = { ...blogPosts[index], id: Number(event.target.value) };
+                            return { ...prev, blogPosts };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Date label
+                      <input
+                        type="text"
+                        value={post.date}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const blogPosts = prev.blogPosts.slice();
+                            blogPosts[index] = { ...blogPosts[index], date: event.target.value };
+                            return { ...prev, blogPosts };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                  </div>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                    Title
+                    <input
+                      type="text"
+                      value={post.title}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const blogPosts = prev.blogPosts.slice();
+                          blogPosts[index] = { ...blogPosts[index], title: event.target.value };
+                          return { ...prev, blogPosts };
+                        })
+                      }
+                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                      disabled={loading}
+                    />
+                  </label>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                    Summary (Markdown enabled)
+                    <textarea
+                      value={post.summary}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const blogPosts = prev.blogPosts.slice();
+                          blogPosts[index] = { ...blogPosts[index], summary: event.target.value };
+                          return { ...prev, blogPosts };
+                        })
+                      }
+                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                      rows={3}
+                      disabled={loading}
+                    />
+                  </label>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                    Cover image (URL or /public path)
+                    <input
+                      type="text"
+                      value={post.image ?? ""}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const blogPosts = prev.blogPosts.slice();
+                          blogPosts[index] = { ...blogPosts[index], image: event.target.value };
+                          return { ...prev, blogPosts };
+                        })
+                      }
+                      placeholder="/blog/default.svg"
+                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                       disabled={loading}
                     />
                   </label>
@@ -420,8 +1320,14 @@ export default function AdminPage() {
                     Optional URL
                     <input
                       type="text"
-                      value={post.url}
-                      onChange={(event) => handleBlogChange(index, "url", event.target.value)}
+                      value={post.url ?? ""}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const blogPosts = prev.blogPosts.slice();
+                          blogPosts[index] = { ...blogPosts[index], url: event.target.value };
+                          return { ...prev, blogPosts };
+                        })
+                      }
                       placeholder="https://example.com/article"
                       className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                       disabled={loading}
@@ -433,12 +1339,183 @@ export default function AdminPage() {
 
             <button
               type="button"
-              onClick={addBlogEntry}
-              className="mt-4 w-full rounded-xl border border-dashed border-white/20 py-3 text-sm text-zinc-300 hover:border-white/50"
+              onClick={() =>
+                updateContent((prev) => ({
+                  ...prev,
+                  blogPosts: [...prev.blogPosts, createBlogEntry()],
+                }))
+              }
+              className="w-full rounded-xl border border-dashed border-white/20 py-3 text-sm text-zinc-300 hover:border-white/50"
               disabled={loading}
             >
               + Add blog entry
             </button>
+          </fieldset>
+
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Contact</legend>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Section title
+              <input
+                type="text"
+                value={content.contact.title}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    contact: { ...prev.contact, title: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Email
+              <input
+                type="email"
+                value={content.contact.email}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    contact: { ...prev.contact, email: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Body copy (Markdown enabled)
+              <textarea
+                value={content.contact.text}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    contact: { ...prev.contact, text: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                rows={3}
+                disabled={loading}
+              />
+            </label>
+
+            <div className="space-y-4">
+              {content.contact.socials.map((social, index) => (
+                <div key={`${social.platform}-${index}`} className="rounded-xl border border-white/10 p-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Social {index + 1}</span>
+                    {content.contact.socials.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateContent((prev) => {
+                            const socials = prev.contact.socials.slice();
+                            socials.splice(index, 1);
+                            return {
+                              ...prev,
+                              contact: { ...prev.contact, socials: socials.length ? socials : [createSocialLink()] },
+                            };
+                          })
+                        }
+                        className="text-red-400 hover:text-red-200"
+                        disabled={loading}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Label
+                      <input
+                        type="text"
+                        value={social.label}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const socials = prev.contact.socials.slice();
+                            socials[index] = { ...socials[index], label: event.target.value };
+                            return { ...prev, contact: { ...prev.contact, socials } };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Platform
+                      <select
+                        value={social.platform}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const socials = prev.contact.socials.slice();
+                            socials[index] = { ...socials[index], platform: event.target.value as SocialPlatform };
+                            return { ...prev, contact: { ...prev.contact, socials } };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      >
+                        {socialPlatformOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                    URL
+                    <input
+                      type="text"
+                      value={social.url}
+                      onChange={(event) =>
+                        updateContent((prev) => {
+                          const socials = prev.contact.socials.slice();
+                          socials[index] = { ...socials[index], url: event.target.value };
+                          return { ...prev, contact: { ...prev.contact, socials } };
+                        })
+                      }
+                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                      disabled={loading}
+                    />
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                updateContent((prev) => ({
+                  ...prev,
+                  contact: { ...prev.contact, socials: [...prev.contact.socials, createSocialLink()] },
+                }))
+              }
+              className="w-full rounded-xl border border-dashed border-white/20 py-3 text-sm text-zinc-300 hover:border-white/50"
+              disabled={loading}
+            >
+              + Add social link
+            </button>
+          </fieldset>
+
+          <fieldset className="rounded-2xl border border-white/5 p-6 space-y-4">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Footer</legend>
+            <label className="block text-xs uppercase tracking-widest text-zinc-400">
+              Copyright line
+              <input
+                type="text"
+                value={content.footer.copyright}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    footer: { ...prev.footer, copyright: event.target.value },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
           </fieldset>
 
           {error && <p className="text-sm text-red-400">{error}</p>}
@@ -449,7 +1526,7 @@ export default function AdminPage() {
             disabled={loading || saving}
             className="w-full rounded-full bg-teal-500 py-3 text-center text-sm font-semibold text-black transition hover:bg-teal-400 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {saving ? "Saving?" : "Save changes"}
+            {saving ? "Saving..." : "Save changes"}
           </button>
         </form>
       </div>
