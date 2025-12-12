@@ -29,6 +29,11 @@ export interface BlogEntry {
 }
 
 export interface LandingContent {
+  branding: {
+    title: string;
+    description: string;
+    favicon: string;
+  };
   nav: {
     home: string;
     about: string;
@@ -82,6 +87,11 @@ export type SiteContent = Record<Language, LandingContent>;
 
 export const defaultContent: SiteContent = {
   en: {
+    branding: {
+      title: "Iván Caamaño - AI & Software Engineer",
+      description: "AI & Software Engineer building production-grade agents, ML systems, and scalable platforms.",
+      favicon: "/icons/ivan-orb.svg",
+    },
     nav: {
       home: "Home",
       about: "About",
@@ -195,6 +205,11 @@ export const defaultContent: SiteContent = {
     },
   },
   es: {
+    branding: {
+      title: "Iván Caamaño - IA y Software",
+      description: "Ingeniero de IA y Software que lleva agentes, ML y plataformas de datos a producción.",
+      favicon: "/icons/ivan-orb.svg",
+    },
     nav: {
       home: "Inicio",
       about: "Sobre m?",

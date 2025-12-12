@@ -6,6 +6,7 @@ import React, {
   useRef,
   type MouseEvent as ReactMouseEvent,
 } from "react";
+import Image from "next/image";
 import {
   Github,
   Linkedin,
@@ -56,6 +57,52 @@ const socialIconMap: Record<SocialPlatform, LucideIcon> = {
 
 const githubUsername = "ivannxbt";
 
+type ContactPreview = {
+  title: string;
+  subtitle: string;
+  description: string;
+  highlights?: string[];
+  avatar?: string;
+};
+
+const contactPreviewContent: Record<string, ContactPreview> = {
+  github: {
+    title: "GitHub / ivannxbt",
+    subtitle: "AI & Data Engineer",
+    description: "Latest experiments with RAG, LangChain, and ML infra. Frequent commits across Python + cloud stacks.",
+    highlights: ["Python", "AWS", "RAG"],
+    avatar: "/profile.jpeg",
+  },
+  linkedin: {
+    title: "LinkedIn",
+    subtitle: "Network with engineering leaders",
+    description: "Career snapshots, speaking gigs, and the playbooks I use to deliver AI initiatives at enterprise scale.",
+    highlights: ["Case studies", "Hiring", "Open to talk"],
+    avatar: "/profile.jpeg",
+  },
+  twitter: {
+    title: "X / @_ivvann",
+    subtitle: "Build in public",
+    description: "Daily notes on agents, LLM stacks, and lessons from consulting. Expect candid takes and prototypes.",
+    highlights: ["Threads", "Prototypes", "AMA"],
+    avatar: "/profile.jpeg",
+  },
+  email: {
+    title: "Email",
+    subtitle: "ivanncaamano@gmail.com",
+    description: "Drops straight into my inbox. Ideal for projects, advisory, or collaborations in AI & software.",
+    highlights: ["Fast reply", "Madrid", "Remote"],
+    avatar: "/profile.jpeg",
+  },
+  default: {
+    title: "Let’s connect",
+    subtitle: "Say hi",
+    description: "Reach out for collaborations, speaking, or to jam on AI systems.",
+    highlights: ["AI", "Data", "Consulting"],
+    avatar: "/profile.jpeg",
+  },
+};
+
 const callGemini = async (prompt: string, systemInstruction?: string) => {
   if (!apiKey) {
     return "AI key not configured. Add NEXT_PUBLIC_GEMINI_API_KEY to use this feature.";
@@ -104,6 +151,145 @@ const TechIcon = ({ label, theme }: { label: string; theme: Theme }) => (
     {label}
   </span>
 );
+
+const ContactPreviewCard = ({
+  preview,
+  theme,
+  active,
+}: {
+  preview: ContactPreview;
+  theme: Theme;
+} & { active: boolean }) => (
+  <div
+    className={`pointer-events-none absolute left-1/2 top-full z-20 mt-4 w-72 -translate-x-1/2 rounded-3xl border p-4 shadow-2xl transition-all duration-200 ${
+      active ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+    } ${theme === "dark" ? "bg-[#0f0f0f] border-white/5" : "bg-white border-black/5"}`}
+    aria-hidden={!active}
+  >
+    <div className="flex items-center gap-3">
+      <div className="relative h-12 w-12 overflow-hidden rounded-full border border-white/10">
+        <Image src={preview.avatar ?? "/profile.jpeg"} alt={preview.title} fill className="object-cover" sizes="48px" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold">{preview.title}</p>
+        <p className="text-xs text-neutral-500">{preview.subtitle}</p>
+      </div>
+    </div>
+    <p className={`mt-3 text-xs leading-relaxed ${theme === "dark" ? "text-neutral-300" : "text-neutral-600"}`}>
+      {preview.description}
+    </p>
+    {preview.highlights && (
+      <div className="mt-3 flex flex-wrap gap-2">
+        {preview.highlights.map((item) => (
+          <span
+            key={item}
+            className={`text-[10px] uppercase tracking-widest rounded-full px-3 py-1 ${
+              theme === "dark" ? "bg-white/5 text-neutral-300" : "bg-neutral-900/5 text-neutral-600"
+            }`}
+          >
+            {item}
+          </span>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
+const ContactShowcase = ({
+  contact,
+  theme,
+  lang,
+}: {
+  contact: LandingContent["contact"];
+  theme: Theme;
+  lang: Language;
+}) => {
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const copyEmail = async (value: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
+    } catch (error) {
+      console.error("Clipboard error:", error);
+    }
+  };
+
+  const items = [
+    ...contact.socials.map((social) => ({
+      key: social.platform,
+      label: social.label,
+      href: social.url,
+      type: "link" as const,
+    })),
+    {
+      key: "email",
+      label: lang === "en" ? "Copy email" : "Copiar email",
+      value: contact.email,
+      type: "copy" as const,
+    },
+  ];
+
+  return (
+    <div
+      className={`mb-10 flex flex-wrap items-center gap-4 rounded-2xl border px-4 py-3 ${
+        theme === "dark" ? "border-white/10 bg-white/5" : "border-neutral-200 bg-white"
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <div className="relative h-12 w-12 overflow-hidden rounded-full border border-white/10">
+          <Image src="/profile.jpeg" alt="Iván Caamaño portrait" fill className="object-cover" sizes="48px" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-white">Iván Caamaño</p>
+          <p className="text-xs text-neutral-400">{lang === "en" ? "AI & Software Engineer" : "Ingeniero IA & Software"}</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-4">
+        {items.map((item) => {
+          const preview = contactPreviewContent[item.key] ?? contactPreviewContent.default;
+          const active = activeKey === item.key;
+          const sharedProps = {
+            onMouseEnter: () => setActiveKey(item.key),
+            onMouseLeave: () => setActiveKey(null),
+            onFocus: () => setActiveKey(item.key),
+            onBlur: () => setActiveKey((prev) => (prev === item.key ? null : prev)),
+            className: `relative text-sm font-medium tracking-wide ${
+              theme === "dark"
+                ? "text-neutral-400 hover:text-white focus:text-white"
+                : "text-neutral-600 hover:text-neutral-900 focus:text-neutral-900"
+            }`,
+          };
+          return (
+            <div key={item.key} className="relative">
+              {item.type === "link" ? (
+                <a {...sharedProps} href={item.href} target="_blank" rel="noreferrer">
+                  {item.label}
+                </a>
+              ) : (
+                <button
+                  {...sharedProps}
+                  type="button"
+                  onClick={() => copyEmail(item.value, item.key)}
+                  className={`${sharedProps.className} focus:outline-none`}
+                >
+                  {copiedKey === item.key
+                    ? lang === "en"
+                      ? "Copied!"
+                      : "¡Copiado!"
+                    : item.label}
+                </button>
+              )}
+              <ContactPreviewCard preview={preview} theme={theme} active={active} />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const ProjectCard = ({
   project,
@@ -657,6 +843,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
         )}
         <section id="home" className="pt-40 pb-32 flex flex-col justify-center min-h-[80vh]">
           <div className="absolute top-20 right-0 -z-10 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] opacity-50" />
+          <ContactShowcase contact={t.contact} theme={theme} lang={lang} />
 
           <span className="font-mono text-teal-500 mb-6 block tracking-wide text-sm">
             {t.hero.greeting} <span className={theme === "dark" ? "text-neutral-400" : "text-neutral-600"}>Iván Caamaño</span>
@@ -775,16 +962,35 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
         >
           <div className="grid md:grid-cols-[1fr_2fr] gap-12">
-            <div>
-              <h2 className={`text-3xl font-bold mb-6 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
-                {t.about.title}
-              </h2>
-              <div className={`text-sm space-y-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}>
-                <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
-                  {t.about.educationTitle}
-                </p>
-                <p>{t.about.education1}</p>
-                <p>{t.about.education2}</p>
+            <div className="flex flex-col gap-6">
+              <div
+                className={`self-center md:self-start rounded-full p-[3px] shadow-xl ${
+                  theme === "dark"
+                    ? "bg-gradient-to-tr from-teal-600 via-purple-600 to-blue-500"
+                    : "bg-gradient-to-tr from-teal-400 via-fuchsia-400 to-blue-400"
+                }`}
+              >
+                <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-neutral-900">
+                  <Image
+                    src="/profile.jpeg"
+                    alt="Portrait of Iván Caamaño"
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 768px) 10rem, 8rem"
+                  />
+                </div>
+              </div>
+              <div>
+                <h2 className={`text-3xl font-bold mb-6 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
+                  {t.about.title}
+                </h2>
+                <div className={`text-sm space-y-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}>
+                  <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+                    {t.about.educationTitle}
+                  </p>
+                  <p>{t.about.education1}</p>
+                  <p>{t.about.education2}</p>
+                </div>
               </div>
             </div>
             <div>

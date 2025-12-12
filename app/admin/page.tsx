@@ -24,6 +24,9 @@ type BlogFormEntry = {
 };
 
 type EditableFields = {
+  brandingTitle: string;
+  brandingDescription: string;
+  brandingFavicon: string;
   heroHeadline: string;
   heroSubheadline: string;
   aboutSummary: string;
@@ -41,6 +44,9 @@ const newBlogEntry = (): BlogFormEntry => ({
 });
 
 const emptyFields: EditableFields = {
+  brandingTitle: "",
+  brandingDescription: "",
+  brandingFavicon: "",
   heroHeadline: "",
   heroSubheadline: "",
   aboutSummary: "",
@@ -76,6 +82,9 @@ export default function AdminPage() {
         const payload = (await response.json()) as { data: LandingContent };
         const data = payload.data;
         setFields({
+          brandingTitle: data.branding?.title ?? "",
+          brandingDescription: data.branding?.description ?? "",
+          brandingFavicon: data.branding?.favicon ?? "",
           heroHeadline: data.hero.headline ?? "",
           heroSubheadline: data.hero.subheadline ?? "",
           aboutSummary: data.about.summary ?? "",
@@ -156,6 +165,11 @@ export default function AdminPage() {
             hero: {
               headline: fields.heroHeadline,
               subheadline: fields.heroSubheadline,
+            },
+            branding: {
+              title: fields.brandingTitle,
+              description: fields.brandingDescription,
+              favicon: fields.brandingFavicon,
             },
             about: {
               summary: fields.aboutSummary,
@@ -252,6 +266,43 @@ export default function AdminPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <fieldset className="rounded-2xl border border-white/5 p-6">
+            <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Branding & SEO</legend>
+            <p className="text-xs text-zinc-500">
+              Update the browser tab title, description, and favicon URL used across the site.
+            </p>
+            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
+              Page title
+              <input
+                type="text"
+                value={fields.brandingTitle}
+                onChange={(event) => handleInputChange("brandingTitle", event.target.value)}
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
+              Description
+              <textarea
+                value={fields.brandingDescription}
+                onChange={(event) => handleInputChange("brandingDescription", event.target.value)}
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                rows={3}
+                disabled={loading}
+              />
+            </label>
+            <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">
+              Favicon URL (PNG/SVG/ICO)
+              <input
+                type="text"
+                value={fields.brandingFavicon}
+                onChange={(event) => handleInputChange("brandingFavicon", event.target.value)}
+                placeholder="/icons/ivan-orb.svg"
+                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                disabled={loading}
+              />
+            </label>
+          </fieldset>
           <fieldset className="rounded-2xl border border-white/5 p-6">
             <legend className="px-2 text-sm uppercase tracking-[0.2em] text-teal-400">Hero</legend>
             <label className="mt-4 block text-xs uppercase tracking-widest text-zinc-400">

@@ -1,11 +1,29 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SessionProviders } from "@/components/session-provider";
+import { getLandingContent } from "@/lib/content-store";
+import type { Locale } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Portfolio | Full Stack Developer",
-  description: "A bilingual portfolio showcasing projects and skills in web development.",
-};
+const DEFAULT_META_LOCALE: Locale = "en";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getLandingContent(DEFAULT_META_LOCALE);
+  const branding = content.branding ?? {
+    title: "Portfolio | Full Stack Developer",
+    description: "A bilingual portfolio showcasing projects and skills in web development.",
+    favicon: "/favicon.ico",
+  };
+
+  return {
+    title: branding.title,
+    description: branding.description,
+    icons: branding.favicon
+      ? {
+          icon: [{ url: branding.favicon }],
+        }
+      : undefined,
+  };
+}
 
 export default function RootLayout({
   children,
