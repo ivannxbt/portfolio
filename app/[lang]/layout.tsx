@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { Footer } from "@/components/footer";
 import { isValidLocale, type Locale, locales } from "@/lib/i18n";
 
 export async function generateStaticParams() {
@@ -18,7 +17,7 @@ export async function generateMetadata({
   return {
     title:
       lang === "es"
-        ? "Ivan Caamano | Ingeniero de IA"
+        ? "Iván Caamaño | Ingeniero de IA"
         : "Ivan Caamano | AI Engineer",
     description:
       lang === "es"
@@ -43,7 +42,6 @@ export default async function LangLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">{children}</main>
-      <Footer lang={lang as Locale} />
     </div>
   );
 }

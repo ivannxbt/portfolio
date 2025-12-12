@@ -97,7 +97,7 @@ curl -X PUT http://localhost:3000/api/content \
 │   ├── mdx.ts            # MDX utilities
 │   └── utils.ts          # General utilities
 └── public/
-    └── CV.pdf            # Downloadable CV
+    └── cv_iacc.pdf       # Downloadable CV
 ```
 
 ## Adding Content

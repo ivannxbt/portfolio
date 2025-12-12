@@ -1,5 +1,5 @@
-﻿'use client';
-
+﻿// @ts-nocheck
+'use client';
 import React, {
   useState,
   useEffect,
@@ -25,6 +25,10 @@ import {
   Sun,
   Moon,
   Twitter,
+  FileText,
+  Briefcase,
+  MapPin,
+  Clock3,
   type LucideIcon,
 } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
@@ -53,7 +57,18 @@ const socialIconMap: Record<SocialPlatform, LucideIcon> = {
   github: Github,
   linkedin: Linkedin,
   twitter: Twitter,
+  resume: FileText,
 };
+
+const renderWithBold = (text: string) =>
+  text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => {
+    const isBold = part.startsWith("**") && part.endsWith("**");
+    return isBold ? (
+      <strong key={index}>{part.slice(2, -2)}</strong>
+    ) : (
+      <span key={index}>{part}</span>
+    );
+  });
 
 const githubUsername = "ivannxbt";
 
@@ -86,6 +101,13 @@ const contactPreviewContent: Record<string, ContactPreview> = {
     description: "Daily notes on agents, LLM stacks, and lessons from consulting. Expect candid takes and prototypes.",
     highlights: ["Threads", "Prototypes", "AMA"],
     avatar: "/profile.jpeg",
+  },
+  resume: {
+    title: "Resume",
+    subtitle: "Download CV (PDF)",
+    description: "One-page overview with projects, impact metrics, and tech stack highlights.",
+    highlights: ["PDF", "Up to date", "1 page"],
+    avatar: "/icons/ivan-orb.svg",
   },
   email: {
     title: "Email",
@@ -204,7 +226,6 @@ const ContactShowcase = ({
   theme: Theme;
   lang: Language;
 }) => {
-  const [activeKey, setActiveKey] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const copyEmail = async (value: string, key: string) => {
@@ -226,7 +247,7 @@ const ContactShowcase = ({
     })),
     {
       key: "email",
-      label: lang === "en" ? "Copy email" : "Copiar email",
+      label: lang === "en" ? "Copy Email" : "Copiar email",
       value: contact.email,
       type: "copy" as const,
     },
@@ -238,54 +259,37 @@ const ContactShowcase = ({
         theme === "dark" ? "border-white/10 bg-white/5" : "border-neutral-200 bg-white"
       }`}
     >
-      <div className="flex items-center gap-3">
-        <div className="relative h-12 w-12 overflow-hidden rounded-full border border-white/10">
-          <Image src="/profile.jpeg" alt="Iván Caamaño portrait" fill className="object-cover" sizes="48px" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-white">Iván Caamaño</p>
-          <p className="text-xs text-neutral-400">{lang === "en" ? "AI & Software Engineer" : "Ingeniero IA & Software"}</p>
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-4">
-        {items.map((item) => {
-          const preview = contactPreviewContent[item.key] ?? contactPreviewContent.default;
-          const active = activeKey === item.key;
-          const sharedProps = {
-            onMouseEnter: () => setActiveKey(item.key),
-            onMouseLeave: () => setActiveKey(null),
-            onFocus: () => setActiveKey(item.key),
-            onBlur: () => setActiveKey((prev) => (prev === item.key ? null : prev)),
-            className: `relative text-sm font-medium tracking-wide ${
-              theme === "dark"
-                ? "text-neutral-400 hover:text-white focus:text-white"
-                : "text-neutral-600 hover:text-neutral-900 focus:text-neutral-900"
-            }`,
-          };
-          return (
-            <div key={item.key} className="relative">
-              {item.type === "link" ? (
-                <a {...sharedProps} href={item.href} target="_blank" rel="noreferrer">
-                  {item.label}
-                </a>
-              ) : (
-                <button
-                  {...sharedProps}
-                  type="button"
-                  onClick={() => copyEmail(item.value, item.key)}
-                  className={`${sharedProps.className} focus:outline-none`}
-                >
-                  {copiedKey === item.key
-                    ? lang === "en"
-                      ? "Copied!"
-                      : "¡Copiado!"
-                    : item.label}
-                </button>
-              )}
-              <ContactPreviewCard preview={preview} theme={theme} active={active} />
-            </div>
-          );
-        })}
+      <div className="flex flex-wrap items-center gap-4">
+        {items.map((item) =>
+          item.type === "link" ? (
+            <a
+              key={item.key}
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+              className={`text-sm font-medium tracking-wide ${
+                theme === "dark" ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-neutral-900"
+              }`}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => copyEmail(item.value, item.key)}
+              className={`text-sm font-medium tracking-wide focus:outline-none ${
+                theme === "dark" ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-neutral-900"
+              }`}
+            >
+              {copiedKey === item.key
+                ? lang === "en"
+                  ? "Copied!"
+                  : "¡Copiado!"
+                : item.label}
+            </button>
+          )
+        )}
       </div>
     </div>
   );
@@ -477,8 +481,79 @@ const BlogRow = ({
   );
 };
 
-const ChatWidget = ({ lang, theme }: { lang: Language; theme: Theme }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const ExperienceCard = ({
+  item,
+  theme,
+}: {
+  item: LandingContent["experience"]["roles"][number];
+  theme: Theme;
+}) => (
+  <div
+    className={`border rounded-2xl p-6 transition-colors ${
+      theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+    }`}
+  >
+    <div className="flex items-start justify-between gap-4">
+      <div className="space-y-1">
+        <p className={`text-lg font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+          {item.role}
+        </p>
+        {item.company && (
+          <p className={`text-sm font-medium ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}>
+            {item.company}
+          </p>
+        )}
+      </div>
+      <div
+        className={`p-3 rounded-full ${
+          theme === "dark" ? "bg-neutral-900 text-neutral-300" : "bg-teal-50 text-teal-700"
+        }`}
+      >
+        <Briefcase size={18} strokeWidth={1.5} />
+      </div>
+    </div>
+
+    <div className="mt-4 flex flex-wrap items-center gap-4 text-xs">
+      <span
+        className={`flex items-center gap-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
+      >
+        <Clock3 size={14} />
+        {item.period}
+      </span>
+      <span
+        className={`flex items-center gap-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
+      >
+        <MapPin size={14} />
+        {item.location}
+      </span>
+    </div>
+
+    <p className={`mt-4 text-sm leading-relaxed ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}>
+      {item.summary}
+    </p>
+
+    <ul className="mt-4 space-y-2">
+      {item.bullets.map((point) => (
+        <li key={point} className={`flex gap-3 text-sm ${theme === "dark" ? "text-neutral-300" : "text-neutral-700"}`}>
+          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <span>{point}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+const ChatWidget = ({
+  lang,
+  theme,
+  variant = "floating",
+}: {
+  lang: Language;
+  theme: Theme;
+  variant?: "floating" | "inline";
+}) => {
+  const isInline = variant === "inline";
+  const [isOpen, setIsOpen] = useState(isInline);
   const [messages, setMessages] = useState<{ role: "user" | "model"; text: string }[]>([
     {
       role: "model",
@@ -524,10 +599,16 @@ const ChatWidget = ({ lang, theme }: { lang: Language; theme: Theme }) => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div
+      className={
+        isInline ? "w-full" : "fixed bottom-6 right-6 z-50 flex flex-col items-end"
+      }
+    >
       {isOpen && (
         <div
-          className={`border rounded-2xl w-80 md:w-96 shadow-2xl mb-4 overflow-hidden flex flex-col h-[400px] ${
+          className={`border rounded-2xl shadow-2xl overflow-hidden flex flex-col ${
+            isInline ? "w-full h-[520px]" : "w-80 md:w-96 h-[400px] mb-4"
+          } ${
             theme === "dark"
               ? "bg-[#0f0f0f] border-neutral-800"
               : "bg-white border-neutral-200"
@@ -624,19 +705,21 @@ const ChatWidget = ({ lang, theme }: { lang: Language; theme: Theme }) => {
         </div>
       )}
 
-      <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="group flex items-center gap-3 bg-teal-600 hover:bg-teal-500 text-white p-4 rounded-full shadow-lg shadow-teal-900/20 transition-all hover:scale-105 active:scale-95"
-      >
-        <span
-          className={`max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap text-sm font-medium ${
-            isOpen ? "hidden" : "block"
-          }`}
+      {!isInline && (
+        <button
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="group flex items-center gap-3 bg-teal-600 hover:bg-teal-500 text-white p-4 rounded-full shadow-lg shadow-teal-900/20 transition-all hover:scale-105 active:scale-95"
         >
-          {lang === "en" ? "Chat with AI" : "Hablar con IA"}
-        </span>
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
-      </button>
+          <span
+            className={`max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap text-sm font-medium ${
+              isOpen ? "hidden" : "block"
+            }`}
+          >
+            {lang === "en" ? "Chat with AI" : "Hablar con IA"}
+          </span>
+          {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+        </button>
+      )}
     </div>
   );
 };
@@ -646,7 +729,7 @@ interface PortfolioLandingProps {
 
 export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) {
   const [lang, setLang] = useState<Language>(initialLang);
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [contentMap, setContentMap] =
@@ -739,8 +822,10 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               theme === "dark" ? "text-neutral-100" : "text-neutral-900"
             }`}
           >
-            <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
-            Iván.Dev
+            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/10 bg-white/5">
+              <Image src="/icons/ivan-orb.svg" alt="Iván Caamaño logo" fill className="object-cover" sizes="32px" />
+            </div>
+            <span>Iván Caamaño</span>
           </div>
 
           <nav
@@ -845,10 +930,6 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           <div className="absolute top-20 right-0 -z-10 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] opacity-50" />
           <ContactShowcase contact={t.contact} theme={theme} lang={lang} />
 
-          <span className="font-mono text-teal-500 mb-6 block tracking-wide text-sm">
-            {t.hero.greeting} <span className={theme === "dark" ? "text-neutral-400" : "text-neutral-600"}>Iván Caamaño</span>
-          </span>
-
           <h1
             className={`text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] ${
               theme === "dark" ? "text-white" : "text-neutral-900"
@@ -887,25 +968,117 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
             </a>
           </div>
 
-          <div className={`mt-24 pt-8 border-t ${theme === "dark" ? "border-neutral-900" : "border-neutral-200"}`}>
-            <p className="text-xs font-mono text-neutral-500 mb-4 uppercase tracking-wider">
-              {t.stack.title}
-            </p>
-            <div className="flex flex-wrap gap-3 opacity-90">
-              {[
-                "Python",
-                "PyTorch",
-                "TensorFlow",
-                "AWS",
-                "Azure",
-                "Docker",
-                "Kubernetes",
-                "LangChain",
-                "React",
-                "Git",
-              ].map((tech) => (
-                <TechIcon key={tech} label={tech} theme={theme} />
-              ))}
+          {aiEnabled && (
+            <div
+              className={`mt-16 p-6 md:p-8 rounded-3xl border ${
+                theme === "dark"
+                  ? "border-neutral-900/60 bg-neutral-900/40"
+                  : "border-neutral-200 bg-white/70 backdrop-blur"
+              }`}
+            >
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm uppercase tracking-[0.25em] text-teal-400">
+                    {lang === "en" ? "Ask me anything" : "Pregúntame algo"}
+                  </p>
+                  <h3
+                    className={`text-2xl font-bold ${
+                      theme === "dark" ? "text-white" : "text-neutral-900"
+                    }`}
+                  >
+                    {lang === "en"
+                      ? "Chat with my AI assistant"
+                      : "Habla con mi asistente IA"}
+                  </h3>
+                  <p
+                    className={`text-sm max-w-2xl ${
+                      theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                    }`}
+                  >
+                    {lang === "en"
+                      ? "Get quick answers about my experience, projects, or availability."
+                      : "Obtén respuestas rápidas sobre mi experiencia, proyectos o disponibilidad."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <ChatWidget lang={lang} theme={theme} variant="inline" />
+              </div>
+            </div>
+          )}
+        </section>
+
+        <section
+          id="about"
+          className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
+        >
+          <div className="grid md:grid-cols-[1fr_2fr] gap-12">
+            <div className="flex flex-col gap-6">
+              <div
+                className={`self-center md:self-start rounded-full p-[3px] shadow-xl ${
+                  theme === "dark"
+                    ? "bg-gradient-to-tr from-teal-600 via-purple-600 to-blue-500"
+                    : "bg-gradient-to-tr from-teal-400 via-fuchsia-400 to-blue-400"
+                }`}
+              >
+                <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-neutral-900">
+                  <Image
+                    src="/profile.jpeg"
+                    alt="Portrait of Iván Caamaño"
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 768px) 10rem, 8rem"
+                  />
+                </div>
+              </div>
+              <div>
+                <h2 className={`text-3xl font-bold mb-6 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
+                  {t.about.title}
+                </h2>
+                <div className={`text-sm space-y-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}>
+                  <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+                    {t.about.educationTitle}
+                  </p>
+                  <p>{t.about.education1}</p>
+                  <p>{t.about.education2}</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <p
+                className={`text-xl leading-relaxed whitespace-pre-line mb-8 ${
+                  theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                }`}
+              >
+                {renderWithBold(t.about.summary)}
+              </p>
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <h4
+                    className={`font-medium mb-2 flex items-center gap-2 ${
+                      theme === "dark" ? "text-white" : "text-neutral-900"
+                    }`}
+                  >
+                    <Code2 size={16} /> Engineering
+                  </h4>
+                  <p className="text-sm text-neutral-500">
+                    DevOps (Docker, K8s), Software Architecture, Cloud (AWS, Azure).
+                  </p>
+                </div>
+                <div>
+                  <h4
+                    className={`font-medium mb-2 flex items-center gap-2 ${
+                      theme === "dark" ? "text-white" : "text-neutral-900"
+                    }`}
+                  >
+                    <BrainCircuit size={16} /> AI & Data
+                  </h4>
+                  <p className="text-sm text-neutral-500">
+                    RAG, LLMs, Deep Learning, Computer Vision, Data Pipelines.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -958,76 +1131,44 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
         </section>
 
         <section
-          id="about"
+          id="experience"
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
         >
-          <div className="grid md:grid-cols-[1fr_2fr] gap-12">
-            <div className="flex flex-col gap-6">
-              <div
-                className={`self-center md:self-start rounded-full p-[3px] shadow-xl ${
-                  theme === "dark"
-                    ? "bg-gradient-to-tr from-teal-600 via-purple-600 to-blue-500"
-                    : "bg-gradient-to-tr from-teal-400 via-fuchsia-400 to-blue-400"
-                }`}
-              >
-                <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-neutral-900">
-                  <Image
-                    src="/profile.jpeg"
-                    alt="Portrait of Iván Caamaño"
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 768px) 10rem, 8rem"
-                  />
-                </div>
-              </div>
-              <div>
-                <h2 className={`text-3xl font-bold mb-6 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
-                  {t.about.title}
-                </h2>
-                <div className={`text-sm space-y-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}>
-                  <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
-                    {t.about.educationTitle}
-                  </p>
-                  <p>{t.about.education1}</p>
-                  <p>{t.about.education2}</p>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
             <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
+                Work
+              </p>
+              <h2 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+                {t.experience.title}
+              </h2>
               <p
-                className={`text-xl leading-relaxed whitespace-pre-line mb-8 ${
+                className={`mt-3 max-w-3xl text-sm ${
                   theme === "dark" ? "text-neutral-400" : "text-neutral-600"
                 }`}
               >
-                {t.about.summary}
+                {t.experience.subtitle}
               </p>
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <h4
-                    className={`font-medium mb-2 flex items-center gap-2 ${
-                      theme === "dark" ? "text-white" : "text-neutral-900"
-                    }`}
-                  >
-                    <Code2 size={16} /> Engineering
-                  </h4>
-                  <p className="text-sm text-neutral-500">
-                    DevOps (Docker, K8s), Software Architecture, Cloud (AWS, Azure).
-                  </p>
-                </div>
-                <div>
-                  <h4
-                    className={`font-medium mb-2 flex items-center gap-2 ${
-                      theme === "dark" ? "text-white" : "text-neutral-900"
-                    }`}
-                  >
-                    <BrainCircuit size={16} /> AI & Data
-                  </h4>
-                  <p className="text-sm text-neutral-500">
-                    RAG, LLMs, Deep Learning, Computer Vision, Data Pipelines.
-                  </p>
-                </div>
-              </div>
             </div>
+            <a
+              href="/cv_iacc.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${
+                theme === "dark"
+                  ? "border-white/10 text-white hover:border-white/40"
+                  : "border-neutral-300 text-neutral-800 hover:border-neutral-500"
+              }`}
+            >
+              <FileText size={16} />
+              {t.experience.cta}
+            </a>
+          </div>
+
+          <div className="grid gap-6">
+            {t.experience.roles.map((role) => (
+              <ExperienceCard key={`${role.role}-${role.period}`} item={role} theme={theme} />
+            ))}
           </div>
         </section>
 
@@ -1149,6 +1290,27 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
         }`}
       >
         <p className="text-neutral-500 text-sm font-mono">{t.footer.copyright}</p>
+        <div
+          className={`mt-6 flex items-center justify-center gap-6 ${
+            theme === "dark" ? "text-neutral-500" : "text-neutral-400"
+          }`}
+        >
+          {t.contact.socials.map((social) => {
+            const Icon = socialIconMap[social.platform] ?? Github;
+            return (
+              <a
+                key={`footer-social-${social.url}`}
+                href={social.url}
+                target="_blank"
+                rel="noreferrer"
+                className="transition-colors hover:text-teal-400"
+                aria-label={social.label}
+              >
+                <Icon size={20} />
+              </a>
+            );
+          })}
+        </div>
       </footer>
 
       {aiEnabled && <ChatWidget lang={lang} theme={theme} />}

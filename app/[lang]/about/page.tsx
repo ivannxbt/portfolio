@@ -87,7 +87,7 @@ export default async function AboutPage({ params }: PageProps) {
 
           <div className="flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <a href="/CV.pdf" download>
+              <a href="/cv_iacc.pdf" download>
                 <Download className="mr-2 h-4 w-4" />
                 {t.about.downloadCV}
               </a>
