@@ -37,6 +37,7 @@ type CachedData = {
 };
 
 // In-memory cache to avoid localStorage access on every render
+// Note: This cache is shared across all component instances for better efficiency
 const memoryCache = new Map<string, CachedData>();
 
 // Cleanup old cache entries periodically
@@ -71,11 +72,23 @@ function getCachedData(username: string, year: number): ContributionsResponse | 
   try {
     const stored = localStorage.getItem(cacheKey);
     if (stored) {
-      const cached: CachedData = JSON.parse(stored);
-      if (Date.now() - cached.timestamp < CACHE_TTL_MS) {
-        // Update memory cache
-        memoryCache.set(cacheKey, cached);
-        return cached.data;
+      const parsed = JSON.parse(stored);
+      // Validate data structure
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        typeof parsed.timestamp === "number" &&
+        parsed.data &&
+        typeof parsed.data === "object" &&
+        typeof parsed.data.total === "number" &&
+        Array.isArray(parsed.data.weeks)
+      ) {
+        const cached = parsed as CachedData;
+        if (Date.now() - cached.timestamp < CACHE_TTL_MS) {
+          // Update memory cache
+          memoryCache.set(cacheKey, cached);
+          return cached.data;
+        }
       }
     }
   } catch (err) {
