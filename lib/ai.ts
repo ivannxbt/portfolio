@@ -9,8 +9,11 @@ function assertKey() {
   }
 }
 
+// Validate API key at module load time
+assertKey();
+
 export function getOpenAIClient() {
-  assertKey();
+  // API key is already validated at module load time
   return new OpenAI({ apiKey });
 }
 
