@@ -66,7 +66,17 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
         const cached = localStorage.getItem(cacheKey);
         if (!cached) return null;
         
-        const { data, timestamp }: CachedData = JSON.parse(cached);
+        const parsed = JSON.parse(cached);
+        
+        // Validate the structure of cached data
+        if (!parsed || typeof parsed !== 'object' || 
+            !parsed.data || !parsed.timestamp || 
+            typeof parsed.timestamp !== 'number') {
+          localStorage.removeItem(cacheKey);
+          return null;
+        }
+        
+        const { data, timestamp }: CachedData = parsed;
         const now = Date.now();
         
         // Check if cache is still valid (within TTL)
@@ -79,19 +89,44 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
         return null;
       } catch (err) {
         console.error("Error reading cache:", err);
+        // Clean up corrupted cache
+        try {
+          localStorage.removeItem(cacheKey);
+        } catch {
+          // Ignore cleanup errors
+        }
         return null;
       }
     };
 
     const setCachedData = (contributionsData: ContributionsResponse) => {
+      const cacheData: CachedData = {
+        data: contributionsData,
+        timestamp: Date.now(),
+      };
+      const cacheString = JSON.stringify(cacheData);
+      
       try {
-        const cacheData: CachedData = {
-          data: contributionsData,
-          timestamp: Date.now(),
-        };
-        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        localStorage.setItem(cacheKey, cacheString);
       } catch (err) {
-        console.error("Error writing to cache:", err);
+        // Handle quota exceeded or other storage errors
+        if (err instanceof Error && err.name === 'QuotaExceededError') {
+          console.warn("localStorage quota exceeded, clearing old cache");
+          try {
+            // Clear all github-contributions caches to make room
+            Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('github-contributions-')) {
+                localStorage.removeItem(key);
+              }
+            });
+            // Retry saving
+            localStorage.setItem(cacheKey, cacheString);
+          } catch {
+            console.error("Failed to cache even after cleanup");
+          }
+        } else {
+          console.error("Error writing to cache:", err);
+        }
       }
     };
 
@@ -107,7 +142,7 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
       try {
         const response = await fetch(
           `https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`,
-          { cache: "force-cache" }
+          { cache: "default" }
         );
         if (!response.ok) throw new Error("Failed to fetch contributions");
         const payload = (await response.json()) as ApiResponse;
