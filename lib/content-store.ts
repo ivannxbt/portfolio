@@ -18,8 +18,13 @@ async function ensureOverridesFile() {
   try {
     await readFile(overridesPath, "utf-8");
   } catch (error: unknown) {
-    const err = error as NodeJS.ErrnoException;
-    if (err.code === "ENOENT") {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      typeof (error as { code?: unknown }).code === "string" &&
+      (error as { code: string }).code === "ENOENT"
+    ) {
       await writeFile(overridesPath, "{}", "utf-8");
     } else {
       throw error;
