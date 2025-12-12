@@ -27,6 +27,67 @@ interface GithubContributionsProps {
   theme: "dark" | "light";
 }
 
+// Cache configuration
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const CACHE_KEY_PREFIX = "github-contributions-";
+
+type CachedData = {
+  data: ContributionsResponse;
+  timestamp: number;
+};
+
+// In-memory cache to avoid localStorage access on every render
+const memoryCache = new Map<string, CachedData>();
+
+function getCacheKey(username: string, year: number): string {
+  return `${CACHE_KEY_PREFIX}${username}-${year}`;
+}
+
+function getCachedData(username: string, year: number): ContributionsResponse | null {
+  const cacheKey = getCacheKey(username, year);
+  
+  // Check in-memory cache first
+  const memCached = memoryCache.get(cacheKey);
+  if (memCached && Date.now() - memCached.timestamp < CACHE_TTL_MS) {
+    return memCached.data;
+  }
+  
+  // Check localStorage
+  try {
+    const stored = localStorage.getItem(cacheKey);
+    if (stored) {
+      const cached: CachedData = JSON.parse(stored);
+      if (Date.now() - cached.timestamp < CACHE_TTL_MS) {
+        // Update memory cache
+        memoryCache.set(cacheKey, cached);
+        return cached.data;
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to read from cache:", err);
+  }
+  
+  return null;
+}
+
+function setCachedData(username: string, year: number, data: ContributionsResponse): void {
+  const cacheKey = getCacheKey(username, year);
+  const cached: CachedData = {
+    data,
+    timestamp: Date.now(),
+  };
+  
+  // Update memory cache
+  memoryCache.set(cacheKey, cached);
+  
+  // Update localStorage
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify(cached));
+  } catch (err) {
+    console.warn("Failed to write to cache:", err);
+  }
+}
+
 const LEVEL_COLORS: Record<"dark" | "light", Record<number, string>> = {
   dark: {
     0: "bg-[#1f1f1f]",
@@ -53,10 +114,20 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
     const year = new Date().getFullYear();
 
     const load = async () => {
+      // Check cache first
+      const cached = getCachedData(username, year);
+      if (cached) {
+        if (!cancelled) {
+          setData(cached);
+        }
+        return;
+      }
+
+      // Fetch from API if cache miss
       try {
         const response = await fetch(
           `https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`,
-          { cache: "no-store" }
+          { cache: "force-cache" }
         );
         if (!response.ok) throw new Error("Failed to fetch contributions");
         const payload = (await response.json()) as ApiResponse;
@@ -70,8 +141,11 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
         for (let i = 0; i < contributions.length; i += 7) {
           weeks.push({ days: contributions.slice(i, i + 7) });
         }
+        const result = { total, weeks };
+        
         if (!cancelled) {
-          setData({ total, weeks });
+          setData(result);
+          setCachedData(username, year, result);
         }
       } catch (err) {
         if (!cancelled) {
