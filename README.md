@@ -31,8 +31,17 @@ Create a `.env.local` file in the root directory to enable AI + admin access:
 ```
 NEXT_PUBLIC_GEMINI_API_KEY=your_api_key_here
 ADMIN_EMAIL=you@example.com
-ADMIN_PASSWORD=super-secure-password
+ADMIN_PASSWORD_HASH=your_bcrypt_hashed_password
 NEXTAUTH_SECRET=generate_a_random_string
+```
+
+**Important**: `ADMIN_PASSWORD_HASH` must be a bcrypt hash of your desired password, not the plain text password. Generate a bcrypt hash using:
+
+```bash
+# Using Node.js
+node -e "const bcrypt = require('bcrypt'); bcrypt.hash('your-password', 10, (err, hash) => console.log(hash));"
+
+# Or using an online bcrypt generator (use a trusted source)
 ```
 
 ```bash
@@ -56,7 +65,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the portfolio.
 
 ### Editing Content via Backend
 
-- Visit [`/admin`](http://localhost:3000/admin) while the dev server is running to access the lightweight CMS. If you're not signed in you'll be redirected to [`/admin/login`](http://localhost:3000/admin/login); use the credentials from `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+- Visit [`/admin`](http://localhost:3000/admin) while the dev server is running to access the lightweight CMS. If you're not signed in you'll be redirected to [`/admin/login`](http://localhost:3000/admin/login); use the email from `ADMIN_EMAIL` and the password corresponding to your `ADMIN_PASSWORD_HASH`.
 - Pick a language, edit any section (navigation, hero, about, experience, projects, blog, contact, footer, and theme fonts), and press **Save changes**.  
   The CMS issues a `PUT /api/content` request that persists overrides in `data/content-overrides.json`.
 - Long-form fields (hero subheadline, about summary, blog descriptions, project blurbs, contact copy, etc.) support Markdown for bold text, lists, and `[links](https://example.com)`.
