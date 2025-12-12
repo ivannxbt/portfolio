@@ -39,12 +39,27 @@ type CachedData = {
 // In-memory cache to avoid localStorage access on every render
 const memoryCache = new Map<string, CachedData>();
 
+// Cleanup old cache entries periodically
+function cleanupExpiredCache(): void {
+  const now = Date.now();
+  for (const [key, cached] of memoryCache.entries()) {
+    if (now - cached.timestamp >= CACHE_TTL_MS) {
+      memoryCache.delete(key);
+    }
+  }
+}
+
 function getCacheKey(username: string, year: number): string {
   return `${CACHE_KEY_PREFIX}${username}-${year}`;
 }
 
 function getCachedData(username: string, year: number): ContributionsResponse | null {
   const cacheKey = getCacheKey(username, year);
+  
+  // Cleanup expired entries periodically
+  if (Math.random() < 0.1) { // 10% chance on each call
+    cleanupExpiredCache();
+  }
   
   // Check in-memory cache first
   const memCached = memoryCache.get(cacheKey);
@@ -126,8 +141,7 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
       // Fetch from API if cache miss
       try {
         const response = await fetch(
-          `https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`,
-          { cache: "force-cache" }
+          `https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`
         );
         if (!response.ok) throw new Error("Failed to fetch contributions");
         const payload = (await response.json()) as ApiResponse;
