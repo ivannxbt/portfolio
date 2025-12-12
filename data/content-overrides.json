@@ -1,0 +1,71 @@
+{
+  "en": {
+    "hero": {
+      "headline": "Welcome to my portfolio!",
+      "subheadline": "I'm currently an AI & Software Engineer at @Avvale, and I do freelance too, plus heavily active on Twitter/X sharing my progress and story."
+    },
+    "about": {
+      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like here).\n\nInterests\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\nFun facts \n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\nCurrently learning to dance Salsa!\nI love reading about history, journalism, politics, economics and things about how our world works.\nMy favorite dish is my grandma's lasagna :)"
+    },
+    "contact": {
+      "text": "Based in Madrid. Always open to collaborate!",
+      "email": "ivanncaamano@gmail.com"
+    },
+    "blogPosts": [
+      {
+        "id": 1,
+        "title": "My AI Stack Is for Solving Boring Work",
+        "date": "May 2025",
+        "summary": "Why I obsess over pragmatic agents: scoped context windows, ruthless observability, and using LLMs only when latency and cost prove the ROI.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 2,
+        "title": "Venezuela Wants Builders, Not Saviors",
+        "date": "Apr 2025",
+        "summary": "Notes from my trips home: talent is everywhere, trust is scarce, and the real leverage is small funds plus patient execution in local currency.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 3,
+        "title": "Crypto Rails as Emergency Exit",
+        "date": "Mar 2025",
+        "summary": "How I use stablecoins and onchain rails as a resilience plan—multi-sig treasuries, compliance guardrails, and custody discipline learned the hard way.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 4,
+        "title": "Watching the Economy Like an Engineer",
+        "date": "Feb 2025",
+        "summary": "The macro dashboard on my desk: liquidity, shipping costs, labor churn, and how each signal shapes the projects I greenlight.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 5,
+        "title": "Capitalism as a Craft, Not a Dogma",
+        "date": "Jan 2025",
+        "summary": "Personal rules for building companies: profit with constraints, equity for contributors, and ruthless clarity on who owns the downside.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 6,
+        "title": "Taming Consumism in My Own Routine",
+        "date": "Dec 2024",
+        "summary": "I track cravings like metrics—cutting pointless upgrades, buying local, and investing surplus into community experiments instead of gadgets.",
+        "url": "",
+        "image": "/blog/default.svg"
+      }
+    ],
+    "branding": {
+      "title": "Iván Caamaño - AI & Software Engineer",
+      "description": "AI & Software Engineer building production-grade agents, ML systems, and scalable platforms.",
+      "favicon": "/icons/ivan-orb.svg",
+      "logoText": "Iván Caamaño"
+    }
+  }
+}

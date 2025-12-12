@@ -51,7 +51,7 @@ export function HeroSection({ lang, copy, actions }: HeroSectionProps) {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <a href="/CV.pdf" download>
+            <a href="/cv_iacc.pdf" download>
               <Download className="mr-2 h-4 w-4" />
               {actions.downloadCV}
             </a>

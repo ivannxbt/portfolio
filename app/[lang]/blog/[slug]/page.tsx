@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, CalendarDays, Tag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       day: "numeric",
     }
   );
+  const coverImage = post.frontmatter.image?.trim();
 
   return (
     <article className="px-4 py-16 sm:px-6 lg:px-8">
@@ -74,6 +76,21 @@ export default async function BlogPostPage({ params }: PageProps) {
             </div>
           )}
         </header>
+
+        {coverImage && (
+          <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950/60">
+            <div className="relative h-64 w-full sm:h-80">
+              <Image
+                src={coverImage}
+                alt={`${post.frontmatter.title} cover`}
+                fill
+                sizes="(min-width: 640px) 768px, 100vw"
+                className="object-cover"
+                priority
+              />
+            </div>
+          </div>
+        )}
 
         <div className="markdown-body space-y-6 text-base leading-relaxed text-zinc-200">
           {post.content}
