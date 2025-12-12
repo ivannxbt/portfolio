@@ -22,10 +22,18 @@ type ContributionsResponse = {
   weeks: ContributionWeek[];
 };
 
+type CachedData = {
+  data: ContributionsResponse;
+  timestamp: number;
+};
+
 interface GithubContributionsProps {
   username: string;
   theme: "dark" | "light";
 }
+
+// Cache TTL: 1 hour (in milliseconds)
+const CACHE_TTL = 60 * 60 * 1000;
 
 const LEVEL_COLORS: Record<"dark" | "light", Record<number, string>> = {
   dark: {
@@ -51,12 +59,55 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
   useEffect(() => {
     let cancelled = false;
     const year = new Date().getFullYear();
+    const cacheKey = `github-contributions-${username}-${year}`;
+
+    const getCachedData = (): ContributionsResponse | null => {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (!cached) return null;
+        
+        const { data, timestamp }: CachedData = JSON.parse(cached);
+        const now = Date.now();
+        
+        // Check if cache is still valid (within TTL)
+        if (now - timestamp < CACHE_TTL) {
+          return data;
+        }
+        
+        // Cache expired, remove it
+        localStorage.removeItem(cacheKey);
+        return null;
+      } catch (err) {
+        console.error("Error reading cache:", err);
+        return null;
+      }
+    };
+
+    const setCachedData = (contributionsData: ContributionsResponse) => {
+      try {
+        const cacheData: CachedData = {
+          data: contributionsData,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      } catch (err) {
+        console.error("Error writing to cache:", err);
+      }
+    };
 
     const load = async () => {
+      // Check cache first
+      const cachedData = getCachedData();
+      if (cachedData && !cancelled) {
+        setData(cachedData);
+        return;
+      }
+
+      // Fetch fresh data if no valid cache
       try {
         const response = await fetch(
           `https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`,
-          { cache: "no-store" }
+          { cache: "force-cache" }
         );
         if (!response.ok) throw new Error("Failed to fetch contributions");
         const payload = (await response.json()) as ApiResponse;
@@ -70,8 +121,12 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
         for (let i = 0; i < contributions.length; i += 7) {
           weeks.push({ days: contributions.slice(i, i + 7) });
         }
+        
+        const contributionsData = { total, weeks };
+        
         if (!cancelled) {
-          setData({ total, weeks });
+          setData(contributionsData);
+          setCachedData(contributionsData);
         }
       } catch (err) {
         if (!cancelled) {
