@@ -37,7 +37,7 @@ export async function readOverrides(): Promise<ContentOverrides> {
   try {
     return JSON.parse(raw) as ContentOverrides;
   } catch (error) {
-    console.warn("Invalid overrides file detected. Resetting to empty object.", error);
+    console.warn("Invalid overrides file detected. Resetting to empty object.", (error instanceof Error ? error.message : String(error)));
     await writeFile(overridesPath, "{}", "utf-8");
     return {};
   }
