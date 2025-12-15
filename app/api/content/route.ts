@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { LandingContent } from "@/content/site-content";
 import { isValidLocale, type Locale } from "@/lib/i18n";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthOptions, NEXTAUTH_SECRET_ERROR } from "@/lib/auth";
 import {
   deepMerge,
   getAllLandingContent,
@@ -40,6 +40,11 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const authOptions = getAuthOptions();
+    if (!authOptions) {
+      console.error("Content API PUT blocked:", NEXTAUTH_SECRET_ERROR);
+      return NextResponse.json({ error: NEXTAUTH_SECRET_ERROR }, { status: 500 });
+    }
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(

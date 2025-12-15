@@ -2,6 +2,7 @@
 // @ts-nocheck
 'use client';
 
+import Image from "next/image";
 import Link from "next/link";
 import React, {
   useState,
@@ -78,7 +79,14 @@ const SocialPreviewOverlay = ({ platform, label }: SocialPreviewOverlayProps) =>
       className="pointer-events-none absolute left-1/2 -top-36 z-30 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 transition duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
     >
       <div className="h-28 w-44 overflow-hidden rounded-2xl border border-white/20 bg-black/80 shadow-xl">
-        <img src={previewImage} alt={`${label} preview`} className="h-full w-full object-cover" />
+        <Image
+          src={previewImage}
+          alt={`${label} preview`}
+          width={176}
+          height={112}
+          className="h-full w-full object-cover"
+          priority
+        />
       </div>
     </div>
   );

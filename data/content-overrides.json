@@ -9,11 +9,11 @@
       "contact": "Get in touch"
     },
     "about": {
-      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like here).\n\nInterests\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\nFun facts \n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\nCurrently learning to dance Salsa!\nI love reading about history, journalism, politics, economics and things about how our world works.\nMy favorite dish is my grandma's lasagna :)",
+      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like here).\n\n**Interests**\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\n**Fun facts**\n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\nCurrently learning to dance Salsa!\nI love reading about history, journalism, politics, economics and things about how our world works.\nMy favorite dish is my grandma's lasagna :)",
       "title": "About Me",
       "educationTitle": "Education",
-      "education1": "M.Eng. Network and Telematic Services (UPM)",
-      "education2": "B.Eng. Telecommunications Technologies (UPM)"
+      "education1": "M.Eng. Network and Telematic Services (Universidad Politécnica de Madrid)",
+      "education2": "B.Eng. Telecommunications Technologies (Universidad Politécnica de Madrid)"
     },
     "contact": {
       "text": "Based in Madrid. Always open to collaborate!",
@@ -241,7 +241,8 @@
             "Assisted integration of real-time radar data solutions that improved system performance 20%."
           ]
         }
-      ]
+      ],
+      "rolesLabel": "Roles & Impact"
     },
     "stack": {
       "title": "Core Competencies",
@@ -284,8 +285,7 @@
           "icon": "brain",
           "items": [
             "OpenAI",
-            "Claude (Skills",
-            "MCP)",
+            "Claude",
             "Gemini",
             "PyTorch",
             "TensorFlow",

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "secrets:init": "node scripts/manage-secret-config.mjs",
     "lint": "eslint"
   },
   "dependencies": {
