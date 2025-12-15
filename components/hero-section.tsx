@@ -51,9 +51,13 @@ export function HeroSection({ lang, copy, actions }: HeroSectionProps) {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <a href="/cv_iacc.pdf" download>
-              <Download className="mr-2 h-4 w-4" />
-              {actions.downloadCV}
+            <a
+              href="/cv_iacc.pdf"
+              download
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+            >
+              <Download aria-hidden className="h-4 w-4" />
+              <span>{actions.downloadCV}</span>
             </a>
           </Button>
           <Button asChild size="lg" variant="outline">
