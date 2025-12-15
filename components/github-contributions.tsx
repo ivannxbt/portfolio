@@ -22,7 +22,7 @@ type ContributionsResponse = {
   weeks: ContributionWeek[];
 };
 
-type CachedData = {
+type ContributionsCacheEntry = {
   data: ContributionsResponse;
   timestamp: number;
 };
@@ -76,7 +76,7 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
           return null;
         }
         
-        const { data, timestamp }: CachedData = parsed;
+        const { data, timestamp }: ContributionsCacheEntry = parsed;
         const now = Date.now();
         
         // Check if cache is still valid (within TTL)
@@ -100,7 +100,7 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
     };
 
     const setCachedData = (contributionsData: ContributionsResponse) => {
-      const cacheData: CachedData = {
+      const cacheData: ContributionsCacheEntry = {
         data: contributionsData,
         timestamp: Date.now(),
       };

@@ -5,6 +5,8 @@ import { getLandingContent } from "@/lib/content-store";
 import type { Locale } from "@/lib/i18n";
 
 const DEFAULT_META_LOCALE: Locale = "en";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ivan-caamano.me";
+const OG_IMAGE_PATH = "/profile.jpeg";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getLandingContent(DEFAULT_META_LOCALE);
@@ -12,9 +14,14 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "Portfolio | Full Stack Developer",
     description: "A bilingual portfolio showcasing projects and skills in web development.",
     favicon: "/favicon.ico",
+    logoText: "Portfolio",
   };
 
+  const siteName = branding.logoText || branding.title;
+  const imageUrl = `${SITE_URL}${OG_IMAGE_PATH}`;
+
   return {
+    metadataBase: new URL(SITE_URL),
     title: branding.title,
     description: branding.description,
     icons: branding.favicon
@@ -22,6 +29,21 @@ export async function generateMetadata(): Promise<Metadata> {
           icon: [{ url: branding.favicon }],
         }
       : undefined,
+    openGraph: {
+      title: branding.title,
+      description: branding.description,
+      siteName,
+      url: "/",
+      type: "website",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${siteName} preview`,
+        },
+      ],
+    },
   };
 }
 

@@ -38,10 +38,13 @@ NEXTAUTH_SECRET=generate_a_random_string
 **Important**: `ADMIN_PASSWORD_HASH` must be a bcrypt hash of your desired password, not the plain text password. Generate a bcrypt hash using:
 
 ```bash
-# Using Node.js
-node -e "const bcrypt = require('bcrypt'); bcrypt.hash('your-password', 10, (err, hash) => console.log(hash));"
+# Using the bcryptjs CLI
+npx bcryptjs -h "your-password" -s 10
 
-# Or using an online bcrypt generator (use a trusted source)
+# Or using Node.js + bcryptjs
+node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('your-password', 10, (err, hash) => console.log(hash));"
+
+# Or use any trusted bcrypt generator (the hash is compatible with bcryptjs)
 ```
 
 ```bash

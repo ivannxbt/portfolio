@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const adminEmail = (process.env.ADMIN_EMAIL ?? "").toLowerCase();
 const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
