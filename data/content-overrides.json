@@ -2,14 +2,129 @@
   "en": {
     "hero": {
       "headline": "Welcome to my portfolio!",
-      "subheadline": "I'm currently an AI & Software Engineer at @Avvale, and I do freelance too, plus heavily active on Twitter/X sharing my progress and story."
+      "subheadline": "I'm currently an AI & Software Engineer at @Avvale, and I do freelance too, plus heavily active on Twitter/X sharing my progress and story.",
+      "role": "Telematics Engineer | AI & Data",
+      "greeting": "",
+      "cta": "View Projects",
+      "contact": "Get in touch"
     },
     "about": {
-      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like here).\n\nInterests\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\nFun facts \n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\nCurrently learning to dance Salsa!\nI love reading about history, journalism, politics, economics and things about how our world works.\nMy favorite dish is my grandma's lasagna :)"
+      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like here).\n\nInterests\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\nFun facts \n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\nCurrently learning to dance Salsa!\nI love reading about history, journalism, politics, economics and things about how our world works.\nMy favorite dish is my grandma's lasagna :)",
+      "title": "About Me",
+      "educationTitle": "Education",
+      "education1": "M.Eng. Network and Telematic Services (UPM)",
+      "education2": "B.Eng. Telecommunications Technologies (UPM)"
     },
     "contact": {
       "text": "Based in Madrid. Always open to collaborate!",
-      "email": "ivanncaamano@gmail.com"
+      "email": "ivanncaamano@gmail.com",
+      "title": "Let's Connect",
+      "socials": [
+        {
+          "platform": "github",
+          "label": "GitHub",
+          "url": "https://github.com/ivannxbt",
+          "preview": {
+            "title": "GitHub",
+            "subtitle": "@ivannxbt",
+            "description": "Building AI agents, data tooling, and OSS utilities in TypeScript & Python.",
+            "highlights": [
+              "400+ contributions in 2024",
+              "9 featured repositories"
+            ],
+            "stats": [
+              {
+                "label": "Repos",
+                "value": "40+"
+              },
+              {
+                "label": "Followers",
+                "value": "90+"
+              }
+            ],
+            "avatar": "/profile.jpeg",
+            "badge": "Active this week"
+          }
+        },
+        {
+          "platform": "linkedin",
+          "label": "LinkedIn",
+          "url": "https://www.linkedin.com/in/ivancaamano/",
+          "preview": {
+            "title": "LinkedIn",
+            "subtitle": "AI & Software Engineer · Avvale",
+            "description": "Leading AI programs across automation, RAG copilots, and data platforms.",
+            "highlights": [
+              "600+ professional connections",
+              "Open to advisory roles"
+            ],
+            "stats": [
+              {
+                "label": "Experience",
+                "value": "4+ yrs"
+              },
+              {
+                "label": "Recommendations",
+                "value": "5"
+              }
+            ],
+            "avatar": "/profile.jpeg",
+            "badge": "Available for chat"
+          }
+        },
+        {
+          "platform": "twitter",
+          "label": "X/Twitter",
+          "url": "https://x.com/_ivvann",
+          "preview": {
+            "title": "X / Twitter",
+            "subtitle": "@_ivvann",
+            "description": "Threading about AI engineering, data infra, and indie projects.",
+            "highlights": [
+              "Daily updates",
+              "Community questions welcome"
+            ],
+            "stats": [
+              {
+                "label": "Followers",
+                "value": "500+"
+              },
+              {
+                "label": "Avg. reach",
+                "value": "4k"
+              }
+            ],
+            "avatar": "/profile.jpeg",
+            "badge": "Posting now"
+          }
+        },
+        {
+          "platform": "resume",
+          "label": "Resume",
+          "url": "/cv_iacc.pdf",
+          "preview": {
+            "title": "Resume",
+            "subtitle": "Iván Caamaño · 2025 Edition",
+            "description": "Telematics Engineer focused on AI, data, and software systems.",
+            "highlights": [
+              "Avvale · AI & Data Analyst",
+              "NFQ · Software Consultant",
+              "Indra · ML Intern"
+            ],
+            "stats": [
+              {
+                "label": "Pages",
+                "value": "2"
+              },
+              {
+                "label": "Updated",
+                "value": "Mar 2025"
+              }
+            ],
+            "badge": "Download PDF"
+          }
+        }
+      ]
     },
     "blogPosts": [
       {
@@ -66,6 +181,173 @@
       "description": "AI & Software Engineer building production-grade agents, ML systems, and scalable platforms.",
       "favicon": "/icons/ivan-orb.svg",
       "logoText": "Iván Caamaño"
+    },
+    "theme": {
+      "bodyFont": "Space Grotesk, Calibri, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "headingFont": "Space Grotesk, 'Sora', 'Segoe UI', sans-serif",
+      "monoFont": "IBM Plex Mono, 'SFMono-Regular', ui-monospace, monospace"
+    },
+    "nav": {
+      "home": "Home",
+      "about": "About",
+      "projects": "Projects",
+      "blog": "Blog",
+      "contact": "Contact"
+    },
+    "experience": {
+      "title": "Work Experience",
+      "subtitle": "Recent roles pulled from my CV with the impact I delivered.",
+      "cta": "Download CV",
+      "roles": [
+        {
+          "role": "AI & Data Analyst",
+          "company": "Avvale",
+          "companyLogo": "/icons/avvale.svg",
+          "companyLogoAlt": "Avvale logo",
+          "period": "Mar 2025 - Present",
+          "location": "Madrid, Spain",
+          "summary": "Lead automation initiatives that blend AI agents, RAG systems, and computer vision for consulting engagements.",
+          "bullets": [
+            "Designed and deployed an AWS document-generation agent automating four dynamic document types, reducing manual effort 95%.",
+            "Engineered prompting and RAG flows for an Azure chatbot, cutting information retrieval latency 90%.",
+            "Built an end-to-end deep learning pipeline to segment and analyze beef loin imagery, improving classification consistency 80%."
+          ]
+        },
+        {
+          "role": "Software Associate Consultant",
+          "company": "NFQ Advisory Services",
+          "companyLogo": "/icons/nfq.svg",
+          "companyLogoAlt": "NFQ Advisory Services logo",
+          "period": "Jan 2025 - Mar 2025",
+          "location": "Madrid, Spain",
+          "summary": "Supported BBVA's Risk team delivering the Internal Model Method (IMM) platform with production-ready tooling.",
+          "bullets": [
+            "Embedded inside BBVA's IMM development squad within the Risk organization.",
+            "Analyzed, designed, and implemented software for four IMM processes using Python, Java, and Unix while coordinating with two cross-functional teams.",
+            "Integrated and automated IMM batch executions, minimizing manual intervention and processing time via iterative improvements."
+          ]
+        },
+        {
+          "role": "Defense and Security Systems Intern",
+          "company": "Indra",
+          "companyLogo": "/icons/indra.svg",
+          "companyLogoAlt": "Indra logo",
+          "period": "Sep 2021 - Jul 2022",
+          "location": "Madrid, Spain",
+          "summary": "Contributed ML and data-processing capabilities to modernize AESA radar programs tied to Eurofighter platforms.",
+          "bullets": [
+            "Coordinated with a 10+ person team digitizing AESA radars for the Eurofighter initiative.",
+            "Developed and tuned two ML models for radar data processing using TensorFlow and PyTorch, boosting efficiency 30%.",
+            "Assisted integration of real-time radar data solutions that improved system performance 20%."
+          ]
+        }
+      ]
+    },
+    "stack": {
+      "title": "Core Competencies",
+      "sections": [
+        {
+          "title": "Programming",
+          "description": "Languages I use across consulting projects and open-source work.",
+          "icon": "code",
+          "items": [
+            "Python",
+            "SQL",
+            "TypeScript",
+            "JavaScript",
+            "Java",
+            "R",
+            "Scala",
+            "Go",
+            "Rust",
+            "Solidity"
+          ]
+        },
+        {
+          "title": "Software",
+          "description": "Cloud and platform tooling from my DevOps and product experience.",
+          "icon": "layers",
+          "items": [
+            "AWS",
+            "Azure",
+            "GCP",
+            "Docker",
+            "Kubernetes",
+            "Databricks",
+            "Linux",
+            "Git"
+          ]
+        },
+        {
+          "title": "AI & Data",
+          "description": "The AI/ML stack powering my applications and deliveries.",
+          "icon": "brain",
+          "items": [
+            "OpenAI",
+            "Claude (Skills",
+            "MCP)",
+            "Gemini",
+            "PyTorch",
+            "TensorFlow",
+            "Keras",
+            "LangChain"
+          ]
+        }
+      ]
+    },
+    "projects": {
+      "title": "Featured Work",
+      "viewAll": "View Full CV"
+    },
+    "projectItems": [
+      {
+        "id": 1,
+        "icon": "cloud",
+        "title": "AI Doc Generation Agent",
+        "desc": "Designed and deployed an AWS-based agent automating production of 4 dynamic document types, reducing manual effort by 95%.",
+        "tags": [
+          "AWS",
+          "Python",
+          "LLMs",
+          "Automation"
+        ]
+      },
+      {
+        "id": 2,
+        "icon": "database",
+        "title": "Enterprise RAG Chatbot",
+        "desc": "Engineered prompting and RAG implementations in Azure, decreasing information retrieval latency by 90% for specialized queries.",
+        "tags": [
+          "Azure",
+          "RAG",
+          "LangChain",
+          "Python"
+        ]
+      },
+      {
+        "id": 3,
+        "icon": "layers",
+        "title": "Radar ML Optimization",
+        "desc": "Developed ML models for AESA radar data processing (Eurofighter), improving efficiency by 30% using TensorFlow and PyTorch.",
+        "tags": [
+          "PyTorch",
+          "TensorFlow",
+          "Signal Proc",
+          "Python"
+        ]
+      }
+    ],
+    "blog": {
+      "title": "Latest Insights",
+      "description": "",
+      "viewAll": "Read all articles",
+      "viewMore": "View more insights",
+      "viewLess": "View fewer insights",
+      "readMore": "Read article",
+      "empty": "No articles published yet."
+    },
+    "footer": {
+      "copyright": "© 2025 Iván Caamaño."
     }
   }
 }
