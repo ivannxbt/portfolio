@@ -32,7 +32,7 @@ Create a `.env.local` file in the root directory to store any public configurati
 NEXT_PUBLIC_GEMINI_API_KEY=your_api_key_here
 ```
 
-Authentication credentials and your database connection string are kept securely in `data/secret-config.json`, which is ignored by Git. Populate or rotate that file with:
+Authenticatidsn credentials and your database connection string are kept securely in `data/secret-config.json`, which is ignored by Git. Populate or rotate that file with:
 
 ```
 npm run secrets:init -- --admin-email=you@example.com --password=your_password --database-url="postgresql://user:pass@host/db" --nextauth-secret="secure-random-string"
