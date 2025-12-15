@@ -1,8 +1,9 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
+import bcrypt from "bcrypt";
 
 const adminEmail = (process.env.ADMIN_EMAIL ?? "").toLowerCase();
-const adminPassword = process.env.ADMIN_PASSWORD;
+const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -19,11 +20,18 @@ export const authOptions: NextAuthOptions = {
         const email = credentials?.email?.toLowerCase().trim();
         const password = credentials?.password;
 
-        if (!adminEmail || !adminPassword) {
+        if (!adminEmail || !adminPasswordHash) {
           throw new Error("Admin credentials are not configured.");
         }
 
-        if (email === adminEmail && password === adminPassword) {
+        if (!password) {
+          return null;
+        }
+
+        // Use bcrypt to compare the provided password with the stored hash
+        const isPasswordValid = await bcrypt.compare(password, adminPasswordHash);
+
+        if (email === adminEmail && isPasswordValid) {
           return {
             id: "admin",
             name: "Site Admin",

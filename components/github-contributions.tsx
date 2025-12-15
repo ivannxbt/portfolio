@@ -22,6 +22,11 @@ type ContributionsResponse = {
   weeks: ContributionWeek[];
 };
 
+type CachedData = {
+  data: ContributionsResponse;
+  timestamp: number;
+};
+
 interface GithubContributionsProps {
   username: string;
   theme: "dark" | "light";
@@ -140,6 +145,76 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
   useEffect(() => {
     let cancelled = false;
     const year = new Date().getFullYear();
+    const cacheKey = `github-contributions-${username}-${year}`;
+
+    const getCachedData = (): ContributionsResponse | null => {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (!cached) return null;
+        
+        const parsed = JSON.parse(cached);
+        
+        // Validate the structure of cached data
+        if (!parsed || typeof parsed !== 'object' || 
+            !parsed.data || !parsed.timestamp || 
+            typeof parsed.timestamp !== 'number') {
+          localStorage.removeItem(cacheKey);
+          return null;
+        }
+        
+        const { data, timestamp }: CachedData = parsed;
+        const now = Date.now();
+        
+        // Check if cache is still valid (within TTL)
+        if (now - timestamp < CACHE_TTL) {
+          return data;
+        }
+        
+        // Cache expired, remove it
+        localStorage.removeItem(cacheKey);
+        return null;
+      } catch (err) {
+        console.error("Error reading cache:", err);
+        // Clean up corrupted cache
+        try {
+          localStorage.removeItem(cacheKey);
+        } catch {
+          // Ignore cleanup errors
+        }
+        return null;
+      }
+    };
+
+    const setCachedData = (contributionsData: ContributionsResponse) => {
+      const cacheData: CachedData = {
+        data: contributionsData,
+        timestamp: Date.now(),
+      };
+      const cacheString = JSON.stringify(cacheData);
+      
+      try {
+        localStorage.setItem(cacheKey, cacheString);
+      } catch (err) {
+        // Handle quota exceeded or other storage errors
+        if (err instanceof Error && err.name === 'QuotaExceededError') {
+          console.warn("localStorage quota exceeded, clearing old cache");
+          try {
+            // Clear all github-contributions caches to make room
+            Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('github-contributions-')) {
+                localStorage.removeItem(key);
+              }
+            });
+            // Retry saving
+            localStorage.setItem(cacheKey, cacheString);
+          } catch {
+            console.error("Failed to cache even after cleanup");
+          }
+        } else {
+          console.error("Error writing to cache:", err);
+        }
+      }
+    };
 
     const load = async () => {
       // Check cache first

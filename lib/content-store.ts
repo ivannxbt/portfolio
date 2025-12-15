@@ -53,7 +53,15 @@ export async function writeOverrides(overrides: ContentOverrides) {
   await writeFile(overridesPath, JSON.stringify(overrides, null, 2), "utf-8");
 }
 
-export function deepMerge<T>(target: T, source: unknown): T {
+const MAX_MERGE_DEPTH = 50;
+
+export function deepMerge<T>(target: T, source: unknown, depth = 0): T {
+  if (depth > MAX_MERGE_DEPTH) {
+    throw new Error(
+      `Maximum merge depth (${MAX_MERGE_DEPTH}) exceeded. This may indicate a circular reference or malicious input.`
+    );
+  }
+
   if (source === undefined) {
     return target;
   }
@@ -73,7 +81,7 @@ export function deepMerge<T>(target: T, source: unknown): T {
         target && typeof target === "object"
           ? (target as Record<string, unknown>)[key]
           : undefined;
-      base[key] = deepMerge(nextTarget, nextSource);
+      base[key] = deepMerge(nextTarget, nextSource, depth + 1);
     }
     return base as T;
   }
