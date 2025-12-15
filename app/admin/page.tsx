@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -80,9 +80,169 @@ const createStackSection = (): StackSection => ({
 
 const parseStackItems = (input: string) =>
   input
-    .split(/,|\n/)
+    .split(/\r?\n/)
     .map((item) => item.trim())
     .filter(Boolean);
+
+const parseTagString = (value: string) =>
+  value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+type MarkdownFieldProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  rows?: number;
+  disabled?: boolean;
+  helperText?: string;
+};
+
+type LinkPromptState = {
+  start: number;
+  end: number;
+  label: string;
+};
+
+const MarkdownField = ({
+  label,
+  value,
+  onChange,
+  rows = 3,
+  disabled = false,
+  helperText = "Select text then use the buttons to wrap it in Markdown.",
+}: MarkdownFieldProps) => {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [linkPrompt, setLinkPrompt] = useState<LinkPromptState | null>(null);
+  const [linkUrl, setLinkUrl] = useState("https://");
+  const linkInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (linkPrompt && linkInputRef.current) {
+      linkInputRef.current.focus();
+      linkInputRef.current.select();
+    }
+  }, [linkPrompt]);
+
+  const wrapSelection = (before: string, after = before, placeholder = "") => {
+    if (disabled) return;
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const normalizedValue = value ?? "";
+    const hasSelection = start !== end;
+    const selectionText = hasSelection ? normalizedValue.slice(start, end) : placeholder;
+    const nextValue =
+      normalizedValue.slice(0, start) +
+      before +
+      selectionText +
+      after +
+      normalizedValue.slice(end);
+    onChange(nextValue);
+    window.requestAnimationFrame(() => {
+      textarea.focus();
+      const selectionStart = start + before.length;
+      const selectionEnd = selectionStart + selectionText.length;
+      textarea.setSelectionRange(selectionStart, selectionEnd);
+    });
+  };
+
+  const insertLink = () => {
+    if (disabled) return;
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const normalizedValue = value ?? "";
+    const linkLabel = normalizedValue.slice(start, end) || "link text";
+    setLinkUrl("https://");
+    setLinkPrompt({ start, end, label: linkLabel });
+  };
+
+  const handleLinkSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!linkPrompt) return;
+    const url = linkUrl.trim();
+    if (!url) return;
+    const normalizedValue = value ?? "";
+    const markdown = `[${linkPrompt.label}](${url})`;
+    const nextValue =
+      normalizedValue.slice(0, linkPrompt.start) +
+      markdown +
+      normalizedValue.slice(linkPrompt.end);
+    onChange(nextValue);
+    setLinkPrompt(null);
+    window.requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+      const selectionStart = linkPrompt.start + 1;
+      const selectionEnd = selectionStart + linkPrompt.label.length;
+      textareaRef.current?.setSelectionRange(selectionStart, selectionEnd);
+    });
+  };
+
+  const handleLinkCancel = () => {
+    setLinkPrompt(null);
+  };
+
+  const buttonClass =
+    "rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white/40 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40";
+
+  return (
+    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span>{label}</span>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className={buttonClass} onClick={() => wrapSelection("**", "**", "bold text")} disabled={disabled} aria-label="Bold">
+            B
+          </button>
+          <button type="button" className={buttonClass} onClick={() => wrapSelection("*", "*", "italic text")} disabled={disabled} aria-label="Italic">
+            I
+          </button>
+          <button type="button" className={buttonClass} onClick={insertLink} disabled={disabled} aria-label="Insert link">
+            Link
+          </button>
+        </div>
+      </div>
+      <p className="mt-1 text-[10px] text-zinc-500">{helperText}</p>
+      {linkPrompt && (
+        <form className="mt-2 flex flex-wrap items-center gap-2" onSubmit={handleLinkSubmit}>
+          <input
+            ref={linkInputRef}
+            type="url"
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-white focus:outline-none md:w-auto"
+            value={linkUrl}
+            onChange={(event) => setLinkUrl(event.target.value)}
+            placeholder="https://example.com"
+            required
+          />
+          <button
+            type="submit"
+            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white/40 hover:bg-white/10"
+          >
+            Insert
+          </button>
+          <button
+            type="button"
+            className="rounded-full border border-transparent bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white/40 hover:bg-white/10"
+            onClick={handleLinkCancel}
+          >
+            Cancel
+          </button>
+        </form>
+      )}
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+        rows={rows}
+        disabled={disabled}
+      />
+    </label>
+  );
+};
 
 export default function AdminPage() {
   const router = useRouter();
@@ -93,12 +253,22 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const dirtyRef = useRef(false);
+  const handleLangChange = (value: "en" | "es") => {
+    setLang(value);
+    dirtyRef.current = false;
+    setIsDirty(false);
+  };
 
   useEffect(() => {
     if (!session) return;
 
     const controller = new AbortController();
     const loadContent = async () => {
+      if (dirtyRef.current) {
+        return;
+      }
       setLoading(true);
       setError(null);
       setMessage(null);
@@ -113,6 +283,8 @@ export default function AdminPage() {
         const payload = (await response.json()) as { data: LandingContent };
         const data = payload.data ?? defaultContent[lang];
         setContent(cloneContent(data));
+        dirtyRef.current = false;
+        setIsDirty(false);
       } catch (err) {
         if (controller.signal.aborted || (err as DOMException)?.name === "AbortError") {
           return;
@@ -120,6 +292,8 @@ export default function AdminPage() {
         console.error("Admin load error", err);
         setError("Unable to load content. Showing defaults.");
         setContent(cloneContent(defaultContent[lang]));
+        dirtyRef.current = false;
+        setIsDirty(false);
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -132,7 +306,17 @@ export default function AdminPage() {
   }, [lang, session]);
 
   const updateContent = (updater: (current: LandingContent) => LandingContent) => {
-    setContent((prev) => (prev ? updater(prev) : prev));
+    setContent((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      const next = updater(prev);
+      if (!dirtyRef.current) {
+        dirtyRef.current = true;
+        setIsDirty(true);
+      }
+      return next;
+    });
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -156,6 +340,8 @@ export default function AdminPage() {
         setContent(cloneContent(payload.data));
       }
       setMessage("Content updated successfully.");
+      dirtyRef.current = false;
+      setIsDirty(false);
     } catch (err) {
       console.error("Admin save error", err);
       setError("Saving failed. Please try again.");
@@ -229,7 +415,7 @@ export default function AdminPage() {
             {languages.map((option) => (
               <button
                 key={option.value}
-                onClick={() => setLang(option.value)}
+                onClick={() => handleLangChange(option.value)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   lang === option.value
                     ? "bg-teal-500 text-black"
@@ -430,21 +616,19 @@ export default function AdminPage() {
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-zinc-400">
-              Subheadline (Markdown enabled)
-              <textarea
-                value={content.hero.subheadline}
-                onChange={(event) =>
-                  updateContent((prev) => ({
-                    ...prev,
-                    hero: { ...prev.hero, subheadline: event.target.value },
-                  }))
-                }
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
-                rows={4}
-                disabled={loading}
-              />
-            </label>
+            <MarkdownField
+              label="Subheadline"
+              helperText="Markdown enabled—select text and click the buttons to format."
+              value={content.hero.subheadline}
+              onChange={(text) =>
+                updateContent((prev) => ({
+                  ...prev,
+                  hero: { ...prev.hero, subheadline: text },
+                }))
+              }
+              rows={4}
+              disabled={loading}
+            />
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block text-xs uppercase tracking-widest text-zinc-400">
                 Primary CTA label
@@ -496,21 +680,19 @@ export default function AdminPage() {
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-zinc-400">
-              Summary (Markdown enabled)
-              <textarea
-                value={content.about.summary}
-                onChange={(event) =>
-                  updateContent((prev) => ({
-                    ...prev,
-                    about: { ...prev.about, summary: event.target.value },
-                  }))
-                }
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
-                rows={4}
-                disabled={loading}
-              />
-            </label>
+            <MarkdownField
+              label="Summary"
+              helperText="Markdown enabled—select text and click the buttons to format."
+              value={content.about.summary}
+              onChange={(text) =>
+                updateContent((prev) => ({
+                  ...prev,
+                  about: { ...prev.about, summary: text },
+                }))
+              }
+              rows={4}
+              disabled={loading}
+            />
             <label className="block text-xs uppercase tracking-widest text-zinc-400">
               Education section title
               <input
@@ -577,9 +759,9 @@ export default function AdminPage() {
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-zinc-400">
-              Subtitle
-              <textarea
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Subtitle
+                <textarea
                 value={content.experience.subtitle}
                 onChange={(event) =>
                   updateContent((prev) => ({
@@ -590,11 +772,26 @@ export default function AdminPage() {
                 className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
                 rows={3}
                 disabled={loading}
-              />
-            </label>
-            <label className="block text-xs uppercase tracking-widest text-zinc-400">
-              Download CTA label
-              <input
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Roles label
+                <input
+                  type="text"
+                  value={content.experience.rolesLabel ?? ""}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      experience: { ...prev.experience, rolesLabel: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                Download CTA label
+                <input
                 type="text"
                 value={content.experience.cta}
                 onChange={(event) =>
@@ -711,9 +908,9 @@ export default function AdminPage() {
                     </select>
                   </label>
                   <label className="block text-xs uppercase tracking-widest text-zinc-400">
-                    Items (comma or newline separated)
+                    Items (newline separated)
                     <textarea
-                      value={section.items.join(", ")}
+                      value={section.items.join("\n")}
                       onChange={(event) =>
                         updateContent((prev) => {
                           const sections = [...(prev.stack.sections ?? [])];
@@ -747,9 +944,23 @@ export default function AdminPage() {
               >
                 Add stack section
               </button>
-            </div>
+          </div>
 
-            <div className="space-y-4">
+          <MarkdownField
+            label="Description"
+            helperText="Markdown enabled—select text and click the buttons to format."
+            value={content.projects.description}
+            onChange={(text) =>
+              updateContent((prev) => ({
+                ...prev,
+                projects: { ...prev.projects, description: text },
+              }))
+            }
+            rows={3}
+            disabled={loading}
+          />
+
+          <div className="space-y-4">
               {content.experience.roles.map((role, index) => (
                 <div key={`${role.role}-${index}`} className="rounded-xl border border-white/10 p-4 space-y-3">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
@@ -800,6 +1011,40 @@ export default function AdminPage() {
                           updateContent((prev) => {
                             const roles = prev.experience.roles.slice();
                             roles[index] = { ...roles[index], company: event.target.value };
+                            return { ...prev, experience: { ...prev.experience, roles } };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Company logo URL
+                      <input
+                        type="text"
+                        value={role.companyLogo ?? ""}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const roles = prev.experience.roles.slice();
+                            roles[index] = { ...roles[index], companyLogo: event.target.value };
+                            return { ...prev, experience: { ...prev.experience, roles } };
+                          })
+                        }
+                        className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                        disabled={loading}
+                      />
+                    </label>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                      Logo alt text
+                      <input
+                        type="text"
+                        value={role.companyLogoAlt ?? ""}
+                        onChange={(event) =>
+                          updateContent((prev) => {
+                            const roles = prev.experience.roles.slice();
+                            roles[index] = { ...roles[index], companyLogoAlt: event.target.value };
                             return { ...prev, experience: { ...prev.experience, roles } };
                           })
                         }
@@ -1021,22 +1266,20 @@ export default function AdminPage() {
                       />
                     </label>
                   </div>
-                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
-                    Description (Markdown enabled)
-                    <textarea
-                      value={project.desc}
-                      onChange={(event) =>
-                        updateContent((prev) => {
-                          const projectItems = prev.projectItems.slice();
-                          projectItems[index] = { ...projectItems[index], desc: event.target.value };
-                          return { ...prev, projectItems };
-                        })
-                      }
-                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
-                      rows={3}
-                      disabled={loading}
-                    />
-                  </label>
+                  <MarkdownField
+                    label="Description"
+                    helperText="Markdown enabled—select text and click the buttons to format."
+                    value={project.desc}
+                    onChange={(text) =>
+                      updateContent((prev) => {
+                        const projectItems = prev.projectItems.slice();
+                        projectItems[index] = { ...projectItems[index], desc: text };
+                        return { ...prev, projectItems };
+                      })
+                    }
+                    rows={3}
+                    disabled={loading}
+                  />
                   <div className="grid gap-3 md:grid-cols-2">
                     <label className="block text-xs uppercase tracking-widest text-zinc-400">
                       Icon
@@ -1063,16 +1306,14 @@ export default function AdminPage() {
                       Tags (comma separated)
                       <input
                         type="text"
-                        value={project.tags.join(", ")}
-                        onChange={(event) =>
+                        key={`project-tags-${project.id}-${project.tags.join(",")}`}
+                        defaultValue={project.tags.join(", ")}
+                        onBlur={(event) =>
                           updateContent((prev) => {
                             const projectItems = prev.projectItems.slice();
                             projectItems[index] = {
                               ...projectItems[index],
-                              tags: event.target.value
-                                .split(",")
-                                .map((tag) => tag.trim())
-                                .filter(Boolean),
+                              tags: parseTagString(event.target.value),
                             };
                             return { ...prev, projectItems };
                           })
@@ -1118,21 +1359,19 @@ export default function AdminPage() {
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-zinc-400">
-              Description (Markdown enabled)
-              <textarea
-                value={content.blog.description}
-                onChange={(event) =>
-                  updateContent((prev) => ({
-                    ...prev,
-                    blog: { ...prev.blog, description: event.target.value },
-                  }))
-                }
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
-                rows={3}
-                disabled={loading}
-              />
-            </label>
+            <MarkdownField
+              label="Description"
+              helperText="Markdown enabled—select text and click the buttons to format."
+              value={content.blog.description}
+              onChange={(text) =>
+                updateContent((prev) => ({
+                  ...prev,
+                  blog: { ...prev.blog, description: text },
+                }))
+              }
+              rows={3}
+              disabled={loading}
+            />
             <div className="grid gap-4 md:grid-cols-3">
               <label className="block text-xs uppercase tracking-widest text-zinc-400">
                 View all label
@@ -1283,22 +1522,20 @@ export default function AdminPage() {
                       disabled={loading}
                     />
                   </label>
-                  <label className="block text-xs uppercase tracking-widest text-zinc-400">
-                    Summary (Markdown enabled)
-                    <textarea
-                      value={post.summary}
-                      onChange={(event) =>
-                        updateContent((prev) => {
-                          const blogPosts = prev.blogPosts.slice();
-                          blogPosts[index] = { ...blogPosts[index], summary: event.target.value };
-                          return { ...prev, blogPosts };
-                        })
-                      }
-                      className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
-                      rows={3}
-                      disabled={loading}
-                    />
-                  </label>
+                  <MarkdownField
+                    label="Summary"
+                    helperText="Markdown enabled—select text and click the buttons to format."
+                    value={post.summary}
+                    onChange={(text) =>
+                      updateContent((prev) => {
+                        const blogPosts = prev.blogPosts.slice();
+                        blogPosts[index] = { ...blogPosts[index], summary: text };
+                        return { ...prev, blogPosts };
+                      })
+                    }
+                    rows={3}
+                    disabled={loading}
+                  />
                   <label className="block text-xs uppercase tracking-widest text-zinc-400">
                     Cover image (URL or /public path)
                     <input
@@ -1384,25 +1621,23 @@ export default function AdminPage() {
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-zinc-400">
-              Body copy (Markdown enabled)
-              <textarea
-                value={content.contact.text}
-                onChange={(event) =>
-                  updateContent((prev) => ({
-                    ...prev,
-                    contact: { ...prev.contact, text: event.target.value },
-                  }))
-                }
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
-                rows={3}
-                disabled={loading}
-              />
-            </label>
+            <MarkdownField
+              label="Body copy"
+              helperText="Markdown enabled—select text and click the buttons to format."
+              value={content.contact.text}
+              onChange={(text) =>
+                updateContent((prev) => ({
+                  ...prev,
+                  contact: { ...prev.contact, text },
+                }))
+              }
+              rows={3}
+              disabled={loading}
+            />
 
             <div className="space-y-4">
               {content.contact.socials.map((social, index) => (
-                <div key={`${social.platform}-${index}`} className="rounded-xl border border-white/10 p-4 space-y-3">
+                <div key={`${social.platform}-${index}`} className="rounded-xl border border-white/10 p-4 space-y-4">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
                     <span>Social {index + 1}</span>
                     {content.contact.socials.length > 1 && (
@@ -1520,6 +1755,9 @@ export default function AdminPage() {
 
           {error && <p className="text-sm text-red-400">{error}</p>}
           {message && <p className="text-sm text-emerald-400">{message}</p>}
+          {isDirty && !saving && (
+            <p className="text-xs text-amber-300 italic">Unsaved changes will persist until you click Save.</p>
+          )}
 
           <button
             type="submit"

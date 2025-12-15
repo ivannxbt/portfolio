@@ -12,19 +12,27 @@ export default async function ProjectsPage({ params }: PageProps) {
   const projects = getProjects(lang);
 
   return (
-    <div className="px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl space-y-8">
+    <section className="py-24 border-t border-neutral-900/40 bg-black text-neutral-100">
+      <div className="mx-auto max-w-6xl space-y-10 px-5 sm:px-6 lg:px-8">
         <header className="space-y-4">
-          <h1 className="text-4xl font-semibold text-white sm:text-5xl">
-            {t.projects.title}
-          </h1>
-          <p className="text-lg text-zinc-400">{t.projects.description}</p>
+          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-teal-400">
+            <span>{t.nav.projects}</span>
+            <span className="h-px flex-1 bg-gradient-to-r from-teal-400/50 to-transparent" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl">
+              {t.projects.title}
+            </h1>
+            {t.projects.description && (
+              <p className="text-lg text-neutral-400">{t.projects.description}</p>
+            )}
+          </div>
         </header>
 
         {projects.length === 0 ? (
-          <p className="text-zinc-500">{t.projects.empty}</p>
+          <p className="text-center text-neutral-500">{t.projects.empty}</p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project, index) => (
               <ProjectCard
                 key={project.slug}
@@ -40,6 +48,6 @@ export default async function ProjectsPage({ params }: PageProps) {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

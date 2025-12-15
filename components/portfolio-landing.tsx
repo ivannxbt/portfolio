@@ -1,6 +1,9 @@
 ﻿// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 'use client';
+
+import Image from "next/image";
+import Link from "next/link";
 import React, {
   useState,
   useEffect,
@@ -10,27 +13,26 @@ import React, {
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 import {
+  ArrowUpRight,
+  BrainCircuit,
+  Briefcase,
+  Clock3,
   Cloud,
+  Code2,
   Database,
   FileText,
   Github,
-  Menu,
-  X,
-  ArrowUpRight,
-  Code2,
-  BrainCircuit,
   Layers,
   Linkedin,
-  MessageSquare,
+  Loader2,
+  MapPin,
+  Menu,
+  Moon,
   Send,
   Sparkles,
-  Loader2,
   Sun,
-  Moon,
-  Briefcase,
-  MapPin,
-  Clock3,
   Twitter,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -46,415 +48,57 @@ import { GithubContributions } from "@/components/github-contributions";
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY?.trim();
 
-const SocialPreviewCard = ({
-    preview,
-    platform,
-    theme,
-  }: {
-    preview: LandingContent["contact"]["socials"][number]["preview"];
-    platform: SocialPlatform;
-    theme: Theme;
-  }) => {
-    if (!preview) return null;
+const socialIconMap: Record<SocialPlatform, LucideIcon> = {
+  github: Github,
+  linkedin: Linkedin,
+  twitter: Twitter,
+  resume: FileText,
+};
 
-    const isDark = theme === "dark";
-    const mutedText = isDark ? "text-neutral-400" : "text-neutral-600";
+const socialPreviewImageMap: Record<SocialPlatform, string | undefined> = {
+  github: "/api/uploads/github.png",
+  linkedin: "/api/uploads/linkedin.png",
+  twitter: "/api/uploads/x.png",
+  resume: undefined,
+};
 
-    return (
-      <div
-        className={`w-full rounded-3xl border px-5 py-6 shadow-2xl backdrop-blur-lg transition-all duration-300 ${
-          isDark
-            ? "bg-neutral-950/90 border-white/10 text-white"
-            : "bg-white border-neutral-200 text-neutral-900"
-        }`}
-      >
-        <div className="grid gap-5 lg:grid-cols-[1.05fr,0.95fr] items-stretch">
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              {preview.avatar ? (
-                <div className="relative h-14 w-14 overflow-hidden rounded-2xl border border-white/10">
-                  <Image
-                    src={preview.avatar}
-                    alt={`${preview.title} preview`}
-                    fill
-                    sizes="56px"
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="h-14 w-14 rounded-2xl bg-teal-500/20" />
-              )}
-              <div className="min-w-0">
-                <p className="text-base font-semibold leading-tight">{preview.title}</p>
-                <p className={`text-sm ${mutedText}`}>{preview.subtitle}</p>
-              </div>
-              {preview.badge && (
-                <span
-                  className={`ml-auto rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${
-                    isDark ? "border-white/15 text-neutral-200" : "border-neutral-300 text-neutral-600"
-                  }`}
-                >
-                  {preview.badge}
-                </span>
-              )}
-            </div>
+type SocialPreviewOverlayProps = {
+  platform: SocialPlatform;
+  label: string;
+};
 
-            <p className={`text-sm leading-relaxed ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>
-              {preview.description}
-            </p>
+const SocialPreviewOverlay = ({ platform, label }: SocialPreviewOverlayProps) => {
+  const previewImage = socialPreviewImageMap[platform];
+  if (!previewImage) {
+    return null;
+  }
 
-            {preview.highlights?.length ? (
-              <ul className={`grid gap-2 text-sm ${isDark ? "text-neutral-200" : "text-neutral-700"}`}>
-                {preview.highlights.slice(0, 3).map((highlight) => (
-                  <li key={highlight} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-                    {highlight}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-
-            {preview.stats?.length ? (
-              <div className="grid grid-cols-2 gap-4">
-                {preview.stats.slice(0, 4).map((stat) => (
-                  <div
-                    key={stat.label}
-                    className={`rounded-2xl border px-4 py-3 ${
-                      isDark ? "border-white/10 bg-white/5" : "border-neutral-200 bg-neutral-50"
-                    }`}
-                  >
-                    <p className={`text-[11px] uppercase tracking-wide ${mutedText}`}>{stat.label}</p>
-                    <p className="text-lg font-semibold">{stat.value}</p>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
-
-          <PreviewWindow platform={platform} preview={preview} />
-        </div>
-      </div>
-    );
-  };
-
-  type PreviewPalette = {
-    background: string;
-    glow: string;
-    border: string;
-    accent: string;
-    text: string;
-    muted: string;
-    chipBg: string;
-    chipText: string;
-  };
-
-  const previewPalettes: Record<SocialPlatform | "default", PreviewPalette> = {
-    github: {
-      background: "linear-gradient(135deg, #020617 0%, #0f172a 60%, #111827 100%)",
-      glow: "rgba(56, 189, 248, 0.25)",
-      border: "rgba(255,255,255,0.08)",
-      accent: "#58a6ff",
-      text: "rgba(255,255,255,0.92)",
-      muted: "rgba(255,255,255,0.6)",
-      chipBg: "rgba(88,166,255,0.15)",
-      chipText: "#cfe3ff",
-    },
-    linkedin: {
-      background: "linear-gradient(140deg, #0a4c94, #0a66c2)",
-      glow: "rgba(59,130,246,0.25)",
-      border: "rgba(255,255,255,0.18)",
-      accent: "#b9e0ff",
-      text: "#f5fbff",
-      muted: "rgba(255,255,255,0.7)",
-      chipBg: "rgba(255,255,255,0.15)",
-      chipText: "#ffffff",
-    },
-    twitter: {
-      background: "linear-gradient(135deg, #03111f, #0ea5e9)",
-      glow: "rgba(14,165,233,0.35)",
-      border: "rgba(255,255,255,0.12)",
-      accent: "#e0f7ff",
-      text: "#f0fbff",
-      muted: "rgba(224,247,255,0.8)",
-      chipBg: "rgba(255,255,255,0.18)",
-      chipText: "#ffffff",
-    },
-    resume: {
-      background: "linear-gradient(135deg, #f8fafc, #e2e8f0)",
-      glow: "rgba(59,130,246,0.15)",
-      border: "rgba(15,23,42,0.08)",
-      accent: "#0f172a",
-      text: "#0f172a",
-      muted: "#475467",
-      chipBg: "rgba(15,23,42,0.08)",
-      chipText: "#0f172a",
-    },
-    default: {
-      background: "linear-gradient(135deg, #0f172a, #1f2937)",
-      glow: "rgba(45,212,191,0.25)",
-      border: "rgba(255,255,255,0.1)",
-      accent: "#d1fae5",
-      text: "#f8fafc",
-      muted: "rgba(255,255,255,0.7)",
-      chipBg: "rgba(255,255,255,0.12)",
-      chipText: "#ffffff",
-    },
-  };
-
-  const socialIconMap: Record<SocialPlatform, LucideIcon> = {
-    github: Github,
-    linkedin: Linkedin,
-    twitter: Twitter,
-    resume: FileText,
-  };
-
-  const projectIconMap: Record<ProjectIcon, LucideIcon> = {
-    cloud: Cloud,
-    database: Database,
-    layers: Layers,
-  };
-
-  const PreviewWindow = ({
-    platform,
-    preview,
-  }: {
-    platform: SocialPlatform;
-    preview: LandingContent["contact"]["socials"][number]["preview"];
-  }) => {
-    const palette = previewPalettes[platform] ?? previewPalettes.default;
-    const isLight = platform === "resume";
-    const shortDescription = preview.description?.length
-      ? preview.description.length > 120
-        ? `${preview.description.slice(0, 120)}…`
-        : preview.description
-      : "";
-
-    const renderAvatar = (size = 48) => (
-      <div
-        className={`relative overflow-hidden rounded-full border ${
-          isLight ? "border-black/10" : "border-white/20"
-        }`}
-        style={{ width: size, height: size }}
-      >
-        {preview.avatar ? (
-          <Image src={preview.avatar} alt={`${preview.title} avatar`} fill sizes={`${size}px`} className="object-cover" />
-        ) : (
-          <div className="h-full w-full" style={{ backgroundColor: palette.chipBg }} />
-        )}
-      </div>
-    );
-
-    const renderGithubContent = () => {
-      const contributionColors = ["#0f172a", "#1e293b", "#2563eb", "#22d3ee", "#38bdf8"];
-      const stats = preview.stats?.slice(0, 3) ?? [];
-
-      return (
-        <div className="mt-4 flex flex-col gap-4">
-          <div className="flex items-start gap-3">
-            {renderAvatar(48)}
-            <div className="min-w-0">
-              <p className="text-sm font-semibold" style={{ color: palette.text }}>
-                {preview.subtitle}
-              </p>
-              <p className="text-xs" style={{ color: palette.muted }}>
-                {shortDescription}
-              </p>
-            </div>
-            <span
-              className="rounded-full px-3 py-1 text-[10px] uppercase tracking-wide"
-              style={{ backgroundColor: palette.chipBg, color: palette.chipText }}
-            >
-              {preview.badge ?? "Active"}
-            </span>
-          </div>
-          <div className="grid grid-cols-12 gap-1">
-            {Array.from({ length: 84 }).map((_, idx) => (
-              <span
-                key={`gh-${idx}`}
-                className="h-2.5 w-2.5 rounded-[3px]"
-                style={{ backgroundColor: contributionColors[idx % contributionColors.length] }}
-              />
-            ))}
-          </div>
-          <div className="flex flex-wrap items-center gap-4 text-[11px]" style={{ color: palette.muted }}>
-            {stats.length
-              ? stats.map((stat) => (
-                  <span key={stat.label} className="font-medium">
-                    {stat.label}: <span style={{ color: palette.text }}>{stat.value}</span>
-                  </span>
-                ))
-              : (
-                  <span>Exploring repositories &mdash; stay tuned.</span>
-                )}
-          </div>
-        </div>
-      );
-    };
-
-    const renderLinkedinContent = () => {
-      const stats = preview.stats?.slice(0, 2) ?? [];
-
-      return (
-        <div className="mt-5 space-y-4">
-          <div className="rounded-2xl border border-white/20 bg-white/10 p-4 shadow-inner shadow-black/20">
-            <div className="flex items-center gap-3">
-              {renderAvatar(44)}
-              <div>
-                <p className="text-sm font-semibold" style={{ color: palette.text }}>
-                  {preview.subtitle}
-                </p>
-                <p className="text-xs" style={{ color: palette.muted }}>
-                  {shortDescription}
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-[11px]">
-              {stats.length
-                ? stats.map((stat) => (
-                    <div key={stat.label}>
-                      <p style={{ color: palette.muted }}>{stat.label}</p>
-                      <p className="text-base font-semibold" style={{ color: palette.text }}>
-                        {stat.value}
-                      </p>
-                    </div>
-                  ))
-                : (
-                    <p style={{ color: palette.muted }}>
-                      Building connections across AI &amp; software teams.
-                    </p>
-                  )}
-            </div>
-          </div>
-          <div className="rounded-2xl border border-white/15 bg-white/5 p-4 text-[11px]" style={{ color: palette.muted }}>
-            <p>Recent activity</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {["AI", "Data", "Advisory"].map((chip) => (
-                <span
-                  key={chip}
-                  className="rounded-full px-3 py-1 text-[10px] uppercase tracking-wide"
-                  style={{ backgroundColor: palette.chipBg, color: palette.chipText }}
-                >
-                  {chip}
-                </span>
-              ))}
-            </div>
-            <div className="mt-3 flex items-center gap-2 text-[10px] uppercase tracking-wide" style={{ color: palette.accent }}>
-              <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
-              Available for conversations
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    const renderTwitterContent = () => (
-      <div className="mt-5 space-y-4">
-        <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
-          <div className="flex items-center gap-3">
-            {renderAvatar(40)}
-            <div>
-              <p className="text-sm font-semibold" style={{ color: palette.text }}>
-                {preview.subtitle}
-              </p>
-              <p className="text-[11px] uppercase tracking-wide" style={{ color: palette.muted }}>
-                Live on @_ivvann
-              </p>
-            </div>
-          </div>
-          <p className="mt-3 text-sm leading-relaxed" style={{ color: palette.text }}>
-            {shortDescription || "Shipping agents, sharing notes, answering DMs."}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-4 text-[11px]" style={{ color: palette.muted }}>
-            <span>❤️ 2.4k</span>
-            <span>🔁 640</span>
-            <span>💬 180</span>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-[11px]" style={{ color: palette.muted }}>
-          Spaces: &ldquo;RAG systems that actually ship&rdquo; · Today 19:00 CET
-        </div>
-      </div>
-    );
-
-    const renderResumeContent = () => (
-      <div className="mt-5 space-y-4 text-neutral-700">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between text-[11px] text-neutral-500">
-            <span>{preview.title}</span>
-            <span>{preview.stats?.find((stat) => stat.label.toLowerCase().includes("pages"))?.value ?? "2 pages"}</span>
-          </div>
-          <div className="mt-3 space-y-2 text-xs text-neutral-700">
-            {(preview.highlights ?? []).slice(0, 3).map((highlight) => (
-              <p key={highlight} className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-neutral-900/60" />
-                {highlight}
-              </p>
-            ))}
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 text-[10px] text-neutral-500">
-          {[0, 1].map((page) => (
-            <div key={page} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-              <div className="h-2 w-14 rounded-full bg-neutral-200" />
-              <div className="mt-2 space-y-1">
-                {Array.from({ length: 6 }).map((_, idx) => (
-                  <div key={`line-${page}-${idx}`} className="h-1.5 w-full rounded-full bg-neutral-200/80" />
-                ))}
-              </div>
-              <div className="mt-3 flex flex-wrap gap-1">
-                {["Python", "Azure", "LLMs"].map((chip) => (
-                  <span key={`${chip}-${page}`} className="rounded-full bg-white px-2 py-0.5 text-[9px] uppercase tracking-wide text-neutral-600">
-                    {chip}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-
-    const renderContent = () => {
-      switch (platform) {
-        case "linkedin":
-          return renderLinkedinContent();
-        case "twitter":
-          return renderTwitterContent();
-        case "resume":
-          return renderResumeContent();
-        default:
-          return renderGithubContent();
-      }
-    };
-
-    return (
-      <div className="relative">
-        <div
-          className="pointer-events-none absolute inset-0 -z-10 blur-[60px] opacity-70"
-          style={{ background: palette.glow }}
-          aria-hidden
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute left-1/2 -top-36 z-30 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 transition duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
+    >
+      <div className="h-28 w-44 overflow-hidden rounded-2xl border border-white/20 bg-black/80 shadow-xl">
+        <Image
+          src={previewImage}
+          alt={`${label} preview`}
+          width={176}
+          height={112}
+          className="h-full w-full object-cover"
+          priority
         />
-        <div
-          className={`relative h-full min-h-[240px] overflow-hidden rounded-[28px] border p-5 ${
-            isLight ? "text-neutral-900" : "text-white"
-          }`}
-          style={{ background: palette.background, borderColor: palette.border }}
-        >
-          <div className="flex items-center gap-2 text-[10px]" style={{ color: palette.muted }}>
-            <span className="flex gap-1">
-              <span className="h-2 w-2 rounded-full bg-red-400/80" />
-              <span className="h-2 w-2 rounded-full bg-amber-300/80" />
-              <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
-            </span>
-            <span className="uppercase tracking-[0.3em]">preview</span>
-          </div>
-          {renderContent()}
-        </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
-type RichTextProps = {
+const projectIconMap: Record<ProjectIcon, LucideIcon> = {
+  cloud: Cloud,
+  database: Database,
+  layers: Layers,
+};
+
+  type RichTextProps = {
   text?: string;
   className?: string;
   linkClassName?: string;
@@ -466,7 +110,7 @@ const RichText = ({ text, className = "", linkClassName = "" }: RichTextProps) =
   }
 
   return (
-    <div className={className}>
+    <div className={`${className} whitespace-pre-line`}>
       <ReactMarkdown
         components={{
           p: ({ children }) => <p className="leading-relaxed">{children}</p>,
@@ -742,52 +386,6 @@ const ContactShowcase = ({
   lang: Language;
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [activePreview, setActivePreview] = useState<
-    | {
-        preview: LandingContent["contact"]["socials"][number]["preview"];
-        platform: SocialPlatform;
-      }
-    | null
-  >(null);
-  const [activeKey, setActiveKey] = useState<string | null>(null);
-  const previewTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const hidePreview = (immediate = false) => {
-    if (previewTimeout.current) {
-      clearTimeout(previewTimeout.current);
-    }
-    if (immediate) {
-      setActivePreview(null);
-      setActiveKey(null);
-      return;
-    }
-    previewTimeout.current = setTimeout(() => {
-      setActivePreview(null);
-      setActiveKey(null);
-    }, 120);
-  };
-
-  const showPreview = (
-    key: string,
-    platform?: SocialPlatform,
-    preview?: LandingContent["contact"]["socials"][number]["preview"]
-  ) => {
-    if (!preview || !platform) {
-      hidePreview(true);
-      return;
-    }
-    if (previewTimeout.current) {
-      clearTimeout(previewTimeout.current);
-    }
-    setActivePreview({ preview, platform });
-    setActiveKey(key);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (previewTimeout.current) clearTimeout(previewTimeout.current);
-    };
-  }, []);
 
   const copyEmail = async (value: string, key: string) => {
     try {
@@ -806,8 +404,6 @@ const ContactShowcase = ({
       href: social.url,
       type: "link" as const,
       icon: socialIconMap[social.platform] ?? Github,
-      platform: social.platform,
-      preview: social.preview,
     })),
     {
       key: "email",
@@ -823,20 +419,10 @@ const ContactShowcase = ({
       className={`relative mb-10 flex flex-wrap items-center gap-4 rounded-2xl border px-4 py-3 ${
         theme === "dark" ? "border-white/10 bg-white/5" : "border-neutral-200 bg-white"
       }`}
-      onMouseLeave={() => hidePreview()}
     >
       <div className="flex flex-wrap items-center gap-2 md:gap-4">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = item.key === activeKey;
-          const baseColor =
-            theme === "dark"
-              ? isActive
-                ? "text-white border-white/30 bg-white/10"
-                : "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
-              : isActive
-              ? "text-neutral-900 border-neutral-900/20 bg-neutral-900/5"
-              : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400";
 
           if (item.type === "link") {
             return (
@@ -845,10 +431,11 @@ const ContactShowcase = ({
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                onMouseEnter={() => showPreview(item.key, item.platform, item.preview)}
-                onFocus={() => showPreview(item.key, item.platform, item.preview)}
-                onBlur={() => hidePreview(true)}
-                className={`flex items-center gap-2.5 rounded-full border px-3 py-1.5 text-sm font-medium tracking-wide transition-colors ${baseColor}`}
+                className={`flex items-center gap-2.5 rounded-full border px-3 py-1.5 text-sm font-medium tracking-wide transition-colors ${
+                  theme === "dark"
+                    ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
+                    : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400"
+                }`}
               >
                 <Icon aria-hidden size={16} className="shrink-0" />
                 <span>{item.label}</span>
@@ -861,7 +448,6 @@ const ContactShowcase = ({
               key={item.key}
               type="button"
               onClick={() => copyEmail(item.value, item.key)}
-              onMouseEnter={() => hidePreview(true)}
               className={`text-sm font-medium tracking-wide flex items-center gap-2 rounded-full border px-3 py-1.5 focus:outline-none transition-colors ${
                 theme === "dark"
                   ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
@@ -878,16 +464,6 @@ const ContactShowcase = ({
           );
         })}
       </div>
-
-      {activePreview && (
-        <div className="pointer-events-none absolute left-0 top-full hidden w-full max-w-lg translate-y-4 md:block lg:max-w-xl z-20">
-          <SocialPreviewCard
-            preview={activePreview.preview}
-            platform={activePreview.platform}
-            theme={theme}
-          />
-        </div>
-      )}
     </div>
   );
 };
@@ -1115,72 +691,87 @@ const ExperienceCard = ({
 }: {
   item: LandingContent["experience"]["roles"][number];
   theme: Theme;
-}) => (
-  <div
-    className={`border rounded-2xl p-6 transition-colors ${
-      theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
-    }`}
-  >
-    <div className="flex items-start justify-between gap-4">
-      <div className="space-y-1">
-        <p className={`text-lg font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
-          {item.role}
-        </p>
-        {item.company && (
-          <p className={`text-sm font-medium ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}>
-            {item.company}
-          </p>
-        )}
-      </div>
-      <div
-        className={`flex h-12 w-12 items-center justify-center rounded-full ${
-          theme === "dark" ? "bg-neutral-900 text-neutral-300" : "bg-teal-50 text-teal-700"
-        }`}
-      >
-        {item.companyLogo ? (
-          <Image
-            src={item.companyLogo}
-            alt={item.companyLogoAlt ?? item.company ?? "Company logo"}
-            width={32}
-            height={32}
-            className="h-8 w-8 object-contain"
-            aria-hidden={item.companyLogoAlt ? undefined : true}
-          />
-        ) : (
+}) => {
+  const logoAlt = item.companyLogoAlt ?? item.company ?? "Company logo";
+  const showCompanyLogo = Boolean(item.companyLogo);
+  const logoContainerStyle =
+    theme === "dark"
+      ? "border-neutral-800 bg-neutral-900"
+      : "border-neutral-200 bg-white";
+
+  return (
+    <div
+      className={`border rounded-2xl p-6 transition-colors ${
+        theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
+          {showCompanyLogo && (
+            <div
+              className={`relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border p-2 ${
+                logoContainerStyle
+              }`}
+            >
+              <Image
+                src={item.companyLogo!}
+                alt={logoAlt}
+                width={48}
+                height={48}
+                className="h-full w-full object-contain"
+              />
+            </div>
+          )}
+          <div className="space-y-1">
+            <p className={`text-lg font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+              {item.role}
+            </p>
+            {item.company && (
+              <p className={`text-sm font-medium ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}>
+                {item.company}
+              </p>
+            )}
+          </div>
+        </div>
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-full ${
+            theme === "dark" ? "bg-neutral-900 text-neutral-300" : "bg-teal-50 text-teal-700"
+          }`}
+        >
           <Briefcase size={18} strokeWidth={1.5} />
-        )}
+        </div>
       </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-xs">
+        <span
+          className={`flex items-center gap-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
+        >
+          <Clock3 size={14} />
+          {item.period}
+        </span>
+        <span
+          className={`flex items-center gap-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
+        >
+          <MapPin size={14} />
+          {item.location}
+        </span>
+      </div>
+
+      <p className={`mt-4 text-sm leading-relaxed ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}>
+        {item.summary}
+      </p>
+
+      <ul className="mt-4 space-y-2">
+        {item.bullets.map((point) => (
+          <li key={point} className={`flex gap-3 text-sm ${theme === "dark" ? "text-neutral-300" : "text-neutral-700"}`}>
+            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-teal-500" />
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
     </div>
-
-    <div className="mt-4 flex flex-wrap items-center gap-4 text-xs">
-      <span
-        className={`flex items-center gap-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
-      >
-        <Clock3 size={14} />
-        {item.period}
-      </span>
-      <span
-        className={`flex items-center gap-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
-      >
-        <MapPin size={14} />
-        {item.location}
-      </span>
-    </div>
-
-    <p className={`mt-4 text-sm leading-relaxed ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}>
-      {item.summary}
-    </p>
-
-    <ul className="mt-4 space-y-2">
-      {item.bullets.map((point) => (
-        <li key={point} className={`flex gap-3 text-sm ${theme === "dark" ? "text-neutral-300" : "text-neutral-700"}`}>
-          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-teal-500" />
-          <span>{point}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+  );
+};
 
 const ChatWidget = ({
   lang,
@@ -1265,7 +856,7 @@ const ChatWidget = ({
             value={input}
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => event.key === "Enter" && handleSend()}
-            placeholder={lang === "en" ? "Ask about my skills..." : "Pregunta sobre mis skills..."}
+            placeholder={lang === "en" ? "Ask anything about me" : "Pregunta sobre mis skills..."}
             className={`flex-1 bg-transparent text-sm focus:outline-none ${
               theme === "dark" ? "text-white placeholder:text-neutral-500" : "text-neutral-900"
             }`}
@@ -1394,7 +985,7 @@ const ChatWidget = ({
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={(event) => event.key === "Enter" && handleSend()}
-              placeholder={lang === "en" ? "Ask about my skills..." : "Pregunta sobre mis skills..."}
+              placeholder={lang === "en" ? "Ask anything about me" : "Pregunta sobre mis skills..."}
               className={`flex-1 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-teal-500/50 transition-colors border ${
                 theme === "dark"
                   ? "bg-neutral-950 border-neutral-800 text-white"
@@ -1412,21 +1003,6 @@ const ChatWidget = ({
         </div>
       )}
 
-      {!isInline && (
-        <button
-          onClick={() => setIsOpen((prev) => !prev)}
-          className="group flex items-center gap-3 bg-teal-600 hover:bg-teal-500 text-white p-4 rounded-full shadow-lg shadow-teal-900/20 transition-all hover:scale-105 active:scale-95"
-        >
-          <span
-            className={`max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap text-sm font-medium ${
-              isOpen ? "hidden" : "block"
-            }`}
-          >
-            {lang === "en" ? "Chat with AI" : "Hablar con IA"}
-          </span>
-          {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
-        </button>
-      )}
     </div>
   );
 };
@@ -1443,23 +1019,16 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
     useState<Record<Language, LandingContent>>(defaultContent);
   const [contentLoading, setContentLoading] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
-  const [showAllPosts, setShowAllPosts] = useState(false);
   const t = contentMap[lang];
   const aiEnabled = Boolean(apiKey);
   const stackSections = t.stack.sections ?? [];
-  const canToggleBlogPosts = t.blogPosts.length > BLOG_PREVIEW_COUNT;
-  const blogPostsToRender =
-    showAllPosts || !canToggleBlogPosts
-      ? t.blogPosts
-      : t.blogPosts.slice(0, BLOG_PREVIEW_COUNT);
+  const blogPostsToRender = t.blogPosts.slice(0, BLOG_PREVIEW_COUNT);
+  const featuredProjects = t.projectItems.slice(0, 3);
+  const seeAllProjectsLabel = lang === "en" ? "See all projects" : "Ver todos los proyectos";
 
   useEffect(() => {
     setLang(initialLang);
   }, [initialLang]);
-
-  useEffect(() => {
-    setShowAllPosts(false);
-  }, [lang]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -1831,57 +1400,80 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               >
                 {t.experience.subtitle}
               </p>
-              {stackSections.length > 0 && (
-                <>
-                  {t.stack.title && (
-                    <p className={`mt-6 text-xs tracking-[0.3em] uppercase ${theme === "dark" ? "text-neutral-500" : "text-neutral-500"}`}>
-                      {t.stack.title}
-                    </p>
-                  )}
-                  <div className="grid gap-6 mt-8 md:grid-cols-3">
-                    {stackSections.map((section) => {
-                      const Icon = stackIconMap[section.icon] ?? Code2;
-                      return (
+            </div>
+            {t.experience.cta && (
+              <a
+                href="/cv_iacc.pdf"
+                download
+                className={`px-8 py-3 font-semibold rounded-full transition-all flex items-center justify-center ${
+                  theme === "dark"
+                    ? "bg-white text-black hover:bg-neutral-200"
+                    : "bg-neutral-900 text-white hover:bg-neutral-800"
+                }`}
+              >
+                {t.experience.cta}
+              </a>
+            )}
+          </div>
+          {stackSections.length > 0 && (
+            <>
+              {t.stack.title && (
+                <p className={`mt-6 text-xs tracking-[0.3em] uppercase ${theme === "dark" ? "text-neutral-500" : "text-neutral-500"}`}>
+                  {t.stack.title}
+                </p>
+              )}
+              <div className="grid gap-6 mt-8 md:grid-cols-3">
+                {stackSections.map((section) => {
+                  const Icon = stackIconMap[section.icon] ?? Code2;
+                  return (
+                    <div
+                      key={section.title}
+                      className={`rounded-2xl border p-5 ${
+                        theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-4">
                         <div
-                          key={section.title}
-                          className={`rounded-2xl border p-5 ${
-                            theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+                          className={`p-2 rounded-full ${
+                            theme === "dark" ? "bg-neutral-900 text-neutral-100" : "bg-teal-50 text-teal-700"
                           }`}
                         >
-                          <div className="flex items-center gap-3 mb-4">
-                            <div
-                              className={`p-2 rounded-full ${
-                                theme === "dark" ? "bg-neutral-900 text-neutral-100" : "bg-teal-50 text-teal-700"
-                              }`}
-                            >
-                              <Icon size={18} />
-                            </div>
-                            <div>
-                              <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
-                                {section.title}
-                              </p>
-                              {section.description && (
-                                <p className={`text-xs ${theme === "dark" ? "text-neutral-500" : "text-neutral-500"}`}>
-                                  {section.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {section.items.map((item) => (
-                              <TechIcon key={item} label={item} theme={theme} />
-                            ))}
-                          </div>
+                          <Icon size={18} />
                         </div>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+                        <div>
+                          <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+                            {section.title}
+                          </p>
+                          {section.description && (
+                            <p className={`text-xs ${theme === "dark" ? "text-neutral-500" : "text-neutral-500"}`}>
+                              {section.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {section.items.map((item) => (
+                          <TechIcon key={item} label={item} theme={theme} />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
-          <div className="grid gap-6">
+          {t.experience.rolesLabel && (
+            <p
+              className={`mt-10 mb-6 text-xs tracking-[0.3em] uppercase ${
+                theme === "dark" ? "text-neutral-500" : "text-neutral-500"
+              }`}
+            >
+              {t.experience.rolesLabel}
+            </p>
+          )}
+
+          <div className="grid gap-6 mt-6">
             {t.experience.roles.map((role) => (
               <ExperienceCard key={`${role.role}-${role.period}`} item={role} theme={theme} />
             ))}
@@ -1892,22 +1484,28 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           id="projects"
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
         >
-          <div className="flex justify-between items-end mb-12">
-            <h2 className={`text-3xl font-bold ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
-              {t.projects.title}
-            </h2>
-            <a
-              href="#"
-              className={`hidden md:block text-sm font-medium transition-colors ${
-                theme === "dark" ? "text-neutral-500 hover:text-teal-400" : "text-neutral-500 hover:text-teal-600"
-              }`}
-            >
-              {t.projects.viewAll} &rarr;
-            </a>
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-12">
+            <div>
+              <h2 className={`text-3xl font-bold ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
+                {t.projects.title}
+              </h2>
+            </div>
           </div>
 
+          {t.projects.description && (
+            <RichText
+              text={t.projects.description}
+              className={`text-sm mb-6 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
+              linkClassName={
+                theme === "dark"
+                  ? "text-teal-400 underline underline-offset-4 hover:text-white"
+                  : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+              }
+            />
+          )}
+
           <div className="grid md:grid-cols-3 gap-6">
-            {t.projectItems.map((project) => (
+            {featuredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
@@ -1917,14 +1515,15 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               />
             ))}
           </div>
-
-          <div className="mt-8 md:hidden text-center">
-            <a
-              href="#"
-              className="text-sm font-medium text-neutral-500 hover:text-teal-500 transition-colors"
+          <div className="mt-8 text-left">
+            <Link
+              href={`/${lang}/projects`}
+              className={`inline-flex items-center text-sm font-medium transition-colors ${
+                theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
+              }`}
             >
-              {t.projects.viewAll} &rarr;
-            </a>
+              {seeAllProjectsLabel} &rarr;
+            </Link>
           </div>
         </section>
 
@@ -1954,18 +1553,6 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                 <p className={`text-sm ${theme === "dark" ? "text-neutral-600" : "text-neutral-500"}`}>{t.blog.empty}</p>
               )}
             </div>
-            {canToggleBlogPosts && (
-              <button
-                type="button"
-                onClick={() => setShowAllPosts((prev) => !prev)}
-                className={`mt-6 text-sm font-medium transition-colors ${
-                  theme === "dark" ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"
-                }`}
-                aria-expanded={showAllPosts}
-              >
-                {showAllPosts ? t.blog.viewLess : t.blog.viewMore}
-              </button>
-            )}
             <a
               href={`/${lang}/blog`}
               className={`inline-block mt-8 text-sm transition-colors ${
@@ -2006,25 +1593,26 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
             >
               {t.contact.email}
             </a>
-
-            <div className="flex flex-wrap gap-6 mt-12">
+            <div className="mt-12 flex flex-wrap gap-4">
               {t.contact.socials.map((social) => {
                 const Icon = socialIconMap[social.platform] ?? Github;
                 return (
-                  <a
-                    key={social.url}
-                    href={social.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`transition-colors ${
-                      theme === "dark"
-                        ? "text-neutral-500 hover:text-white"
-                        : "text-neutral-400 hover:text-black"
-                    }`}
-                    aria-label={social.label}
-                  >
-                    <Icon size={22} />
-                  </a>
+                  <div key={social.url} className="relative group overflow-visible">
+                    <a
+                      href={social.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={social.label}
+                      className={`inline-flex h-12 w-12 items-center justify-center rounded-full border transition-colors ${
+                        theme === "dark"
+                          ? "border-white/10 text-neutral-400 hover:border-white/30 hover:text-white"
+                          : "border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-900"
+                      }`}
+                    >
+                      <Icon size={20} />
+                    </a>
+                    <SocialPreviewOverlay platform={social.platform} label={social.label} />
+                  </div>
                 );
               })}
             </div>
@@ -2046,22 +1634,23 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           {t.contact.socials.map((social) => {
             const Icon = socialIconMap[social.platform] ?? Github;
             return (
-              <a
-                key={`footer-social-${social.url}`}
-                href={social.url}
-                target="_blank"
-                rel="noreferrer"
-                className="transition-colors hover:text-teal-400"
-                aria-label={social.label}
-              >
-                <Icon size={20} />
-              </a>
+              <div key={`footer-social-${social.url}`} className="relative group overflow-visible">
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-colors hover:text-teal-400"
+                  aria-label={social.label}
+                >
+                  <Icon size={20} />
+                </a>
+                <SocialPreviewOverlay platform={social.platform} label={social.label} />
+              </div>
             );
           })}
         </div>
       </footer>
 
-      <ChatWidget lang={lang} theme={theme} />
     </div>
   );
 }

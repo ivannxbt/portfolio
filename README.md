@@ -26,14 +26,21 @@ A modern, dark-themed bilingual portfolio built with Next.js 15, Tailwind CSS, a
 
 ### Environment Setup
 
-Create a `.env.local` file in the root directory to enable AI + admin access:
+Create a `.env.local` file in the root directory to store any public configuration (AI keys, feature flags, etc.):
 
 ```
 NEXT_PUBLIC_GEMINI_API_KEY=your_api_key_here
-ADMIN_EMAIL=you@example.com
-ADMIN_PASSWORD=super-secure-password
-NEXTAUTH_SECRET=generate_a_random_string
 ```
+
+Authenticatidsn credentials and your database connection string are kept securely in `data/secret-config.json`, which is ignored by Git. Populate or rotate that file with:
+
+```
+npm run secrets:init -- --admin-email=you@example.com --password=your_password --database-url="postgresql://user:pass@host/db" --nextauth-secret="secure-random-string"
+```
+
+The helper automatically bcrypt-hashes `--password` (use `--password-hash` if you already have a hash) and merges with whatever fields you don't touch. An example template is provided at `data/secret-config.example.json`.
+
+If you still prefer to drive admin credentials from `.env.local`, keep the same variables as before—just ensure `ADMIN_PASSWORD_HASH` is a bcrypt hash (from `npx bcryptjs -s 10` or a trusted bcrypt generator).
 
 ```bash
 # Install dependencies
@@ -56,7 +63,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the portfolio.
 
 ### Editing Content via Backend
 
-- Visit [`/admin`](http://localhost:3000/admin) while the dev server is running to access the lightweight CMS. If you're not signed in you'll be redirected to [`/admin/login`](http://localhost:3000/admin/login); use the credentials from `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+- Visit [`/admin`](http://localhost:3000/admin) while the dev server is running to access the lightweight CMS. If you're not signed in you'll be redirected to [`/admin/login`](http://localhost:3000/admin/login); use the email from `ADMIN_EMAIL` and the password corresponding to your `ADMIN_PASSWORD_HASH`.
 - Pick a language, edit any section (navigation, hero, about, experience, projects, blog, contact, footer, and theme fonts), and press **Save changes**.  
   The CMS issues a `PUT /api/content` request that persists overrides in `data/content-overrides.json`.
 - Long-form fields (hero subheadline, about summary, blog descriptions, project blurbs, contact copy, etc.) support Markdown for bold text, lists, and `[links](https://example.com)`.
