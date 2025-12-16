@@ -101,6 +101,7 @@ export interface LandingContent {
     title: string;
     subtitle: string;
     cta: string;
+    rolesLabel: string;
     roles: ExperienceItem[];
   };
   stack: {
@@ -110,6 +111,7 @@ export interface LandingContent {
   projects: {
     title: string;
     viewAll: string;
+    description: string;
   };
   projectItems: ProjectItem[];
   blog: {
@@ -177,6 +179,7 @@ const englishContent: LandingContent = {
     title: "Work Experience",
     subtitle: "Recent roles pulled from my CV with the impact I delivered.",
     cta: "Download CV",
+    rolesLabel: "Roles",
     roles: [
       {
         role: "AI & Data Analyst",
@@ -251,6 +254,7 @@ const englishContent: LandingContent = {
   projects: {
     title: "Featured Work",
     viewAll: "View Full CV",
+    description: "",
   },
   projectItems: [
     {
