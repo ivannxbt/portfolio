@@ -1,0 +1,29 @@
+---
+title: "Desduplicación y análisis de calidad de datos de anunciantes multi-origen"
+date: "2025-05-10"
+summary: "Kit que limpia, normaliza y cruza los registros de anunciantes provenientes de múltiples fuentes para eliminar duplicados y advertir sobre inconsistencias."
+stack:
+  - Python
+  - Azure Data Factory
+  - Databricks
+  - LangChain
+  - Azure OpenAI
+tags:
+  - Datos
+  - Automatización
+  - LLM
+repo: ""
+demo: ""
+highlight: "Normalización, clustering y validación de CIF con agentes LLM."
+---
+
+## Alcance
+Los datos de anunciantes llegaban desde CRM, pasarelas de pago y hojas de cálculo manuales, creando duplicados y errores en los identificadores fiscales.
+
+## Enfoque
+- Pipeline en Python que normaliza campos clave, corrige signos y empata registros combinando clustering y uniones probabilísticas.
+- Reportes de calidad en CSV/Excel mientras agentes LangChain consultan Azure OpenAI para validar CIF y completar direcciones faltantes.
+- La tabla limpia se publica en Azure SQL y los alertas llegan a dashboards de Databricks.
+
+## Impacto
+Se consiguió una vista única y auditada del anunciante, se detectaron anomalías para finanzas y se automatizaron informes periódicos.

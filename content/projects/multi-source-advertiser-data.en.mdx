@@ -1,0 +1,29 @@
+---
+title: "Multi-Source Advertiser Data Deduplication & Quality Analysis"
+date: "2025-05-10"
+summary: "Data deduplication toolkit that cleans, normalizes, and matches advertiser records across all collections while flagging quality issues."
+stack:
+  - Python
+  - Azure Data Factory
+  - Databricks
+  - LangChain
+  - Azure OpenAI
+tags:
+  - Data
+  - Automation
+  - LLM
+repo: ""
+demo: ""
+highlight: "Automated matching, clustering, and fiscal ID validation with LLM prompting."
+---
+
+## Scope
+Advertiser data flowed from CRM, payment gateways, and manual spreadsheets, creating duplicates and mismatched fiscal identifiers across sources.
+
+## Approach
+- Built a Python pipeline that normalizes identifiers, cleans punctuation, and matches records through clustering + probabilistic joins.
+- Generated quality reports with Excel/CSV exports while LangChain agents validate fiscal IDs and fill missing addresses using Azure OpenAI.
+- Stored the cleaned master table in Azure SQL and surfaced alerts through Databricks notebooks.
+
+## Impact
+The process delivered a single, auditable view of advertiser data, surfaced anomalies for finance teams, and automated downstream report generation.

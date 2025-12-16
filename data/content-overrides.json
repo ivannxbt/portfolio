@@ -9,7 +9,7 @@
       "contact": "Get in touch"
     },
     "about": {
-      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like here).\n\n**Interests**\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\n**Fun facts**\n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\nCurrently learning to dance Salsa!\nI love reading about history, journalism, politics, economics and things about how our world works.\nMy favorite dish is my grandma's lasagna :)",
+      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like [here](https://es.wikipedia.org/wiki/Isla_de_Margarita)).\n\n**Interests**\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\n**Fun facts**\n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\n\nCurrently learning to dance Salsa!\n\nI love reading about history, journalism, politics, economics and things about how our world works.\n\nMy favorite dish is my grandma's lasagna :)",
       "title": "About Me",
       "educationTitle": "Education",
       "education1": "M.Eng. Network and Telematic Services (Universidad Politécnica de Madrid)",
@@ -27,10 +27,10 @@
           "preview": {
             "title": "GitHub",
             "subtitle": "@ivannxbt",
-            "description": "Building AI agents, data tooling, and OSS utilities in TypeScript & Python.",
+            "description": "Code powering Avvale automation, NFQ risk tooling, and Indra ML experiments.",
             "highlights": [
               "400+ contributions in 2024",
-              "9 featured repositories"
+              "Featured Avvale, NFQ & Indra toolkits"
             ],
             "stats": [
               {
@@ -43,7 +43,13 @@
               }
             ],
             "avatar": "/profile.jpeg",
-            "badge": "Active this week"
+            "badge": "Active this week",
+            "brandIcons": [
+              "/icons/avvale.png",
+              "/icons/nfq.png",
+              "/icons/indra.png"
+            ],
+            "previewImage": "/github.png"
           }
         },
         {
@@ -53,7 +59,7 @@
           "preview": {
             "title": "LinkedIn",
             "subtitle": "AI & Software Engineer · Avvale",
-            "description": "Leading AI programs across automation, RAG copilots, and data platforms.",
+            "description": "Leading Avvale AI programs while staying connected with NFQ and Indra collaborators.",
             "highlights": [
               "600+ professional connections",
               "Open to advisory roles"
@@ -69,7 +75,13 @@
               }
             ],
             "avatar": "/profile.jpeg",
-            "badge": "Available for chat"
+            "badge": "Available for chat",
+            "brandIcons": [
+              "/icons/avvale.png",
+              "/icons/nfq.png",
+              "/icons/indra.png"
+            ],
+            "previewImage": "/linkedin.png"
           }
         },
         {
@@ -79,7 +91,7 @@
           "preview": {
             "title": "X / Twitter",
             "subtitle": "@_ivvann",
-            "description": "Threading about AI engineering, data infra, and indie projects.",
+            "description": "Threads on AI engineering, data ops, and the Avvale, NFQ, and Indra projects shaping my work.",
             "highlights": [
               "Daily updates",
               "Community questions welcome"
@@ -95,7 +107,13 @@
               }
             ],
             "avatar": "/profile.jpeg",
-            "badge": "Posting now"
+            "badge": "Posting now",
+            "brandIcons": [
+              "/icons/avvale.png",
+              "/icons/nfq.png",
+              "/icons/indra.png"
+            ],
+            "previewImage": "/x.png"
           }
         },
         {
@@ -121,7 +139,13 @@
                 "value": "Mar 2025"
               }
             ],
-            "badge": "Download PDF"
+            "badge": "Download PDF",
+            "brandIcons": [
+              "/icons/avvale.png",
+              "/icons/nfq.png",
+              "/icons/indra.png"
+            ],
+            "previewImage": "/cv_iacc.png"
           }
         }
       ]
@@ -202,7 +226,7 @@
         {
           "role": "AI & Data Analyst",
           "company": "Avvale",
-          "companyLogo": "/icons/avvale.svg",
+          "companyLogo": "/icons/avvale.png",
           "companyLogoAlt": "Avvale logo",
           "period": "Mar 2025 - Present",
           "location": "Madrid, Spain",
@@ -216,7 +240,7 @@
         {
           "role": "Software Associate Consultant",
           "company": "NFQ Advisory Services",
-          "companyLogo": "/icons/nfq.svg",
+          "companyLogo": "/icons/nfq.png",
           "companyLogoAlt": "NFQ Advisory Services logo",
           "period": "Jan 2025 - Mar 2025",
           "location": "Madrid, Spain",
@@ -230,7 +254,7 @@
         {
           "role": "Defense and Security Systems Intern",
           "company": "Indra",
-          "companyLogo": "/icons/indra.svg",
+          "companyLogo": "/icons/indra.png",
           "companyLogoAlt": "Indra logo",
           "period": "Sep 2021 - Jul 2022",
           "location": "Madrid, Spain",
@@ -261,7 +285,9 @@
             "Scala",
             "Go",
             "Rust",
-            "Solidity"
+            "Solidity",
+            "Next.js",
+            "React"
           ]
         },
         {
@@ -290,7 +316,9 @@
             "PyTorch",
             "TensorFlow",
             "Keras",
-            "LangChain"
+            "LangChain",
+            "RAG",
+            "MCP"
           ]
         }
       ]
@@ -335,13 +363,35 @@
           "Signal Proc",
           "Python"
         ]
+      },
+      {
+        "id": 4,
+        "icon": "database",
+        "title": "Multi-Source Advertiser Data Deduplication and Quality Analysis",
+        "desc": "Developed a data deduplication and analysis toolkit that cleans, normalizes, and matches advertiser data across multiple sources, generates quality and clustering reports, and uses LLMs to validate fiscal IDs, standardize addresses, and infer missing address information.",
+        "tags": [
+          "Python",
+          "Azure",
+          "LLM"
+        ]
+      },
+      {
+        "id": 5,
+        "icon": "cloud",
+        "title": "Deviation Budget Analysis Agent",
+        "desc": "I developed a pipeline that processes varios sources of spending and budgeting data, generates structured CSVs, builds an LLM-ready prompt and automatically produces a DOCX report highlighting key budget metrics.",
+        "tags": [
+          "Python",
+          "Azure",
+          "LLM"
+        ]
       }
     ],
     "blog": {
       "title": "Latest Insights",
       "description": "",
       "viewAll": "Read all articles",
-      "viewMore": "View more insights",
+      "viewMore": "",
       "viewLess": "View fewer insights",
       "readMore": "Read article",
       "empty": "No articles published yet."

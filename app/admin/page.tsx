@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -78,11 +78,13 @@ const createStackSection = (): StackSection => ({
   items: [],
 });
 
-const parseStackItems = (input: string) =>
-  input
-    .split(/\r?\n/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+const parseStackItems = (input: string) => input.split(/\r?\n/).map((item) => item.trim());
+
+const sanitizeStackSections = (sections: StackSection[]) =>
+  sections.map((section) => ({
+    ...section,
+    items: section.items.map((item) => item.trim()).filter(Boolean),
+  }));
 
 const parseTagString = (value: string) =>
   value
@@ -161,29 +163,35 @@ const MarkdownField = ({
     setLinkPrompt({ start, end, label: linkLabel });
   };
 
-  const handleLinkSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!linkPrompt) return;
+  const submitLink = () => {
+    const prompt = linkPrompt;
+    if (!prompt) return;
     const url = linkUrl.trim();
     if (!url) return;
     const normalizedValue = value ?? "";
-    const markdown = `[${linkPrompt.label}](${url})`;
+    const markdown = `[${prompt.label}](${url})`;
     const nextValue =
-      normalizedValue.slice(0, linkPrompt.start) +
+      normalizedValue.slice(0, prompt.start) +
       markdown +
-      normalizedValue.slice(linkPrompt.end);
+      normalizedValue.slice(prompt.end);
     onChange(nextValue);
     setLinkPrompt(null);
     window.requestAnimationFrame(() => {
       textareaRef.current?.focus();
-      const selectionStart = linkPrompt.start + 1;
-      const selectionEnd = selectionStart + linkPrompt.label.length;
+      const selectionStart = prompt.start + 1;
+      const selectionEnd = selectionStart + prompt.label.length;
       textareaRef.current?.setSelectionRange(selectionStart, selectionEnd);
     });
   };
 
   const handleLinkCancel = () => {
     setLinkPrompt(null);
+  };
+
+  const handleLinkInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    submitLink();
   };
 
   const buttonClass =
@@ -207,19 +215,25 @@ const MarkdownField = ({
       </div>
       <p className="mt-1 text-[10px] text-zinc-500">{helperText}</p>
       {linkPrompt && (
-        <form className="mt-2 flex flex-wrap items-center gap-2" onSubmit={handleLinkSubmit}>
+        <div
+          className="mt-2 flex flex-wrap items-center gap-2"
+          role="group"
+          aria-label="Insert link"
+        >
           <input
             ref={linkInputRef}
             type="url"
             className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-white focus:outline-none md:w-auto"
             value={linkUrl}
             onChange={(event) => setLinkUrl(event.target.value)}
+            onKeyDown={handleLinkInputKeyDown}
             placeholder="https://example.com"
             required
           />
           <button
-            type="submit"
+            type="button"
             className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white/40 hover:bg-white/10"
+            onClick={submitLink}
           >
             Insert
           </button>
@@ -230,7 +244,7 @@ const MarkdownField = ({
           >
             Cancel
           </button>
-        </form>
+        </div>
       )}
       <textarea
         ref={textareaRef}
@@ -323,6 +337,15 @@ export default function AdminPage() {
     event.preventDefault();
     if (!content) return;
 
+    const sanitizedContent: LandingContent = {
+      ...content,
+      stack: {
+        ...content.stack,
+        sections: sanitizeStackSections(content.stack.sections ?? []),
+      },
+    };
+    setContent(cloneContent(sanitizedContent));
+
     setSaving(true);
     setError(null);
     setMessage(null);
@@ -330,7 +353,7 @@ export default function AdminPage() {
       const response = await fetch("/api/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lang, content }),
+        body: JSON.stringify({ lang, content: sanitizedContent }),
       });
       if (!response.ok) {
         throw new Error("Failed to save content.");

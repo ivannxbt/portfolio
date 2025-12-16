@@ -19,6 +19,7 @@ import {
   Cloud,
   Code2,
   Database,
+  Download,
   FileText,
   Github,
   Layers,
@@ -56,9 +57,9 @@ const socialIconMap: Record<SocialPlatform, LucideIcon> = {
 };
 
 const socialPreviewImageMap: Record<SocialPlatform, string | undefined> = {
-  github: "/api/uploads/github.png",
-  linkedin: "/api/uploads/linkedin.png",
-  twitter: "/api/uploads/x.png",
+  github: "/github.png",
+  linkedin: "/linkedin.png",
+  twitter: "/x.png",
   resume: undefined,
 };
 
@@ -70,103 +71,31 @@ type SocialPreviewOverlayProps = {
 
 const SocialPreviewOverlay = ({ platform, label, preview }: SocialPreviewOverlayProps) => {
   const previewImage = socialPreviewImageMap[platform];
-  if (!preview && !previewImage) {
+  const screenshotImage = preview?.previewImage ?? previewImage;
+  if (!screenshotImage) {
     return null;
   }
-
-  const highlightList = preview?.highlights ?? [];
-  const statsList = preview?.stats ?? [];
-  const brandIcons = preview?.brandIcons ?? [];
 
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute left-1/2 -top-36 z-30 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 transition duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
+      className="pointer-events-none absolute left-1/2 top-full mt-2 z-30 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 transition duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
     >
-      {preview ? (
-        <div className="w-[320px] overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-black/80 to-neutral-900/80 p-4 shadow-[0_20px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl">
-          <div className="flex items-start gap-3">
-            {preview.avatar ? (
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 p-1">
-                <Image
-                  src={preview.avatar}
-                  alt={`${label} avatar`}
-                  width={44}
-                  height={44}
-                  className="h-full w-full object-cover"
-                  priority
-                />
-              </div>
-            ) : (
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-neutral-900 text-xs uppercase tracking-[0.2em] text-neutral-400">
-                {label.charAt(0)}
-              </div>
-            )}
-            <div className="flex-1">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-neutral-400">{preview.title ?? label}</p>
-              <p className="text-sm font-semibold text-white">{preview.subtitle ?? label}</p>
-            </div>
-          </div>
-          {preview.description && (
-            <p className="mt-3 text-xs text-neutral-300">{preview.description}</p>
-          )}
-          {highlightList.length > 0 && (
-            <ul className="mt-3 space-y-1 text-[11px] text-neutral-300">
-              {highlightList.map((highlight) => (
-                <li key={highlight} className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-                  {highlight}
-                </li>
-              ))}
-            </ul>
-          )}
-          {statsList.length > 0 && (
-            <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-neutral-200">
-              {statsList.map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-2">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">{stat.label}</p>
-                  <p className="text-sm font-semibold">{stat.value}</p>
-                </div>
-              ))}
-            </div>
-          )}
-          {brandIcons.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {brandIcons.map((iconSrc) => (
-                <div
-                  key={iconSrc}
-                  className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-1"
-                >
-                  <Image
-                    src={iconSrc}
-                    alt={`${iconSrc} icon`}
-                    width={32}
-                    height={32}
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-          {preview.badge && (
-            <span className="mt-3 inline-flex items-center rounded-full border border-teal-500/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-teal-300">
-              {preview.badge}
-            </span>
-          )}
-        </div>
-      ) : (
-        <div className="h-28 w-44 overflow-hidden rounded-2xl border border-white/20 bg-black/80 shadow-xl">
-          <Image
-            src={previewImage!}
-            alt={`${label} preview`}
-            width={176}
-            height={112}
-            className="h-full w-full object-cover"
-            priority
-          />
-        </div>
-      )}
+      <div className="relative h-[220px] w-[360px] overflow-hidden rounded-[28px] border border-white/20 bg-neutral-900 shadow-[0_35px_60px_rgba(0,0,0,0.5)] transition duration-200 group-focus-within:shadow-[0_38px_80px_rgba(0,0,0,0.45)] group-hover:shadow-[0_38px_80px_rgba(0,0,0,0.45)]">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <Image
+          src={screenshotImage}
+          alt={`${label} screenshot`}
+          width={360}
+          height={220}
+          className="h-full w-full object-cover"
+          priority
+          quality={100}
+          unoptimized
+          sizes="360px"
+          style={{ imageRendering: "auto" }}
+        />
+      </div>
     </div>
   );
 };
@@ -483,6 +412,8 @@ const ContactShowcase = ({
       href: social.url,
       type: "link" as const,
       icon: socialIconMap[social.platform] ?? Github,
+      platform: social.platform,
+      preview: social.preview,
     })),
     {
       key: "email",
@@ -500,48 +431,54 @@ const ContactShowcase = ({
       }`}
     >
       <div className="flex flex-wrap items-center gap-2 md:gap-4">
-        {items.map((item) => {
-          const Icon = item.icon;
+          {items.map((item) => {
+            const Icon = item.icon;
 
-          if (item.type === "link") {
+            if (item.type === "link") {
+              return (
+                <div key={item.key} className="relative group">
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`flex items-center gap-2.5 rounded-full border px-3 py-1.5 text-sm font-medium tracking-wide transition-colors ${
+                      theme === "dark"
+                        ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
+                        : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400"
+                    }`}
+                  >
+                    <Icon aria-hidden size={16} className="shrink-0" />
+                    <span>{item.label}</span>
+                  </a>
+                  <SocialPreviewOverlay
+                    platform={item.platform ?? "github"}
+                    label={item.label}
+                    preview={item.preview}
+                  />
+                </div>
+              );
+            }
+
             return (
-              <a
+              <button
                 key={item.key}
-                href={item.href}
-                target="_blank"
-                rel="noreferrer"
-                className={`flex items-center gap-2.5 rounded-full border px-3 py-1.5 text-sm font-medium tracking-wide transition-colors ${
+                type="button"
+                onClick={() => copyEmail(item.value, item.key)}
+                className={`text-sm font-medium tracking-wide flex items-center gap-2 rounded-full border px-3 py-1.5 focus:outline-none transition-colors ${
                   theme === "dark"
                     ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
                     : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400"
                 }`}
               >
-                <Icon aria-hidden size={16} className="shrink-0" />
-                <span>{item.label}</span>
-              </a>
+                <Icon size={16} />
+                {copiedKey === item.key
+                  ? lang === "en"
+                    ? "Copied!"
+                    : "¡Copiado!"
+                  : item.label}
+              </button>
             );
-          }
-
-          return (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => copyEmail(item.value, item.key)}
-              className={`text-sm font-medium tracking-wide flex items-center gap-2 rounded-full border px-3 py-1.5 focus:outline-none transition-colors ${
-                theme === "dark"
-                  ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
-                  : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400"
-              }`}
-            >
-              <Icon size={16} />
-              {copiedKey === item.key
-                ? lang === "en"
-                  ? "Copied!"
-                  : "¡Copiado!"
-                : item.label}
-            </button>
-          );
-        })}
+          })}
       </div>
     </div>
   );
@@ -1490,6 +1427,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                     : "bg-neutral-900 text-white hover:bg-neutral-800"
                 }`}
               >
+                <Download size={16} className="mr-2" />
                 {t.experience.cta}
               </a>
             )}
@@ -1705,29 +1643,6 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
         }`}
       >
         <p className="text-neutral-500 text-sm font-mono">{t.footer.copyright}</p>
-        <div
-          className={`mt-6 flex items-center justify-center gap-6 ${
-            theme === "dark" ? "text-neutral-500" : "text-neutral-400"
-          }`}
-        >
-          {t.contact.socials.map((social) => {
-            const Icon = socialIconMap[social.platform] ?? Github;
-            return (
-              <div key={`footer-social-${social.url}`} className="relative group overflow-visible">
-                <a
-                  href={social.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="transition-colors hover:text-teal-400"
-                  aria-label={social.label}
-                >
-                  <Icon size={20} />
-                </a>
-                <SocialPreviewOverlay platform={social.platform} label={social.label} preview={social.preview} />
-              </div>
-            );
-          })}
-        </div>
       </footer>
 
     </div>
