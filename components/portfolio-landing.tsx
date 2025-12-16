@@ -158,6 +158,7 @@ const RichText = ({ text, className = "", linkClassName = "" }: RichTextProps) =
 
 const githubUsername = "ivannxbt";
 const BLOG_PREVIEW_COUNT = 3;
+const PROJECT_PREVIEW_COUNT = 3;
 
 type FallbackProfile = {
   intro: string;
@@ -363,6 +364,39 @@ const callGemini = async ({
   } catch (error) {
     console.error("Gemini API Error:", error);
     return fallback?.() ?? "Error connecting to AI service. Please try again later.";
+  }
+};
+
+const callGrokAssistant = async ({
+  prompt,
+  systemInstruction,
+  fallback,
+}: {
+  prompt: string;
+  systemInstruction?: string;
+  fallback?: () => string;
+}) => {
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: prompt,
+        ...(systemInstruction ? { systemInstruction } : {}),
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Chat API error");
+    }
+
+    const data = (await response.json()) as { reply?: string };
+    return data.reply?.trim() ?? fallback?.() ?? "Unable to generate a response.";
+  } catch (error) {
+    console.error("Chat API error:", error);
+    return fallback?.() ?? "Unable to reach the chat service.";
   }
 };
 
@@ -822,6 +856,22 @@ const ChatWidget = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const getBubbleClasses = (role: "user" | "model") => {
+    const base = "max-w-[80%] rounded-2xl px-4 py-2 text-sm transition-shadow duration-200 shadow-[0_20px_40px_rgba(0,0,0,0.25)]";
+    if (role === "user") {
+      return `${base} ${
+        theme === "dark"
+          ? "bg-gradient-to-br from-teal-500/80 to-teal-400/80 text-neutral-950 shadow-[0_20px_40px_rgba(16,185,129,0.4)]"
+          : "bg-gradient-to-br from-neutral-900 to-teal-400 text-white shadow-[0_18px_40px_rgba(15,23,42,0.35)]"
+      }`;
+    }
+    return `${base} ${
+      theme === "dark"
+        ? "bg-neutral-900/90 border border-white/10 text-teal-100"
+        : "bg-white border border-neutral-200 text-neutral-900"
+    }`;
+  };
+
   useEffect(() => {
     if (isInline) return;
     scrollToBottom();
@@ -846,7 +896,7 @@ const ChatWidget = ({
       - Language: Respond in ${lang === "en" ? "English" : "Spanish"}.
     `;
 
-    const reply = await callGemini({
+    const reply = await callGrokAssistant({
       prompt: userMsg,
       systemInstruction: systemContext,
       fallback: () => getFallbackResponse(userMsg, lang),
@@ -859,12 +909,12 @@ const ChatWidget = ({
   if (isInline) {
     const lastAssistantMessage = [...messages].reverse().find((msg) => msg.role === "model");
     return (
-      <div>
+      <div className="space-y-3">
         <div
-          className={`flex gap-3 rounded-full border px-4 py-2 ${
+          className={`flex gap-3 rounded-[28px] border px-4 py-3 backdrop-blur-2xl transition ${
             theme === "dark"
-              ? "bg-neutral-950 border-neutral-900"
-              : "bg-white border-neutral-200 shadow-sm"
+              ? "bg-black/40 border-white/10 shadow-[0_25px_65px_rgba(0,0,0,0.45)]"
+              : "bg-white/90 border-neutral-200 shadow-[0_25px_65px_rgba(15,23,42,0.12)]"
           }`}
         >
           <input
@@ -873,8 +923,8 @@ const ChatWidget = ({
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => event.key === "Enter" && handleSend()}
             placeholder={lang === "en" ? "Ask anything about me" : "Pregunta sobre mis skills..."}
-            className={`flex-1 bg-transparent text-sm focus:outline-none ${
-              theme === "dark" ? "text-white placeholder:text-neutral-500" : "text-neutral-900"
+            className={`flex-1 bg-transparent text-sm focus:ring-0 focus:outline-none ${
+              theme === "dark" ? "text-white placeholder:text-neutral-500" : "text-neutral-900 placeholder:text-neutral-400"
             }`}
           />
           <button
@@ -882,30 +932,22 @@ const ChatWidget = ({
             disabled={isLoading || !input.trim()}
             className={`rounded-full px-3 py-1 text-sm font-semibold transition ${
               theme === "dark"
-                ? "bg-teal-600 text-white hover:bg-teal-500 disabled:bg-neutral-800"
-                : "bg-neutral-900 text-white hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-500"
+                ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-black hover:from-teal-400 hover:to-emerald-400"
+                : "bg-black text-white hover:bg-neutral-900 disabled:bg-neutral-300"
             } disabled:cursor-not-allowed`}
           >
             {lang === "en" ? "Send" : "Enviar"}
           </button>
         </div>
-        <div className="mt-3 min-h-[32px] text-sm">
+        <div className="min-h-[32px] text-sm">
           {isLoading && (
-            <div className="inline-flex items-center gap-2 text-teal-500">
+            <div className="inline-flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-teal-400">
               <Loader2 size={16} className="animate-spin" />
               <span>{lang === "en" ? "Thinking..." : "Pensando..."}</span>
             </div>
           )}
           {!isLoading && lastAssistantMessage && (
-            <div
-              className={`rounded-2xl px-4 py-3 ${
-                theme === "dark"
-                  ? "bg-teal-900/20 text-teal-100 border border-teal-900/40"
-                  : "bg-teal-50 text-teal-900 border border-teal-100"
-              }`}
-            >
-              {lastAssistantMessage.text}
-            </div>
+            <div className={getBubbleClasses("model")}>{lastAssistantMessage.text}</div>
           )}
         </div>
       </div>
@@ -920,29 +962,47 @@ const ChatWidget = ({
     >
       {isOpen && (
         <div
-          className={`border rounded-2xl shadow-2xl overflow-hidden flex flex-col ${
+          className={`relative border rounded-[32px] overflow-hidden flex flex-col ${
             isInline ? "w-full h-[520px]" : "w-80 md:w-96 h-[400px] mb-4"
           } ${
             theme === "dark"
-              ? "bg-[#0f0f0f] border-neutral-800"
-              : "bg-white border-neutral-200"
+              ? "bg-gradient-to-b from-[#030712] via-[#090b17] to-[#020511] border-white/10 backdrop-blur-3xl text-neutral-100 shadow-[0_35px_90px_rgba(10,10,10,0.7)]"
+              : "bg-white/95 border-neutral-200 text-neutral-900 shadow-[0_40px_80px_rgba(15,23,42,0.25)]"
           }`}
         >
           <div
-            className={`p-4 border-b flex justify-between items-center ${
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{
+              background: theme === "dark"
+                ? "radial-gradient(circle at 20% 20%, rgba(16,185,129,0.4), transparent 45%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.35), transparent 55%)"
+                : "radial-gradient(circle at 25% 0%, rgba(14,165,233,0.25), transparent 45%), radial-gradient(circle at 80% 0%, rgba(0,0,0,0.15), transparent 55%)",
+            }}
+          />
+          <div
+            className={`relative z-10 p-4 border-b flex justify-between items-center ${
               theme === "dark"
-                ? "bg-neutral-900/50 border-neutral-800"
-                : "bg-neutral-50/80 border-neutral-200"
+                ? "bg-neutral-900/60 border-neutral-800"
+                : "bg-white/95 border-neutral-200"
             }`}
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
+            <div className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
+                <span
+                  className={`font-medium text-sm ${
+                    theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                  }`}
+                >
+                  Iván.AI Assistant
+                </span>
+              </div>
               <span
-                className={`font-medium text-sm ${
-                  theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                className={`text-[10px] tracking-[0.3em] uppercase ${
+                  theme === "dark" ? "text-neutral-500" : "text-neutral-400"
                 }`}
               >
-                Iván.AI Assistant
+                Powered by Grok 2
               </span>
             </div>
             <button
@@ -957,32 +1017,22 @@ const ChatWidget = ({
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
-                    msg.role === "user"
-                      ? theme === "dark"
-                        ? "bg-neutral-800 text-neutral-200 rounded-tr-none"
-                        : "bg-neutral-200 text-neutral-800 rounded-tr-none"
-                      : theme === "dark"
-                        ? "bg-teal-900/20 text-teal-100 border border-teal-900/30 rounded-tl-none"
-                        : "bg-teal-50 text-teal-900 border border-teal-100 rounded-tl-none"
-                  }`}
-                >
+              <div
+                key={idx}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div className={`${getBubbleClasses(msg.role)} ${msg.role === "user" ? "rounded-tr-none" : "rounded-tl-none"}`}>
                   {msg.text}
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div
-                  className={`p-2 rounded-xl rounded-tl-none ${
-                    theme === "dark" ? "bg-teal-900/10" : "bg-teal-50"
-                  }`}
-                >
-                  <Loader2 size={16} className="animate-spin text-teal-500" />
+                <div className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-teal-500/20 to-cyan-500/10 px-3 py-2 shadow-[0_12px_30px_rgba(16,185,129,0.25)]">
+                  <Loader2 size={16} className="animate-spin text-teal-400" />
+                  <span className="text-xs uppercase tracking-[0.3em] text-teal-200">Thinking</span>
                 </div>
               </div>
             )}
@@ -990,7 +1040,7 @@ const ChatWidget = ({
           </div>
 
           <div
-            className={`p-3 border-t flex gap-2 ${
+            className={`relative z-10 p-3 border-t flex gap-2 ${
               theme === "dark"
                 ? "border-neutral-800 bg-neutral-900/30"
                 : "border-neutral-100 bg-neutral-50"
@@ -1035,16 +1085,26 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
     useState<Record<Language, LandingContent>>(defaultContent);
   const [contentLoading, setContentLoading] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
+  const [showAllProjects, setShowAllProjects] = useState(false);
   const t = contentMap[lang];
   const aiEnabled = Boolean(apiKey);
   const stackSections = t.stack.sections ?? [];
   const blogPostsToRender = t.blogPosts.slice(0, BLOG_PREVIEW_COUNT);
-  const featuredProjects = t.projectItems.slice(0, 3);
-  const seeAllProjectsLabel = lang === "en" ? "See all projects" : "Ver todos los proyectos";
+  const previewProjects = t.projectItems.slice(0, PROJECT_PREVIEW_COUNT);
+  const projectsToRender = showAllProjects ? t.projectItems : previewProjects;
+  const canToggleProjects = t.projectItems.length > previewProjects.length;
+  const viewMoreProjectsLabel =
+    t.projects.viewMore ?? (lang === "en" ? "View more projects" : "Ver más proyectos");
+  const viewLessProjectsLabel =
+    t.projects.viewLess ?? (lang === "en" ? "View fewer projects" : "Ver menos proyectos");
 
   useEffect(() => {
     setLang(initialLang);
   }, [initialLang]);
+
+  useEffect(() => {
+    setShowAllProjects(false);
+  }, [lang]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -1522,7 +1582,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           )}
 
           <div className="grid md:grid-cols-3 gap-6">
-            {featuredProjects.map((project) => (
+            {projectsToRender.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
@@ -1532,16 +1592,20 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               />
             ))}
           </div>
-          <div className="mt-8 text-left">
-            <Link
-              href={`/${lang}/projects`}
-              className={`inline-flex items-center text-sm font-medium transition-colors ${
-                theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
-              }`}
-            >
-              {seeAllProjectsLabel} &rarr;
-            </Link>
-          </div>
+          {canToggleProjects && (
+            <div className="mt-8 text-left">
+              <button
+                type="button"
+                onClick={() => setShowAllProjects((prev) => !prev)}
+                aria-expanded={showAllProjects}
+                className={`inline-flex items-center text-sm font-medium transition-colors ${
+                  theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
+                }`}
+              >
+                {showAllProjects ? viewLessProjectsLabel : viewMoreProjectsLabel} &rarr;
+              </button>
+            </div>
+          )}
         </section>
 
         <section
