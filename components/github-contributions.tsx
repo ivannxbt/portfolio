@@ -27,9 +27,18 @@ type ContributionsCacheEntry = {
   timestamp: number;
 };
 
+type GithubContributionsCopy = {
+  heatmapLabel: string;
+  commitsLabel: string;
+  loadingText: string;
+  errorText: string;
+  tooltipSuffix: string;
+};
+
 interface GithubContributionsProps {
   username: string;
   theme: "dark" | "light";
+  copy: GithubContributionsCopy;
 }
 
 // Cache TTL: 1 hour (in milliseconds)
@@ -52,9 +61,9 @@ const LEVEL_COLORS: Record<"dark" | "light", Record<number, string>> = {
   },
 };
 
-export function GithubContributions({ username, theme }: GithubContributionsProps) {
+export function GithubContributions({ username, theme, copy }: GithubContributionsProps) {
   const [data, setData] = useState<ContributionsResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,6 +140,7 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
     };
 
     const load = async () => {
+      setHasError(false);
       // Check cache first
       const cachedData = getCachedData();
       if (cachedData && !cancelled) {
@@ -166,7 +176,7 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
       } catch (err) {
         if (!cancelled) {
           console.error("GitHub contribution fetch failed:", err);
-          setError("Unable to load latest contributions.");
+          setHasError(true);
         }
       }
     };
@@ -194,7 +204,7 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
       >
         <p className="text-sm uppercase tracking-[0.3em] text-teal-400">GitHub</p>
         <div className="flex flex-wrap items-center gap-3">
-          <h3 className="text-2xl font-semibold">Contribution heatmap</h3>
+          <h3 className="text-2xl font-semibold">{copy.heatmapLabel}</h3>
           <span
             className={`rounded-full px-3 py-1 text-xs font-semibold ${
               theme === "dark"
@@ -212,12 +222,12 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
         >
           {data ? (
             <>
-              <strong className="text-teal-400">{data.total}</strong> commits this year
+              <strong className="text-teal-400">{data.total}</strong> {copy.commitsLabel}
             </>
-          ) : error ? (
-            error
+          ) : hasError ? (
+            copy.errorText
           ) : (
-            "Fetching your activity?"
+            copy.loadingText
           )}
         </p>
       </div>
@@ -233,7 +243,7 @@ export function GithubContributions({ username, theme }: GithubContributionsProp
                     className={`h-3.5 w-3.5 rounded-sm transition-colors ${
                       LEVEL_COLORS[theme][day.level as keyof typeof LEVEL_COLORS["dark"]]
                     }`}
-                    title={`${day.date}: ${day.count} contributions`}
+                    title={`${day.date}: ${day.count} ${copy.tooltipSuffix}`}
                   />
                 ))}
               </div>

@@ -4,15 +4,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  type MouseEvent as ReactMouseEvent,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import {
-  ArrowUpRight,
   BrainCircuit,
   Briefcase,
   Clock3,
@@ -29,7 +23,6 @@ import {
   Menu,
   Moon,
   Send,
-  Sparkles,
   Sun,
   Twitter,
   X,
@@ -46,8 +39,6 @@ import {
   type StackIcon,
 } from "@/content/site-content";
 import { GithubContributions } from "@/components/github-contributions";
-
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY?.trim();
 
 const socialIconMap: Record<SocialPlatform, LucideIcon> = {
   github: Github,
@@ -158,6 +149,7 @@ const RichText = ({ text, className = "", linkClassName = "" }: RichTextProps) =
 
 const githubUsername = "ivannxbt";
 const BLOG_PREVIEW_COUNT = 3;
+const PROJECT_PREVIEW_COUNT = 3;
 
 type FallbackProfile = {
   intro: string;
@@ -321,7 +313,7 @@ const getFallbackResponse = (prompt: string, lang: Language) => {
   return `${profile.intro} ${profile.defaultMessage}`;
 };
 
-const callGemini = async ({
+const callGrokAssistant = async ({
   prompt,
   systemInstruction,
   fallback,
@@ -330,39 +322,27 @@ const callGemini = async ({
   systemInstruction?: string;
   fallback?: () => string;
 }) => {
-  if (!apiKey) {
-    return fallback?.() ?? "AI key not configured. Add NEXT_PUBLIC_GEMINI_API_KEY to use this feature.";
-  }
-
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          systemInstruction: systemInstruction
-            ? { parts: [{ text: systemInstruction }] }
-            : undefined,
-        }),
-      }
-    );
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: prompt,
+        ...(systemInstruction ? { systemInstruction } : {}),
+      }),
+    });
 
-    if (!response.ok) throw new Error("API Error");
+    if (!response.ok) {
+      throw new Error("Chat API error");
+    }
 
-    const data = (await response.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    };
-    return (
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "No insight available right now."
-    );
+    const data = (await response.json()) as { reply?: string };
+    return data.reply?.trim() ?? fallback?.() ?? "Unable to generate a response.";
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return fallback?.() ?? "Error connecting to AI service. Please try again later.";
+    console.error("Chat API error:", error);
+    return fallback?.() ?? "Unable to reach the chat service.";
   }
 };
 
@@ -484,36 +464,8 @@ const ContactShowcase = ({
   );
 };
 
-const ProjectCard = ({
-  project,
-  lang,
-  theme,
-  aiEnabled,
-}: {
-  project: ProjectItem;
-  lang: Language;
-  theme: Theme;
-  aiEnabled: boolean;
-}) => {
-  const [insight, setInsight] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+const ProjectCard = ({ project, lang, theme }: { project: ProjectItem; lang: Language; theme: Theme }) => {
   const IconComponent = projectIconMap[project.icon] ?? Layers;
-
-  const handleGenerateInsight = async (e: ReactMouseEvent) => {
-    e.preventDefault();
-    if (insight || !aiEnabled) return;
-
-    setLoading(true);
-    const prompt = `Act as a senior software architect. Briefly analyze (max 40 words) why the tech stack [${project.tags.join(
-      ", "
-    )}] is a good choice for a project described as: "${project.desc}". Respond in ${
-      lang === "en" ? "English" : "Spanish"
-    }. Start directly with the reason.`;
-
-    const result = await callGemini({ prompt });
-    setInsight(result);
-    setLoading(false);
-  };
 
   return (
     <div
@@ -523,54 +475,15 @@ const ProjectCard = ({
           : "bg-white border-neutral-200 hover:border-teal-500/30 hover:shadow-teal-900/5"
       }`}
     >
-      <div className="flex justify-between items-start mb-6">
+      <div className="mb-6">
         <div
-          className={`p-3 rounded-lg transition-colors ${
+          className={`flex h-14 w-14 items-center justify-center rounded-full border-2 transition-colors ${
             theme === "dark"
-              ? "bg-neutral-900 text-neutral-300 group-hover:text-white"
-              : "bg-teal-50 text-teal-700 group-hover:bg-teal-100"
+              ? "border-teal-500/60 bg-neutral-900 text-neutral-300 group-hover:border-teal-400/80"
+              : "border-teal-400/70 bg-teal-50 text-teal-700 group-hover:border-teal-400/90"
           }`}
         >
           <IconComponent size={24} strokeWidth={1.5} />
-        </div>
-        <div className="flex gap-2">
-          {aiEnabled ? (
-            <button
-              onClick={handleGenerateInsight}
-              title="Generate AI Architecture Insight"
-              disabled={loading}
-              className={`p-2 rounded-full transition-all ${
-                insight
-                  ? theme === "dark"
-                    ? "text-teal-400 bg-teal-900/20"
-                    : "text-teal-600 bg-teal-100"
-                  : theme === "dark"
-                    ? "text-neutral-600 hover:text-teal-400 hover:bg-neutral-800"
-                    : "text-neutral-400 hover:text-teal-600 hover:bg-neutral-100"
-              }`}
-            >
-              {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-            </button>
-          ) : (
-            <div
-              className={`p-2 rounded-full text-xs ${
-                theme === "dark"
-                  ? "text-neutral-600 bg-neutral-900"
-                  : "text-neutral-400 bg-neutral-100"
-              }`}
-              title="AI insights disabled (no API key configured)"
-            >
-              <Sparkles size={18} />
-            </div>
-          )}
-          <ArrowUpRight
-            size={18}
-            className={`mt-2 transition-colors ${
-              theme === "dark"
-                ? "text-neutral-600 group-hover:text-white"
-                : "text-neutral-400 group-hover:text-neutral-900"
-            }`}
-          />
         </div>
       </div>
 
@@ -594,24 +507,6 @@ const ProjectCard = ({
             : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
         }
       />
-
-      {insight && (
-        <div
-          className={`mb-6 p-3 rounded-lg border ${
-            theme === "dark"
-              ? "bg-teal-950/20 border-teal-900/30"
-              : "bg-teal-50 border-teal-100"
-          }`}
-        >
-          <p
-            className={`text-xs leading-relaxed font-mono ${
-              theme === "dark" ? "text-teal-200/80" : "text-teal-800/80"
-            }`}
-          >
-            <span className="font-bold text-teal-500">AI Insight:</span> {insight}
-          </p>
-        </div>
-      )}
 
       <div
         className={`flex flex-wrap gap-2 mt-auto pt-4 border-t ${
@@ -822,6 +717,22 @@ const ChatWidget = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const getBubbleClasses = (role: "user" | "model") => {
+    const base = "max-w-[80%] rounded-2xl px-4 py-2 text-sm transition-shadow duration-200 shadow-[0_20px_40px_rgba(0,0,0,0.25)]";
+    if (role === "user") {
+      return `${base} ${
+        theme === "dark"
+          ? "bg-gradient-to-br from-teal-500/80 to-teal-400/80 text-neutral-950 shadow-[0_20px_40px_rgba(16,185,129,0.4)]"
+          : "bg-gradient-to-br from-neutral-900 to-teal-400 text-white shadow-[0_18px_40px_rgba(15,23,42,0.35)]"
+      }`;
+    }
+    return `${base} ${
+      theme === "dark"
+        ? "bg-neutral-900/90 border border-white/10 text-teal-100"
+        : "bg-white border border-neutral-200 text-neutral-900"
+    }`;
+  };
+
   useEffect(() => {
     if (isInline) return;
     scrollToBottom();
@@ -846,7 +757,7 @@ const ChatWidget = ({
       - Language: Respond in ${lang === "en" ? "English" : "Spanish"}.
     `;
 
-    const reply = await callGemini({
+    const reply = await callGrokAssistant({
       prompt: userMsg,
       systemInstruction: systemContext,
       fallback: () => getFallbackResponse(userMsg, lang),
@@ -859,12 +770,12 @@ const ChatWidget = ({
   if (isInline) {
     const lastAssistantMessage = [...messages].reverse().find((msg) => msg.role === "model");
     return (
-      <div>
+      <div className="space-y-3">
         <div
-          className={`flex gap-3 rounded-full border px-4 py-2 ${
+          className={`flex gap-3 rounded-[28px] border px-4 py-3 backdrop-blur-2xl transition ${
             theme === "dark"
-              ? "bg-neutral-950 border-neutral-900"
-              : "bg-white border-neutral-200 shadow-sm"
+              ? "bg-black/40 border-white/10 shadow-[0_25px_65px_rgba(0,0,0,0.45)]"
+              : "bg-white/90 border-neutral-200 shadow-[0_25px_65px_rgba(15,23,42,0.12)]"
           }`}
         >
           <input
@@ -873,8 +784,8 @@ const ChatWidget = ({
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => event.key === "Enter" && handleSend()}
             placeholder={lang === "en" ? "Ask anything about me" : "Pregunta sobre mis skills..."}
-            className={`flex-1 bg-transparent text-sm focus:outline-none ${
-              theme === "dark" ? "text-white placeholder:text-neutral-500" : "text-neutral-900"
+            className={`flex-1 bg-transparent text-sm focus:ring-0 focus:outline-none ${
+              theme === "dark" ? "text-white placeholder:text-neutral-500" : "text-neutral-900 placeholder:text-neutral-400"
             }`}
           />
           <button
@@ -882,30 +793,22 @@ const ChatWidget = ({
             disabled={isLoading || !input.trim()}
             className={`rounded-full px-3 py-1 text-sm font-semibold transition ${
               theme === "dark"
-                ? "bg-teal-600 text-white hover:bg-teal-500 disabled:bg-neutral-800"
-                : "bg-neutral-900 text-white hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-500"
+                ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-black hover:from-teal-400 hover:to-emerald-400"
+                : "bg-black text-white hover:bg-neutral-900 disabled:bg-neutral-300"
             } disabled:cursor-not-allowed`}
           >
             {lang === "en" ? "Send" : "Enviar"}
           </button>
         </div>
-        <div className="mt-3 min-h-[32px] text-sm">
+        <div className="min-h-[32px] text-sm">
           {isLoading && (
-            <div className="inline-flex items-center gap-2 text-teal-500">
+            <div className="inline-flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-teal-400">
               <Loader2 size={16} className="animate-spin" />
               <span>{lang === "en" ? "Thinking..." : "Pensando..."}</span>
             </div>
           )}
           {!isLoading && lastAssistantMessage && (
-            <div
-              className={`rounded-2xl px-4 py-3 ${
-                theme === "dark"
-                  ? "bg-teal-900/20 text-teal-100 border border-teal-900/40"
-                  : "bg-teal-50 text-teal-900 border border-teal-100"
-              }`}
-            >
-              {lastAssistantMessage.text}
-            </div>
+            <div className={getBubbleClasses("model")}>{lastAssistantMessage.text}</div>
           )}
         </div>
       </div>
@@ -920,29 +823,47 @@ const ChatWidget = ({
     >
       {isOpen && (
         <div
-          className={`border rounded-2xl shadow-2xl overflow-hidden flex flex-col ${
+          className={`relative border rounded-[32px] overflow-hidden flex flex-col ${
             isInline ? "w-full h-[520px]" : "w-80 md:w-96 h-[400px] mb-4"
           } ${
             theme === "dark"
-              ? "bg-[#0f0f0f] border-neutral-800"
-              : "bg-white border-neutral-200"
+              ? "bg-gradient-to-b from-[#030712] via-[#090b17] to-[#020511] border-white/10 backdrop-blur-3xl text-neutral-100 shadow-[0_35px_90px_rgba(10,10,10,0.7)]"
+              : "bg-white/95 border-neutral-200 text-neutral-900 shadow-[0_40px_80px_rgba(15,23,42,0.25)]"
           }`}
         >
           <div
-            className={`p-4 border-b flex justify-between items-center ${
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{
+              background: theme === "dark"
+                ? "radial-gradient(circle at 20% 20%, rgba(16,185,129,0.4), transparent 45%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.35), transparent 55%)"
+                : "radial-gradient(circle at 25% 0%, rgba(14,165,233,0.25), transparent 45%), radial-gradient(circle at 80% 0%, rgba(0,0,0,0.15), transparent 55%)",
+            }}
+          />
+          <div
+            className={`relative z-10 p-4 border-b flex justify-between items-center ${
               theme === "dark"
-                ? "bg-neutral-900/50 border-neutral-800"
-                : "bg-neutral-50/80 border-neutral-200"
+                ? "bg-neutral-900/60 border-neutral-800"
+                : "bg-white/95 border-neutral-200"
             }`}
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
+            <div className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
+                <span
+                  className={`font-medium text-sm ${
+                    theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                  }`}
+                >
+                  Iván.AI Assistant
+                </span>
+              </div>
               <span
-                className={`font-medium text-sm ${
-                  theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                className={`text-[10px] tracking-[0.3em] uppercase ${
+                  theme === "dark" ? "text-neutral-500" : "text-neutral-400"
                 }`}
               >
-                Iván.AI Assistant
+                Powered by Grok 2
               </span>
             </div>
             <button
@@ -957,32 +878,22 @@ const ChatWidget = ({
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
-                    msg.role === "user"
-                      ? theme === "dark"
-                        ? "bg-neutral-800 text-neutral-200 rounded-tr-none"
-                        : "bg-neutral-200 text-neutral-800 rounded-tr-none"
-                      : theme === "dark"
-                        ? "bg-teal-900/20 text-teal-100 border border-teal-900/30 rounded-tl-none"
-                        : "bg-teal-50 text-teal-900 border border-teal-100 rounded-tl-none"
-                  }`}
-                >
+              <div
+                key={idx}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div className={`${getBubbleClasses(msg.role)} ${msg.role === "user" ? "rounded-tr-none" : "rounded-tl-none"}`}>
                   {msg.text}
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div
-                  className={`p-2 rounded-xl rounded-tl-none ${
-                    theme === "dark" ? "bg-teal-900/10" : "bg-teal-50"
-                  }`}
-                >
-                  <Loader2 size={16} className="animate-spin text-teal-500" />
+                <div className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-teal-500/20 to-cyan-500/10 px-3 py-2 shadow-[0_12px_30px_rgba(16,185,129,0.25)]">
+                  <Loader2 size={16} className="animate-spin text-teal-400" />
+                  <span className="text-xs uppercase tracking-[0.3em] text-teal-200">Thinking</span>
                 </div>
               </div>
             )}
@@ -990,7 +901,7 @@ const ChatWidget = ({
           </div>
 
           <div
-            className={`p-3 border-t flex gap-2 ${
+            className={`relative z-10 p-3 border-t flex gap-2 ${
               theme === "dark"
                 ? "border-neutral-800 bg-neutral-900/30"
                 : "border-neutral-100 bg-neutral-50"
@@ -1035,16 +946,25 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
     useState<Record<Language, LandingContent>>(defaultContent);
   const [contentLoading, setContentLoading] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
+  const [showAllProjects, setShowAllProjects] = useState(false);
   const t = contentMap[lang];
-  const aiEnabled = Boolean(apiKey);
   const stackSections = t.stack.sections ?? [];
   const blogPostsToRender = t.blogPosts.slice(0, BLOG_PREVIEW_COUNT);
-  const featuredProjects = t.projectItems.slice(0, 3);
-  const seeAllProjectsLabel = lang === "en" ? "See all projects" : "Ver todos los proyectos";
+  const previewProjects = t.projectItems.slice(0, PROJECT_PREVIEW_COUNT);
+  const projectsToRender = showAllProjects ? t.projectItems : previewProjects;
+  const canToggleProjects = t.projectItems.length > previewProjects.length;
+  const viewMoreProjectsLabel =
+    t.projects.viewMore ?? (lang === "en" ? "View more projects" : "Ver más proyectos");
+  const viewLessProjectsLabel =
+    t.projects.viewLess ?? (lang === "en" ? "View fewer projects" : "Ver menos proyectos");
 
   useEffect(() => {
     setLang(initialLang);
   }, [initialLang]);
+
+  useEffect(() => {
+    setShowAllProjects(false);
+  }, [lang]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -1359,22 +1279,21 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
-                GitHub
+                {t.activity.eyebrow}
               </p>
               <h2
                 className={`text-3xl font-bold ${
                   theme === "dark" ? "text-white" : "text-neutral-900"
                 }`}
               >
-                Recent contributions
+                {t.activity.title}
               </h2>
               <p
                 className={`mt-3 max-w-2xl text-sm ${
                   theme === "dark" ? "text-neutral-400" : "text-neutral-600"
                 }`}
               >
-                Live snapshot of my commits pulled straight from GitHub using
-                the community Contributions API.
+                {t.activity.description}
               </p>
             </div>
             <a
@@ -1388,12 +1307,22 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               }`}
             >
               <Github size={16} />
-              View profile
+              {t.activity.profileLabel}
             </a>
           </div>
 
           <div className="mt-8">
-            <GithubContributions username={githubUsername} theme={theme} />
+            <GithubContributions
+              username={githubUsername}
+              theme={theme}
+              copy={{
+                heatmapLabel: t.activity.heatmapLabel,
+                commitsLabel: t.activity.commitsLabel,
+                loadingText: t.activity.loadingText,
+                errorText: t.activity.errorText,
+                tooltipSuffix: t.activity.tooltipSuffix,
+              }}
+            />
           </div>
         </section>
 
@@ -1522,26 +1451,29 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           )}
 
           <div className="grid md:grid-cols-3 gap-6">
-            {featuredProjects.map((project) => (
+            {projectsToRender.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
                 lang={lang}
                 theme={theme}
-                aiEnabled={aiEnabled}
               />
             ))}
           </div>
-          <div className="mt-8 text-left">
-            <Link
-              href={`/${lang}/projects`}
-              className={`inline-flex items-center text-sm font-medium transition-colors ${
-                theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
-              }`}
-            >
-              {seeAllProjectsLabel} &rarr;
-            </Link>
-          </div>
+          {canToggleProjects && (
+            <div className="mt-8 text-left">
+              <button
+                type="button"
+                onClick={() => setShowAllProjects((prev) => !prev)}
+                aria-expanded={showAllProjects}
+                className={`inline-flex items-center text-sm font-medium transition-colors ${
+                  theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
+                }`}
+              >
+                {showAllProjects ? viewLessProjectsLabel : viewMoreProjectsLabel} &rarr;
+              </button>
+            </div>
+          )}
         </section>
 
         <section
