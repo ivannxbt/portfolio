@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import { streamText } from "ai";
+import { xai } from "@ai-sdk/xai";
+
+const MODEL_NAME = "grok-2-1212";
 
 export async function POST(request: NextRequest) {
+  if (!process.env.XAI_API_KEY) {
+    return NextResponse.json(
+      { error: "Missing Grok API key" },
+      { status: 500 }
+    );
+  }
+
   try {
     const body = await request.json();
-    const { message } = body;
+    const { message, systemInstruction } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -12,18 +23,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // This is a placeholder implementation
-    // In a real application, you would integrate with an AI service like OpenAI
-    const response = {
-      reply: `Thank you for your message: "${message}". This is a placeholder response. In production, this would be connected to an AI service.`,
-      timestamp: new Date().toISOString(),
-    };
+    const promptParts = [];
+    if (systemInstruction && typeof systemInstruction === "string") {
+      promptParts.push(systemInstruction.trim());
+    }
+    promptParts.push(message.trim());
+    const prompt = promptParts.filter(Boolean).join("\n\n");
 
-    return NextResponse.json(response);
+    const stream = streamText({
+      model: xai(MODEL_NAME),
+      prompt,
+    });
+
+    let reply = "";
+    for await (const textPart of stream.textStream) {
+      if (typeof textPart === "string") {
+        reply += textPart;
+      }
+    }
+
+    return NextResponse.json({
+      reply: reply.trim() || "No response generated.",
+      timestamp: new Date().toISOString(),
+    });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to reach the Grok service" },
       { status: 500 }
     );
   }
@@ -31,10 +57,13 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   return NextResponse.json({
-    message: "Chat API endpoint. Use POST to send messages.",
+    message: "Chat API endpoint. Use POST to chat with Grok.",
     usage: {
       method: "POST",
-      body: { message: "Your message here" },
+      body: {
+        message: "Your conversational message",
+        systemInstruction: "Optional assistant context",
+      },
     },
   });
 }

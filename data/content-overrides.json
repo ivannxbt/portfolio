@@ -3,7 +3,7 @@
     "hero": {
       "headline": "Welcome to my portfolio!",
       "subheadline": "I'm currently an AI & Software Engineer at @Avvale, and I do freelance too, plus heavily active on Twitter/X sharing my progress and story.",
-      "role": "Telematics Engineer | AI & Data",
+      "role": "",
       "greeting": "",
       "cta": "View Projects",
       "contact": "Get in touch"
@@ -201,7 +201,7 @@
       }
     ],
     "branding": {
-      "title": "Iván Caamaño - AI & Software Engineer",
+      "title": "Iván Caamaño",
       "description": "AI & Software Engineer building production-grade agents, ML systems, and scalable platforms.",
       "favicon": "/icons/ivan-orb.svg",
       "logoText": "Iván Caamaño"
@@ -228,7 +228,7 @@
           "company": "Avvale",
           "companyLogo": "/icons/avvale.png",
           "companyLogoAlt": "Avvale logo",
-          "period": "Mar 2025 - Present",
+          "period": "Mar 2025 - Actualidad",
           "location": "Madrid, Spain",
           "summary": "Lead automation initiatives that blend AI agents, RAG systems, and computer vision for consulting engagements.",
           "bullets": [
@@ -242,7 +242,7 @@
           "company": "NFQ Advisory Services",
           "companyLogo": "/icons/nfq.png",
           "companyLogoAlt": "NFQ Advisory Services logo",
-          "period": "Jan 2025 - Mar 2025",
+          "period": "Ene 2025 - Mar 2025",
           "location": "Madrid, Spain",
           "summary": "Supported BBVA's Risk team delivering the Internal Model Method (IMM) platform with production-ready tooling.",
           "bullets": [
@@ -325,13 +325,16 @@
     },
     "projects": {
       "title": "Featured Work",
-      "viewAll": "View Full CV"
+      "viewAll": "View Full CV",
+      "description": "",
+      "viewMore": "View more projects",
+      "viewLess": "View fewer projects"
     },
     "projectItems": [
       {
         "id": 1,
         "icon": "cloud",
-        "title": "AI Doc Generation Agent",
+        "title": "Agente documental con IA",
         "desc": "Designed and deployed an AWS-based agent automating production of 4 dynamic document types, reducing manual effort by 95%.",
         "tags": [
           "AWS",
@@ -343,7 +346,7 @@
       {
         "id": 2,
         "icon": "database",
-        "title": "Enterprise RAG Chatbot",
+        "title": "Chatbot RAG empresarial",
         "desc": "Engineered prompting and RAG implementations in Azure, decreasing information retrieval latency by 90% for specialized queries.",
         "tags": [
           "Azure",
@@ -355,7 +358,7 @@
       {
         "id": 3,
         "icon": "layers",
-        "title": "Radar ML Optimization",
+        "title": "Optimización ML para radar",
         "desc": "Developed ML models for AESA radar data processing (Eurofighter), improving efficiency by 30% using TensorFlow and PyTorch.",
         "tags": [
           "PyTorch",
@@ -398,6 +401,422 @@
     },
     "footer": {
       "copyright": "© 2025 Iván Caamaño."
+    }
+  },
+  "es": {
+    "hero": {
+      "headline": "Bienvenidos a mi portafolio!",
+      "subheadline": "Actualmente soy AI & Software Engineer en @Avvale, también trabajo como freelance y comparto cosas en Twitter/X.",
+      "role": "",
+      "greeting": "",
+      "cta": "Ver proyectos",
+      "contact": "Ponte en contacto"
+    },
+    "about": {
+      "summary": "Hola! Soy Iván, actualmente vivo en Madrid, pero nací y crecí en la Isla de Margarita, Venezuela (échale un vistazo si quieres [aquí](https://es.wikipedia.org/wiki/Isla_de_Margarita)).\n\n**Intereses**\n\nEn mi tiempo libre me gusta hacer deporte, ver películas y pasar tiempo con mis amigos.\n\n**Datos curiosos**\n\nNo soy muy fan de las películas antiguas ni de las canciones clásicas, pero estoy empezando a agarrarles el gusto.\n\nActualmente estoy aprendiendo a bailar salsa!\n\nMe encanta leer sobre historia, periodismo, política, economía y cómo funciona nuestro mundo.\n\nMi plato favorito es la lasaña de mi abuela :)",
+      "title": "Sobre mí",
+      "educationTitle": "Educación",
+      "education1": "Master en Ingeniería de Redes y Servicios Telemáticos (Universidad Politécnica de Madrid)",
+      "education2": "Grado en Ingeniería de Tecnología y Servicios de Telecomunicación en Tecnologías de Telecomunicación (Universidad Politécnica de Madrid)"
+    },
+    "contact": {
+      "text": "Viviendo en Madrid. Siempre abierto a colaborar!",
+      "email": "ivanncaamano@gmail.com",
+      "title": "Conectemos",
+      "socials": [
+        {
+          "platform": "github",
+          "label": "GitHub",
+          "url": "https://github.com/ivannxbt",
+          "preview": {
+            "title": "GitHub",
+            "subtitle": "@ivannxbt",
+            "description": "Código que impulsa la automatización de Avvale, las herramientas de riesgo de NFQ y los experimentos ML de Indra.",
+            "highlights": [
+              "400+ contribuciones en 2024",
+              "Toolkits destacados de Avvale, NFQ e Indra"
+            ],
+            "stats": [
+              {
+                "label": "Repos",
+                "value": "40+"
+              },
+              {
+                "label": "Seguidores",
+                "value": "90+"
+              }
+            ],
+            "avatar": "/profile.jpeg",
+            "badge": "Activo esta semana",
+            "brandIcons": [
+              "/icons/avvale.png",
+              "/icons/nfq.png",
+              "/icons/indra.png"
+            ],
+            "previewImage": "/github.png"
+          }
+        },
+        {
+          "platform": "linkedin",
+          "label": "LinkedIn",
+          "url": "https://www.linkedin.com/in/ivancaamano/",
+          "preview": {
+            "title": "LinkedIn",
+            "subtitle": "AI & Software Engineer · Avvale",
+            "description": "Dirijo programas de IA en Avvale mientras mantengo contacto con colaboradores de NFQ e Indra.",
+            "highlights": [
+              "600+ conexiones profesionales",
+              "Disponible para asesorías"
+            ],
+            "stats": [
+              {
+                "label": "Experiencia",
+                "value": "4+ yrs"
+              },
+              {
+                "label": "Recomendaciones",
+                "value": "5"
+              }
+            ],
+            "avatar": "/profile.jpeg",
+            "badge": "Disponible para conversar",
+            "brandIcons": [
+              "/icons/avvale.png",
+              "/icons/nfq.png",
+              "/icons/indra.png"
+            ],
+            "previewImage": "/linkedin.png"
+          }
+        },
+        {
+          "platform": "twitter",
+          "label": "X/Twitter",
+          "url": "https://x.com/_ivvann",
+          "preview": {
+            "title": "X / Twitter",
+            "subtitle": "@_ivvann",
+            "description": "Hilos sobre ingeniería de IA, operaciones de datos y los proyectos de Avvale, NFQ e Indra.",
+            "highlights": [
+              "Actualizaciones diarias",
+              "Preguntas de la comunidad bienvenidas"
+            ],
+            "stats": [
+              {
+                "label": "Seguidores",
+                "value": "500+"
+              },
+              {
+                "label": "Alcance medio",
+                "value": "4k"
+              }
+            ],
+            "avatar": "/profile.jpeg",
+            "badge": "Publicando ahora",
+            "brandIcons": [
+              "/icons/avvale.png",
+              "/icons/nfq.png",
+              "/icons/indra.png"
+            ],
+            "previewImage": "/x.png"
+          }
+        },
+        {
+          "platform": "resume",
+          "label": "Currículum",
+          "url": "/cv_iacc.pdf",
+          "preview": {
+            "title": "Currículum",
+            "subtitle": "Iván Caamaño · Edición 2025",
+            "description": "Ingeniero telemático centrado en IA, datos y sistemas de software.",
+            "highlights": [
+              "Avvale · AI & Data Analyst",
+              "NFQ · Software Consultant",
+              "Indra · ML Intern"
+            ],
+            "stats": [
+              {
+                "label": "Páginas",
+                "value": "2"
+              },
+              {
+                "label": "Actualizado",
+                "value": "Mar 2025"
+              }
+            ],
+            "badge": "Descargar PDF",
+            "brandIcons": [
+              "/icons/avvale.png",
+              "/icons/nfq.png",
+              "/icons/indra.png"
+            ],
+            "previewImage": "/cv_iacc.png"
+          }
+        }
+      ]
+    },
+    "blogPosts": [
+      {
+        "id": 1,
+        "title": "Mi stack de IA está hecho para resolver trabajo aburrido",
+        "date": "May 2025",
+        "summary": "Por qué me obsesionan los agentes pragmáticos: ventanas de contexto delimitadas, observabilidad implacable y usar LLM solo cuando la latencia y el costo justifican el ROI.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 2,
+        "title": "Venezuela necesita constructores, no salvadores",
+        "date": "Apr 2025",
+        "summary": "Notas de mis viajes a casa: el talento está en todas partes, la confianza escasea y la verdadera ventaja llega de fondos pequeños con ejecución paciente en moneda local.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 3,
+        "title": "Rieles cripto como salida de emergencia",
+        "date": "Mar 2025",
+        "summary": "Cómo uso stablecoins y rieles onchain como plan de resiliencia: tesorerías multi-sig, guardarraíles de cumplimiento y disciplina de custodia aprendida a pulso.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 4,
+        "title": "Observo la economía con mirada de ingeniero",
+        "date": "Feb 2025",
+        "summary": "El dashboard macro en mi escritorio: liquidez, costes logísticos, rotación laboral y cómo cada señal influye en los proyectos que apruebo.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 5,
+        "title": "El capitalismo como oficio, no dogma",
+        "date": "Jan 2025",
+        "summary": "Reglas personales para construir empresas: beneficio con límites, equidad para el equipo y claridad implacable sobre quién asume el riesgo.",
+        "url": "",
+        "image": "/blog/default.svg"
+      },
+      {
+        "id": 6,
+        "title": "Domando el consumismo en mi rutina",
+        "date": "Dec 2024",
+        "summary": "Registro los antojos como métricas: evito upgrades inútiles, compro local y canalizo el excedente hacia experimentos comunitarios.",
+        "url": "",
+        "image": "/blog/default.svg"
+      }
+    ],
+    "branding": {
+      "title": "Iván Caamaño",
+      "description": "",
+      "favicon": "/icons/ivan-orb.svg",
+      "logoText": "Iván Caamaño"
+    },
+    "theme": {
+      "bodyFont": "Space Grotesk, Calibri, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "headingFont": "Space Grotesk, 'Sora', 'Segoe UI', sans-serif",
+      "monoFont": "IBM Plex Mono, 'SFMono-Regular', ui-monospace, monospace"
+    },
+    "nav": {
+      "home": "Inicio",
+      "about": "Sobre mí",
+      "projects": "Proyectos",
+      "blog": "Blog",
+      "contact": "Contacto"
+    },
+    "experience": {
+      "title": "Experiencia profesional",
+      "subtitle": "Roles recientes sacados de mi CV con el impacto que entregué.",
+      "cta": "Descargar CV",
+      "rolesLabel": "Cargos",
+      "roles": [
+        {
+          "role": "AI & Data Analyst",
+          "company": "Avvale",
+          "companyLogo": "/icons/avvale.png",
+          "companyLogoAlt": "Avvale logo",
+          "period": "Mar 2025 - Actualidad",
+          "location": "Madrid, España",
+          "summary": "Actualmente lidero iniciativas de automatización que combinan agentes de IA, sistemas RAG y visión artificial para consultorías.",
+          "bullets": [
+            "Diseñé y desplegué un agente generador de documentos en AWS que automatiza cuatro tipos dinámicos, reduciendo el esfuerzo manual en 95%.",
+            "Diseñé prompts y flujos RAG para un chatbot en Azure, disminuyendo la latencia en 90%.",
+            "Construí un pipeline completo de deep learning para segmentar y analizar imágenes de lomo, mejorando la consistencia en 80%."
+          ]
+        },
+        {
+          "role": "Software Associate Consultant",
+          "company": "NFQ Advisory Services",
+          "companyLogo": "/icons/nfq.png",
+          "companyLogoAlt": "NFQ Advisory Services logo",
+          "period": "Ene 2025 - Mar 2025",
+          "location": "Madrid, España",
+          "summary": "Apoyé al equipo de riesgo de BBVA entregando la plataforma IMM con herramientas listas para producción.",
+          "bullets": [
+            "Trabajé dentro del squad IMM de BBVA en la organización de Riesgo.",
+            "Analicé, diseñé e implementé software para cuatro procesos IMM usando Python, Java y Unix, coordinando dos equipos multidisciplinares.",
+            "Integré y automatizé ejecuciones batch de IMM, minimizando la intervención manual y los tiempos de procesamiento."
+          ]
+        },
+        {
+          "role": "Defense and Security Systems Intern",
+          "company": "Indra",
+          "companyLogo": "/icons/indra.png",
+          "companyLogoAlt": "Indra logo",
+          "period": "Sep 2021 - Jul 2022",
+          "location": "Madrid, España",
+          "summary": "Contribuí con ML y procesamiento de datos para modernizar programas de radar AESA.",
+          "bullets": [
+            "Coordiné con un equipo de más de 10 personas digitalizando radares AESA para Eurofighter.",
+            "Desarrollé y afiné dos modelos ML para procesar datos radar con TensorFlow y PyTorch, elevando la eficiencia en 30%.",
+            "Apoyé la integración de soluciones en tiempo real que mejoraron el rendimiento del sistema en 20%."
+          ]
+        }
+      ]
+    },
+    "stack": {
+      "title": "Competencias clave",
+      "sections": [
+        {
+          "title": "Programación",
+          "description": "Lenguajes que utilizo en consultoría y proyectos open-source.",
+          "icon": "code",
+          "items": [
+            "Python",
+            "SQL",
+            "TypeScript",
+            "JavaScript",
+            "Java",
+            "R",
+            "Scala",
+            "Go",
+            "Rust",
+            "Solidity"
+          ]
+        },
+        {
+          "title": "Software",
+          "description": "Herramientas cloud y de plataforma que uso en DevOps y producto.",
+          "icon": "layers",
+          "items": [
+            "AWS",
+            "Azure",
+            "Docker",
+            "Kubernetes",
+            "Databricks",
+            "Linux",
+            "Git",
+            "Next.js",
+            "Terraform",
+            "CI/CD"
+          ]
+        },
+        {
+          "title": "IA & Datos",
+          "description": "El stack de IA/ML que impulsa mis entregas y analíticas.",
+          "icon": "brain",
+          "items": [
+            "PyTorch",
+            "TensorFlow",
+            "Keras",
+            "LangChain",
+            "MLflow",
+            "RAG",
+            "Prompt Engineering",
+            "Computer Vision",
+            "Data Engineering",
+            "LLMOps"
+          ]
+        }
+      ]
+    },
+    "projects": {
+      "title": "Proyectos destacados",
+      "viewAll": "Ver CV completo",
+      "description": "Entregas recientes en IA, automatización y visión.",
+      "viewMore": "Ver más proyectos",
+      "viewLess": "Ver menos proyectos"
+    },
+    "projectItems": [
+      {
+        "id": 1,
+        "icon": "cloud",
+        "title": "Agente documental con IA",
+        "desc": "Diseñé y desplegué un agente basado en AWS que automatiza la generación de 4 tipos dinámicos de documento, reduciendo el esfuerzo manual en un 95%.",
+        "tags": [
+          "AWS",
+          "Python",
+          "LLMs",
+          "Automation"
+        ]
+      },
+      {
+        "id": 2,
+        "icon": "database",
+        "title": "Chatbot RAG empresarial",
+        "desc": "Arquitecté prompts y flujos RAG en Azure que reducen la latencia de consultas especializadas en un 90%.",
+        "tags": [
+          "Azure",
+          "RAG",
+          "LangChain",
+          "Python"
+        ]
+      },
+      {
+        "id": 3,
+        "icon": "layers",
+        "title": "Optimización ML para radar",
+        "desc": "Desarrollé modelos ML para procesar datos radar AESA (Eurofighter), mejorando la eficiencia en un 30% con TensorFlow y PyTorch.",
+        "tags": [
+          "PyTorch",
+          "TensorFlow",
+          "Signal Proc",
+          "Python"
+        ]
+      },
+      {
+        "id": 4,
+        "icon": "database",
+        "title": "Deduplicación y análisis de datos publicitarios",
+        "desc": "Desarrollé un toolkit de deduplicación y análisis que limpia, normaliza y empareja datos de anunciantes de múltiples fuentes, genera informes de calidad y clustering, y usa LLMs para validar NIF fiscales, estandarizar direcciones e inferir información faltante.",
+        "tags": [
+          "Python",
+          "Azure",
+          "LLM"
+        ]
+      },
+      {
+        "id": 5,
+        "icon": "cloud",
+        "title": "Agente de análisis presupuestario",
+        "desc": "Construí un pipeline que procesa varias fuentes de datos de gasto y presupuesto, genera CSVs estructurados, prepara un prompt listo para LLM y produce automáticamente un informe DOCX destacando métricas clave.",
+        "tags": [
+          "Python",
+          "Azure",
+          "LLM"
+        ]
+      }
+    ],
+    "blog": {
+      "title": "Últimas ideas",
+      "description": "",
+      "viewAll": "Leer todos los artículos",
+      "viewMore": "Ver más ideas",
+      "viewLess": "Ver menos ideas",
+      "readMore": "Leer artículo",
+      "empty": "Aún no hay artículos publicados."
+    },
+    "footer": {
+      "copyright": "© 2025 Iván Caamaño."
+    },
+    "activity": {
+      "eyebrow": "GitHub",
+      "title": "Contribuciones recientes",
+      "description": "Instantánea en vivo de mis commits extraídos de GitHub usando la API comunitaria de Contributions.",
+      "profileLabel": "Ver perfil",
+      "heatmapLabel": "Mapa de calor de contribuciones",
+      "commitsLabel": "contribuciones este año",
+      "loadingText": "¿Cargando tu actividad?",
+      "errorText": "No se pueden cargar las últimas contribuciones.",
+      "tooltipSuffix": "contribuciones"
     }
   }
 }

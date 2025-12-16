@@ -1231,6 +1231,36 @@ export default function AdminPage() {
                   disabled={loading}
                 />
               </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                View more label
+                <input
+                  type="text"
+                  value={content.projects.viewMore}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      projects: { ...prev.projects, viewMore: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
+              <label className="block text-xs uppercase tracking-widest text-zinc-400">
+                View less label
+                <input
+                  type="text"
+                  value={content.projects.viewLess}
+                  onChange={(event) =>
+                    updateContent((prev) => ({
+                      ...prev,
+                      projects: { ...prev.projects, viewLess: event.target.value },
+                    }))
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-base text-white"
+                  disabled={loading}
+                />
+              </label>
             </div>
 
             <div className="space-y-4">

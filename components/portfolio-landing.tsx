@@ -4,15 +4,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  type MouseEvent as ReactMouseEvent,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import {
-  ArrowUpRight,
   BrainCircuit,
   Briefcase,
   Clock3,
@@ -29,7 +23,6 @@ import {
   Menu,
   Moon,
   Send,
-  Sparkles,
   Sun,
   Twitter,
   X,
@@ -46,8 +39,6 @@ import {
   type StackIcon,
 } from "@/content/site-content";
 import { GithubContributions } from "@/components/github-contributions";
-
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY?.trim();
 
 const socialIconMap: Record<SocialPlatform, LucideIcon> = {
   github: Github,
@@ -322,51 +313,6 @@ const getFallbackResponse = (prompt: string, lang: Language) => {
   return `${profile.intro} ${profile.defaultMessage}`;
 };
 
-const callGemini = async ({
-  prompt,
-  systemInstruction,
-  fallback,
-}: {
-  prompt: string;
-  systemInstruction?: string;
-  fallback?: () => string;
-}) => {
-  if (!apiKey) {
-    return fallback?.() ?? "AI key not configured. Add NEXT_PUBLIC_GEMINI_API_KEY to use this feature.";
-  }
-
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          systemInstruction: systemInstruction
-            ? { parts: [{ text: systemInstruction }] }
-            : undefined,
-        }),
-      }
-    );
-
-    if (!response.ok) throw new Error("API Error");
-
-    const data = (await response.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    };
-    return (
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "No insight available right now."
-    );
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    return fallback?.() ?? "Error connecting to AI service. Please try again later.";
-  }
-};
-
 const callGrokAssistant = async ({
   prompt,
   systemInstruction,
@@ -518,36 +464,8 @@ const ContactShowcase = ({
   );
 };
 
-const ProjectCard = ({
-  project,
-  lang,
-  theme,
-  aiEnabled,
-}: {
-  project: ProjectItem;
-  lang: Language;
-  theme: Theme;
-  aiEnabled: boolean;
-}) => {
-  const [insight, setInsight] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+const ProjectCard = ({ project, lang, theme }: { project: ProjectItem; lang: Language; theme: Theme }) => {
   const IconComponent = projectIconMap[project.icon] ?? Layers;
-
-  const handleGenerateInsight = async (e: ReactMouseEvent) => {
-    e.preventDefault();
-    if (insight || !aiEnabled) return;
-
-    setLoading(true);
-    const prompt = `Act as a senior software architect. Briefly analyze (max 40 words) why the tech stack [${project.tags.join(
-      ", "
-    )}] is a good choice for a project described as: "${project.desc}". Respond in ${
-      lang === "en" ? "English" : "Spanish"
-    }. Start directly with the reason.`;
-
-    const result = await callGemini({ prompt });
-    setInsight(result);
-    setLoading(false);
-  };
 
   return (
     <div
@@ -557,54 +475,15 @@ const ProjectCard = ({
           : "bg-white border-neutral-200 hover:border-teal-500/30 hover:shadow-teal-900/5"
       }`}
     >
-      <div className="flex justify-between items-start mb-6">
+      <div className="mb-6">
         <div
-          className={`p-3 rounded-lg transition-colors ${
+          className={`flex h-14 w-14 items-center justify-center rounded-full border-2 transition-colors ${
             theme === "dark"
-              ? "bg-neutral-900 text-neutral-300 group-hover:text-white"
-              : "bg-teal-50 text-teal-700 group-hover:bg-teal-100"
+              ? "border-teal-500/60 bg-neutral-900 text-neutral-300 group-hover:border-teal-400/80"
+              : "border-teal-400/70 bg-teal-50 text-teal-700 group-hover:border-teal-400/90"
           }`}
         >
           <IconComponent size={24} strokeWidth={1.5} />
-        </div>
-        <div className="flex gap-2">
-          {aiEnabled ? (
-            <button
-              onClick={handleGenerateInsight}
-              title="Generate AI Architecture Insight"
-              disabled={loading}
-              className={`p-2 rounded-full transition-all ${
-                insight
-                  ? theme === "dark"
-                    ? "text-teal-400 bg-teal-900/20"
-                    : "text-teal-600 bg-teal-100"
-                  : theme === "dark"
-                    ? "text-neutral-600 hover:text-teal-400 hover:bg-neutral-800"
-                    : "text-neutral-400 hover:text-teal-600 hover:bg-neutral-100"
-              }`}
-            >
-              {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-            </button>
-          ) : (
-            <div
-              className={`p-2 rounded-full text-xs ${
-                theme === "dark"
-                  ? "text-neutral-600 bg-neutral-900"
-                  : "text-neutral-400 bg-neutral-100"
-              }`}
-              title="AI insights disabled (no API key configured)"
-            >
-              <Sparkles size={18} />
-            </div>
-          )}
-          <ArrowUpRight
-            size={18}
-            className={`mt-2 transition-colors ${
-              theme === "dark"
-                ? "text-neutral-600 group-hover:text-white"
-                : "text-neutral-400 group-hover:text-neutral-900"
-            }`}
-          />
         </div>
       </div>
 
@@ -628,24 +507,6 @@ const ProjectCard = ({
             : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
         }
       />
-
-      {insight && (
-        <div
-          className={`mb-6 p-3 rounded-lg border ${
-            theme === "dark"
-              ? "bg-teal-950/20 border-teal-900/30"
-              : "bg-teal-50 border-teal-100"
-          }`}
-        >
-          <p
-            className={`text-xs leading-relaxed font-mono ${
-              theme === "dark" ? "text-teal-200/80" : "text-teal-800/80"
-            }`}
-          >
-            <span className="font-bold text-teal-500">AI Insight:</span> {insight}
-          </p>
-        </div>
-      )}
 
       <div
         className={`flex flex-wrap gap-2 mt-auto pt-4 border-t ${
@@ -1087,7 +948,6 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
   const [contentError, setContentError] = useState<string | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
   const t = contentMap[lang];
-  const aiEnabled = Boolean(apiKey);
   const stackSections = t.stack.sections ?? [];
   const blogPostsToRender = t.blogPosts.slice(0, BLOG_PREVIEW_COUNT);
   const previewProjects = t.projectItems.slice(0, PROJECT_PREVIEW_COUNT);
@@ -1419,22 +1279,21 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
-                GitHub
+                {t.activity.eyebrow}
               </p>
               <h2
                 className={`text-3xl font-bold ${
                   theme === "dark" ? "text-white" : "text-neutral-900"
                 }`}
               >
-                Recent contributions
+                {t.activity.title}
               </h2>
               <p
                 className={`mt-3 max-w-2xl text-sm ${
                   theme === "dark" ? "text-neutral-400" : "text-neutral-600"
                 }`}
               >
-                Live snapshot of my commits pulled straight from GitHub using
-                the community Contributions API.
+                {t.activity.description}
               </p>
             </div>
             <a
@@ -1448,12 +1307,22 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               }`}
             >
               <Github size={16} />
-              View profile
+              {t.activity.profileLabel}
             </a>
           </div>
 
           <div className="mt-8">
-            <GithubContributions username={githubUsername} theme={theme} />
+            <GithubContributions
+              username={githubUsername}
+              theme={theme}
+              copy={{
+                heatmapLabel: t.activity.heatmapLabel,
+                commitsLabel: t.activity.commitsLabel,
+                loadingText: t.activity.loadingText,
+                errorText: t.activity.errorText,
+                tooltipSuffix: t.activity.tooltipSuffix,
+              }}
+            />
           </div>
         </section>
 
@@ -1588,7 +1457,6 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                 project={project}
                 lang={lang}
                 theme={theme}
-                aiEnabled={aiEnabled}
               />
             ))}
           </div>
