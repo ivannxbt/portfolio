@@ -11,7 +11,6 @@ import React, {
   type MouseEvent as ReactMouseEvent,
 } from "react";
 import ReactMarkdown from "react-markdown";
-import Image from "next/image";
 import {
   ArrowUpRight,
   BrainCircuit,
@@ -41,6 +40,7 @@ import {
   type ProjectItem,
   type BlogEntry,
   type SocialPlatform,
+  type SocialPreview,
   type ProjectIcon,
   type StackIcon,
 } from "@/content/site-content";
@@ -65,29 +65,108 @@ const socialPreviewImageMap: Record<SocialPlatform, string | undefined> = {
 type SocialPreviewOverlayProps = {
   platform: SocialPlatform;
   label: string;
+  preview?: SocialPreview;
 };
 
-const SocialPreviewOverlay = ({ platform, label }: SocialPreviewOverlayProps) => {
+const SocialPreviewOverlay = ({ platform, label, preview }: SocialPreviewOverlayProps) => {
   const previewImage = socialPreviewImageMap[platform];
-  if (!previewImage) {
+  if (!preview && !previewImage) {
     return null;
   }
+
+  const highlightList = preview?.highlights ?? [];
+  const statsList = preview?.stats ?? [];
+  const brandIcons = preview?.brandIcons ?? [];
 
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none absolute left-1/2 -top-36 z-30 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 transition duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
     >
-      <div className="h-28 w-44 overflow-hidden rounded-2xl border border-white/20 bg-black/80 shadow-xl">
-        <Image
-          src={previewImage}
-          alt={`${label} preview`}
-          width={176}
-          height={112}
-          className="h-full w-full object-cover"
-          priority
-        />
-      </div>
+      {preview ? (
+        <div className="w-[320px] overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-black/80 to-neutral-900/80 p-4 shadow-[0_20px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+          <div className="flex items-start gap-3">
+            {preview.avatar ? (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 p-1">
+                <Image
+                  src={preview.avatar}
+                  alt={`${label} avatar`}
+                  width={44}
+                  height={44}
+                  className="h-full w-full object-cover"
+                  priority
+                />
+              </div>
+            ) : (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-neutral-900 text-xs uppercase tracking-[0.2em] text-neutral-400">
+                {label.charAt(0)}
+              </div>
+            )}
+            <div className="flex-1">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-neutral-400">{preview.title ?? label}</p>
+              <p className="text-sm font-semibold text-white">{preview.subtitle ?? label}</p>
+            </div>
+          </div>
+          {preview.description && (
+            <p className="mt-3 text-xs text-neutral-300">{preview.description}</p>
+          )}
+          {highlightList.length > 0 && (
+            <ul className="mt-3 space-y-1 text-[11px] text-neutral-300">
+              {highlightList.map((highlight) => (
+                <li key={highlight} className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
+                  {highlight}
+                </li>
+              ))}
+            </ul>
+          )}
+          {statsList.length > 0 && (
+            <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-neutral-200">
+              {statsList.map((stat) => (
+                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-2">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">{stat.label}</p>
+                  <p className="text-sm font-semibold">{stat.value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+          {brandIcons.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {brandIcons.map((iconSrc) => (
+                <div
+                  key={iconSrc}
+                  className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-1"
+                >
+                  <Image
+                    src={iconSrc}
+                    alt={`${iconSrc} icon`}
+                    width={32}
+                    height={32}
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {preview.badge && (
+            <span className="mt-3 inline-flex items-center rounded-full border border-teal-500/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-teal-300">
+              {preview.badge}
+            </span>
+          )}
+        </div>
+      ) : (
+        <div className="h-28 w-44 overflow-hidden rounded-2xl border border-white/20 bg-black/80 shadow-xl">
+          <Image
+            src={previewImage!}
+            alt={`${label} preview`}
+            width={176}
+            height={112}
+            className="h-full w-full object-cover"
+            priority
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -1611,7 +1690,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                     >
                       <Icon size={20} />
                     </a>
-                    <SocialPreviewOverlay platform={social.platform} label={social.label} />
+                    <SocialPreviewOverlay platform={social.platform} label={social.label} preview={social.preview} />
                   </div>
                 );
               })}
@@ -1644,7 +1723,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                 >
                   <Icon size={20} />
                 </a>
-                <SocialPreviewOverlay platform={social.platform} label={social.label} />
+                <SocialPreviewOverlay platform={social.platform} label={social.label} preview={social.preview} />
               </div>
             );
           })}
