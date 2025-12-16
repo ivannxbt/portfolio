@@ -1,0 +1,29 @@
+---
+title: "Deviation Budget Analysis Agent"
+date: "2025-05-18"
+summary: "Automated pipeline that ingests spending and budgeting data, normalizes it into CSVs, prompts an LLM, and outputs a DOCX report highlighting deviations."
+stack:
+  - Python
+  - Azure Functions
+  - Azure OpenAI
+  - Pandas
+  - docx
+tags:
+  - Finance
+  - LLM
+  - Automation
+repo: ""
+demo: ""
+highlight: "Automatically produces DOCX deviation reports after merging multiple spending feeds."
+---
+
+## Scope
+Budget owners juggled multiple CSVs and dashboards, and deviation analysis took hours to reconcile across systems.
+
+## Approach
+- Pipeline ingests invoices, card feeds, and forecast data, normalizes the schema, and writes structured CSVs for LangChain consumption.
+- An Azure Functions workflow builds a prompt with the normalized tables and calls Azure OpenAI to narrate key deviations.
+- The agent packages the narrative into a DOCX, attaches CSV appendices, and uploads the bundle to SharePoint.
+
+## Impact
+Users now receive a DOCX report in minutes, complete with deviation explanations and action items for finance stakeholders.

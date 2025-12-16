@@ -12,6 +12,8 @@ export interface SocialPreview {
   stats?: Array<{ label: string; value: string }>;
   avatar?: string;
   badge?: string;
+  brandIcons?: string[];
+  previewImage?: string;
 }
 
 export interface SocialLink {
@@ -179,7 +181,7 @@ const englishContent: LandingContent = {
       {
         role: "AI & Data Analyst",
         company: "Avvale",
-        companyLogo: "/icons/avvale.svg",
+        companyLogo: "/icons/avvale.png",
         companyLogoAlt: "Avvale logo",
         period: "Mar 2025 - Present",
         location: "Madrid, Spain",
@@ -194,7 +196,7 @@ const englishContent: LandingContent = {
       {
         role: "Software Associate Consultant",
         company: "NFQ Advisory Services",
-        companyLogo: "/icons/nfq.svg",
+        companyLogo: "/icons/nfq.png",
         companyLogoAlt: "NFQ Advisory Services logo",
         period: "Jan 2025 - Mar 2025",
         location: "Madrid, Spain",
@@ -209,7 +211,7 @@ const englishContent: LandingContent = {
       {
         role: "Defense and Security Systems Intern",
         company: "Indra",
-        companyLogo: "/icons/indra.svg",
+        companyLogo: "/icons/indra.png",
         companyLogoAlt: "Indra logo",
         period: "Sep 2021 - Jul 2022",
         location: "Madrid, Spain",
@@ -344,14 +346,17 @@ const englishContent: LandingContent = {
         preview: {
           title: "GitHub",
           subtitle: "@ivannxbt",
-          description: "Building AI agents, data tooling, and OSS utilities in TypeScript & Python.",
-          highlights: ["400+ contributions in 2024", "9 featured repositories"],
+          description:
+            "Code powering Avvale automation, NFQ risk tooling, and Indra ML experiments.",
+          highlights: ["400+ contributions in 2024", "Featured Avvale, NFQ & Indra toolkits"],
           stats: [
             { label: "Repos", value: "40+" },
             { label: "Followers", value: "90+" },
           ],
           avatar: "/profile.jpeg",
           badge: "Active this week",
+          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          previewImage: "/github.png",
         },
       },
       {
@@ -361,7 +366,8 @@ const englishContent: LandingContent = {
         preview: {
           title: "LinkedIn",
           subtitle: "AI & Software Engineer · Avvale",
-          description: "Leading AI programs across automation, RAG copilots, and data platforms.",
+          description:
+            "Leading Avvale AI programs while staying connected with NFQ and Indra collaborators.",
           highlights: ["600+ professional connections", "Open to advisory roles"],
           stats: [
             { label: "Experience", value: "4+ yrs" },
@@ -369,6 +375,8 @@ const englishContent: LandingContent = {
           ],
           avatar: "/profile.jpeg",
           badge: "Available for chat",
+          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          previewImage: "/linkedin.png",
         },
       },
       {
@@ -378,7 +386,8 @@ const englishContent: LandingContent = {
         preview: {
           title: "X / Twitter",
           subtitle: "@_ivvann",
-          description: "Threading about AI engineering, data infra, and indie projects.",
+          description:
+            "Threads on AI engineering, data ops, and the Avvale, NFQ, and Indra projects informing my work.",
           highlights: ["Daily updates", "Community questions welcome"],
           stats: [
             { label: "Followers", value: "500+" },
@@ -386,6 +395,8 @@ const englishContent: LandingContent = {
           ],
           avatar: "/profile.jpeg",
           badge: "Posting now",
+          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          previewImage: "/x.png",
         },
       },
       {
@@ -402,6 +413,8 @@ const englishContent: LandingContent = {
             { label: "Updated", value: "Mar 2025" },
           ],
           badge: "Download PDF",
+          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          previewImage: "/cv_iacc.png",
         },
       },
     ],

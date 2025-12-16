@@ -15,16 +15,16 @@ const respondWithMissingConfig = () => {
   return NextResponse.json({ error: NEXTAUTH_SECRET_ERROR }, { status: 500 });
 };
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, context: { params?: { nextauth?: string[] } }) {
   if (!handler) {
     return respondWithMissingConfig();
   }
-  return handler(request);
+  return handler(request, context);
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, context: { params?: { nextauth?: string[] } }) {
   if (!handler) {
     return respondWithMissingConfig();
   }
-  return handler(request);
+  return handler(request, context);
 }
