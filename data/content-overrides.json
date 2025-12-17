@@ -228,7 +228,7 @@
           "company": "Avvale",
           "companyLogo": "/icons/avvale.png",
           "companyLogoAlt": "Avvale logo",
-          "period": "Mar 2025 - Actualidad",
+          "period": "March 2025 - Current",
           "location": "Madrid, Spain",
           "summary": "Lead automation initiatives that blend AI agents, RAG systems, and computer vision for consulting engagements.",
           "bullets": [
@@ -242,7 +242,7 @@
           "company": "NFQ Advisory Services",
           "companyLogo": "/icons/nfq.png",
           "companyLogoAlt": "NFQ Advisory Services logo",
-          "period": "Ene 2025 - Mar 2025",
+          "period": "January 2025 - March 2025",
           "location": "Madrid, Spain",
           "summary": "Supported BBVA's Risk team delivering the Internal Model Method (IMM) platform with production-ready tooling.",
           "bullets": [
@@ -256,7 +256,7 @@
           "company": "Indra",
           "companyLogo": "/icons/indra.png",
           "companyLogoAlt": "Indra logo",
-          "period": "Sep 2021 - Jul 2022",
+          "period": "September 2021 - July 2022",
           "location": "Madrid, Spain",
           "summary": "Contributed ML and data-processing capabilities to modernize AESA radar programs tied to Eurofighter platforms.",
           "bullets": [
@@ -334,7 +334,7 @@
       {
         "id": 1,
         "icon": "cloud",
-        "title": "Agente documental con IA",
+        "title": "PA Document Generator Agent",
         "desc": "Designed and deployed an AWS-based agent automating production of 4 dynamic document types, reducing manual effort by 95%.",
         "tags": [
           "AWS",
@@ -346,7 +346,7 @@
       {
         "id": 2,
         "icon": "database",
-        "title": "Chatbot RAG empresarial",
+        "title": "Enterprise RAG Chatbot",
         "desc": "Engineered prompting and RAG implementations in Azure, decreasing information retrieval latency by 90% for specialized queries.",
         "tags": [
           "Azure",
@@ -358,7 +358,7 @@
       {
         "id": 3,
         "icon": "layers",
-        "title": "Optimización ML para radar",
+        "title": "ML AESA Radar Optimizer",
         "desc": "Developed ML models for AESA radar data processing (Eurofighter), improving efficiency by 30% using TensorFlow and PyTorch.",
         "tags": [
           "PyTorch",
@@ -401,6 +401,17 @@
     },
     "footer": {
       "copyright": "© 2025 Iván Caamaño."
+    },
+    "activity": {
+      "eyebrow": "GitHub",
+      "title": "Recent contributions",
+      "description": "Live snapshot of my commits pulled straight from GitHub using the community Contributions API.",
+      "profileLabel": "View profile",
+      "heatmapLabel": "Contribution heatmap",
+      "commitsLabel": "commits this year",
+      "loadingText": "Fetching your activity?",
+      "errorText": "Unable to load latest contributions.",
+      "tooltipSuffix": "contributions"
     }
   },
   "es": {
@@ -417,7 +428,7 @@
       "title": "Sobre mí",
       "educationTitle": "Educación",
       "education1": "Master en Ingeniería de Redes y Servicios Telemáticos (Universidad Politécnica de Madrid)",
-      "education2": "Grado en Ingeniería de Tecnología y Servicios de Telecomunicación en Tecnologías de Telecomunicación (Universidad Politécnica de Madrid)"
+      "education2": "Grado en Ingeniería de Tecnología y Servicios de Telecomunicación (Universidad Politécnica de Madrid)"
     },
     "contact": {
       "text": "Viviendo en Madrid. Siempre abierto a colaborar!",
@@ -633,7 +644,7 @@
           "company": "Avvale",
           "companyLogo": "/icons/avvale.png",
           "companyLogoAlt": "Avvale logo",
-          "period": "Mar 2025 - Actualidad",
+          "period": "Marzo 2025 - Actualidad",
           "location": "Madrid, España",
           "summary": "Actualmente lidero iniciativas de automatización que combinan agentes de IA, sistemas RAG y visión artificial para consultorías.",
           "bullets": [
@@ -647,7 +658,7 @@
           "company": "NFQ Advisory Services",
           "companyLogo": "/icons/nfq.png",
           "companyLogoAlt": "NFQ Advisory Services logo",
-          "period": "Ene 2025 - Mar 2025",
+          "period": "Enero 2025 - Marzo 2025",
           "location": "Madrid, España",
           "summary": "Apoyé al equipo de riesgo de BBVA entregando la plataforma IMM con herramientas listas para producción.",
           "bullets": [
@@ -661,7 +672,7 @@
           "company": "Indra",
           "companyLogo": "/icons/indra.png",
           "companyLogoAlt": "Indra logo",
-          "period": "Sep 2021 - Jul 2022",
+          "period": "Septiembre 2021 - Julio 2022",
           "location": "Madrid, España",
           "summary": "Contribuí con ML y procesamiento de datos para modernizar programas de radar AESA.",
           "bullets": [
