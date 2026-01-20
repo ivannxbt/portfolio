@@ -62,9 +62,9 @@ export async function POST(request: NextRequest) {
     return result.toTextStreamResponse();
   } catch (error: unknown) {
     console.error("Chat API error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    // Don't expose internal error details to the client
     return createErrorStreamResponse(
-      `Error: Unable to reach the Grok service. ${errorMessage}`,
+      "Error: Unable to process your request. Please try again later.",
       500
     );
   }
