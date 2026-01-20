@@ -53,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body className="antialiased bg-zinc-950 text-zinc-50 font-sans">
         <SessionProviders>{children}</SessionProviders>
       </body>

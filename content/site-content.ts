@@ -96,6 +96,10 @@ export interface LandingContent {
     educationTitle: string;
     education1: string;
     education2: string;
+    interestsTitle: string;
+    interests: string[];
+    languagesTitle: string;
+    languages: string[];
   };
   experience: {
     title: string;
@@ -103,6 +107,7 @@ export interface LandingContent {
     cta: string;
     rolesLabel: string;
     roles: ExperienceItem[];
+    stats?: Array<{ label: string; value: string }>;
   };
   stack: {
     title: string;
@@ -187,12 +192,23 @@ const englishContent: LandingContent = {
     educationTitle: "Education",
     education1: "M.Eng. Network and Telematic Services (UPM)",
     education2: "B.Eng. Telecommunications Technologies (UPM)",
+    interestsTitle: "Interests",
+    interests: ["AI/ML", "Software", "Data", "Blockchain", "E-commerce"],
+    languagesTitle: "Languages",
+    languages: ["Spanish (native)", "English (C2)", "French (B1)"],
   },
   experience: {
     title: "Work Experience",
     subtitle: "Recent roles pulled from my CV with the impact I delivered.",
     cta: "Download CV",
     rolesLabel: "Roles",
+    stats: [
+      { label: "2+ Years of Total Experience", value: "2+" },
+      { label: "5+ Freelance Projects", value: "5+" },
+      { label: "4+ Company (Confidential) Projects", value: "4+" },
+      { label: "4000+ Hours of Coding (From March 15th 2024 to Present)", value: "4000+" },
+      { label: "1000+ GitHub Contributions", value: "1000+" },
+    ],
     roles: [
       {
         role: "AI & Data Analyst",
@@ -491,12 +507,23 @@ const spanishContent: LandingContent = {
     educationTitle: "Educación",
     education1: "M.Eng. en Servicios de Red y Telemática (UPM)",
     education2: "B.Eng. en Tecnologías de Telecomunicación (UPM)",
+    interestsTitle: "Intereses",
+    interests: ["IA/ML", "Software", "Datos", "Blockchain", "E-commerce"],
+    languagesTitle: "Idiomas",
+    languages: ["Español (nativo)", "Inglés (C2)", "Francés (B1)"],
   },
   experience: {
     title: "Experiencia profesional",
     subtitle: "Roles recientes sacados de mi CV con el impacto entregado.",
     cta: "Descargar CV",
     rolesLabel: "Cargos",
+    stats: [
+      { label: "2+ Años de Experiencia Total", value: "2+" },
+      { label: "5+ Proyectos Freelance", value: "5+" },
+      { label: "4+ Proyectos Empresariales (Confidenciales)", value: "4+" },
+      { label: "4000+ Horas de Código (Desde 15 de Marzo 2024 hasta Presente)", value: "4000+" },
+      { label: "1000+ Contribuciones en GitHub", value: "1000+" },
+    ],
     roles: [
       {
         role: "AI & Data Analyst",

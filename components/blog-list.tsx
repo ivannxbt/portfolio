@@ -1,11 +1,21 @@
 'use client';
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import { ArrowUpRight, CalendarDays, Sun, Moon } from "lucide-react";
 
 import type { Locale } from "@/lib/i18n";
 import type { BlogEntry, LandingContent } from "@/content/site-content";
+
+const fetcher = async (url: string) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Failed to fetch blog data.");
+  }
+  const payload = (await response.json()) as { data: LandingContent };
+  return payload.data?.blogPosts ?? [];
+};
 
 interface BlogListProps {
   locale: Locale;
@@ -19,46 +29,21 @@ interface BlogListProps {
 }
 
 export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
-  const [posts, setPosts] = useState<BlogEntry[]>(initialPosts);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  useEffect(() => {
-    let cancelled = false;
+  // Use SWR for automatic request deduplication and caching
+  const { data: posts, error, isLoading } = useSWR<BlogEntry[]>(
+    `/api/content?lang=${locale}`,
+    fetcher,
+    {
+      fallbackData: initialPosts,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
 
-    const refresh = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`/api/content?lang=${locale}`, {
-          cache: "no-store",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch blog data.");
-        }
-        const payload = (await response.json()) as { data: LandingContent };
-        if (!cancelled && payload.data) {
-          setPosts(payload.data.blogPosts ?? []);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.error("Blog content fetch error:", err);
-          setError("Unable to refresh blog entries.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    refresh();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [locale]);
+  const loading = isLoading;
+  const errorMessage = error ? "Unable to refresh blog entries." : null;
 
   const isDark = theme === "dark";
   const pageBg = isDark ? "bg-[#050505] text-white" : "bg-gray-50 text-neutral-900";
@@ -99,7 +84,7 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
           </p>
         </header>
 
-        {error && (
+        {errorMessage && (
           <div
             className={`rounded-2xl px-4 py-3 text-sm ${
               isDark
@@ -107,7 +92,7 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
                 : "border border-red-200 bg-red-50 text-red-700"
             }`}
           >
-            {error}
+            {errorMessage}
           </div>
         )}
 
@@ -123,7 +108,7 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
           </div>
         )}
 
-        {!loading && posts.length === 0 && (
+        {!loading && (!posts || posts.length === 0) && (
           <p
             className={`rounded-3xl px-6 py-12 text-center text-sm ${
               isDark
@@ -136,7 +121,7 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
         )}
 
         <div className="grid gap-6">
-          {posts.map((post) => {
+          {posts?.map((post) => {
             const link = post.url;
             const isExternal = Boolean(link);
             const coverImage = post.image?.trim() || "/blog/default.svg";

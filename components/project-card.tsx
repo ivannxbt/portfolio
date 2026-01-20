@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ArrowUpRight, Cloud, Database, Github, Layers } from "lucide-react";
-import { motion } from "framer-motion";
 
 import type { ProjectEntry } from "@/lib/mdx";
 import type { Locale } from "@/lib/i18n";
@@ -71,11 +70,9 @@ export function ProjectCard({
     }
   );
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06 }}
-      className="group relative flex h-full flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-6 text-left shadow-[0_30px_60px_-35px_rgba(15,23,42,0.25)] transition-all duration-200 hover:border-teal-500/70 hover:shadow-[0_40px_120px_-40px_rgba(16,185,129,0.3)]"
+    <article
+      className="group relative flex h-full flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-6 text-left shadow-[0_30px_60px_-35px_rgba(15,23,42,0.25)] transition-all duration-200 hover:border-teal-500/70 hover:shadow-[0_40px_120px_-40px_rgba(16,185,129,0.3)] animate-fade-in-up"
+      style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
@@ -153,6 +150,6 @@ export function ProjectCard({
           </Link>
         )}
       </div>
-    </motion.article>
+    </article>
   );
 }

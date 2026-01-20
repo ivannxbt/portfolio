@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 type ContributionDay = {
   date: string;
@@ -64,6 +64,7 @@ const LEVEL_COLORS: Record<"dark" | "light", Record<number, string>> = {
 export function GithubContributions({ username, theme, copy }: GithubContributionsProps) {
   const [data, setData] = useState<ContributionsResponse | null>(null);
   const [hasError, setHasError] = useState(false);
+  const cacheRef = useRef<Map<string, ContributionsResponse | null>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
@@ -71,30 +72,41 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
     const cacheKey = `github-contributions-${username}-${year}`;
 
     const getCachedData = (): ContributionsResponse | null => {
+      // Check in-memory cache first
+      if (cacheRef.current.has(cacheKey)) {
+        return cacheRef.current.get(cacheKey) ?? null;
+      }
+
       try {
         const cached = localStorage.getItem(cacheKey);
-        if (!cached) return null;
-        
-        const parsed = JSON.parse(cached);
-        
-        // Validate the structure of cached data
-        if (!parsed || typeof parsed !== 'object' || 
-            !parsed.data || !parsed.timestamp || 
-            typeof parsed.timestamp !== 'number') {
-          localStorage.removeItem(cacheKey);
+        if (!cached) {
+          cacheRef.current.set(cacheKey, null);
           return null;
         }
-        
+
+        const parsed = JSON.parse(cached);
+
+        // Validate the structure of cached data
+        if (!parsed || typeof parsed !== 'object' ||
+            !parsed.data || !parsed.timestamp ||
+            typeof parsed.timestamp !== 'number') {
+          localStorage.removeItem(cacheKey);
+          cacheRef.current.set(cacheKey, null);
+          return null;
+        }
+
         const { data, timestamp }: ContributionsCacheEntry = parsed;
         const now = Date.now();
-        
+
         // Check if cache is still valid (within TTL)
         if (now - timestamp < CACHE_TTL) {
+          cacheRef.current.set(cacheKey, data);
           return data;
         }
-        
+
         // Cache expired, remove it
         localStorage.removeItem(cacheKey);
+        cacheRef.current.set(cacheKey, null);
         return null;
       } catch (err) {
         console.error("Error reading cache:", err);
@@ -104,17 +116,21 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
         } catch {
           // Ignore cleanup errors
         }
+        cacheRef.current.set(cacheKey, null);
         return null;
       }
     };
 
     const setCachedData = (contributionsData: ContributionsResponse) => {
+      // Update in-memory cache immediately
+      cacheRef.current.set(cacheKey, contributionsData);
+
       const cacheData: ContributionsCacheEntry = {
         data: contributionsData,
         timestamp: Date.now(),
       };
       const cacheString = JSON.stringify(cacheData);
-      
+
       try {
         localStorage.setItem(cacheKey, cacheString);
       } catch (err) {
@@ -128,8 +144,11 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
                 localStorage.removeItem(key);
               }
             });
+            // Clear in-memory cache too
+            cacheRef.current.clear();
             // Retry saving
             localStorage.setItem(cacheKey, cacheString);
+            cacheRef.current.set(cacheKey, contributionsData);
           } catch {
             console.error("Failed to cache even after cleanup");
           }
@@ -202,7 +221,6 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
             : "border-neutral-100 text-neutral-800"
         }`}
       >
-        <p className="text-sm uppercase tracking-[0.3em] text-teal-400">GitHub</p>
         <div className="flex flex-wrap items-center gap-3">
           <h3 className="text-2xl font-semibold">{copy.heatmapLabel}</h3>
           <span
@@ -232,30 +250,32 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
         </p>
       </div>
 
-      <div className="overflow-x-auto px-6 py-4">
-        {data && data.weeks.length > 0 ? (
-          <div className="flex gap-1">
-            {data.weeks.map((week) => (
-              <div key={week.days[0]?.date} className="flex flex-col gap-1">
-                {week.days.map((day) => (
-                  <span
-                    key={day.date}
-                    className={`h-3.5 w-3.5 rounded-sm transition-colors ${
-                      LEVEL_COLORS[theme][day.level as keyof typeof LEVEL_COLORS["dark"]]
-                    }`}
-                    title={`${day.date}: ${day.count} ${copy.tooltipSuffix}`}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div
-            className={`h-32 rounded-2xl ${
-              theme === "dark" ? "bg-white/5" : "bg-neutral-100"
-            } animate-pulse`}
-          />
-        )}
+      <div className="overflow-x-auto py-4">
+        <div className="px-6">
+          {data && data.weeks.length > 0 ? (
+            <div className="flex gap-1">
+              {data.weeks.map((week) => (
+                <div key={week.days[0]?.date} className="flex flex-col gap-1 flex-shrink-0">
+                  {week.days.map((day) => (
+                    <span
+                      key={day.date}
+                      className={`h-3.5 w-3.5 rounded-sm transition-colors flex-shrink-0 ${
+                        LEVEL_COLORS[theme][day.level as keyof typeof LEVEL_COLORS["dark"]]
+                      }`}
+                      title={`${day.date}: ${day.count} ${copy.tooltipSuffix}`}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              className={`h-32 rounded-2xl ${
+                theme === "dark" ? "bg-white/5" : "bg-neutral-100"
+              } animate-pulse`}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
