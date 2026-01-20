@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { readFile, writeFile, mkdir } from "fs/promises";
 import os from "os";
 import path from "path";
@@ -16,6 +17,7 @@ const defaultOverridesPath = path.join(process.cwd(), "data", "content-overrides
 const fallbackOverridesPath = path.join(os.tmpdir(), "content-overrides.json");
 
 let resolvedOverridesPath: string | undefined;
+let pathResolutionPromise: Promise<string> | undefined;
 
 function isSystemCode(error: unknown, code: string): boolean {
   return (
@@ -29,6 +31,8 @@ function isSystemCode(error: unknown, code: string): boolean {
 
 const isErofs = (error: unknown) => isSystemCode(error, "EROFS");
 const isEnoent = (error: unknown) => isSystemCode(error, "ENOENT");
+const isEperm = (error: unknown) => isSystemCode(error, "EPERM");
+const isEacces = (error: unknown) => isSystemCode(error, "EACCES");
 
 async function ensureOverridesFileExists(targetPath: string) {
   await mkdir(path.dirname(targetPath), { recursive: true });
@@ -48,22 +52,31 @@ async function getOverridesPath() {
     return resolvedOverridesPath;
   }
 
-  try {
-    await ensureOverridesFileExists(defaultOverridesPath);
-    resolvedOverridesPath = defaultOverridesPath;
-  } catch (error: unknown) {
-    if (isErofs(error)) {
-      await ensureOverridesFileExists(fallbackOverridesPath);
-      resolvedOverridesPath = fallbackOverridesPath;
-    } else {
-      throw error;
-    }
+  if (!pathResolutionPromise) {
+    pathResolutionPromise = (async () => {
+      try {
+        await ensureOverridesFileExists(defaultOverridesPath);
+        resolvedOverridesPath = defaultOverridesPath;
+      } catch (error: unknown) {
+        if (isErofs(error) || isEperm(error) || isEacces(error)) {
+          console.warn(
+            `Primary overrides path is not writable (${error instanceof Error ? error.message : String(error)}), using fallback: ${fallbackOverridesPath}`
+          );
+          await ensureOverridesFileExists(fallbackOverridesPath);
+          resolvedOverridesPath = fallbackOverridesPath;
+        } else {
+          throw error;
+        }
+      }
+
+      return resolvedOverridesPath!;
+    })();
   }
 
-  return resolvedOverridesPath;
+  return pathResolutionPromise;
 }
 
-export async function readOverrides(): Promise<ContentOverrides> {
+export const readOverrides = cache(async (): Promise<ContentOverrides> => {
   const overridesPath = await getOverridesPath();
   const raw = await readFile(overridesPath, "utf-8");
   if (!raw.trim()) {
@@ -77,7 +90,7 @@ export async function readOverrides(): Promise<ContentOverrides> {
     await writeFile(overridesPath, "{}", "utf-8");
     return {};
   }
-}
+});
 
 export async function writeOverrides(overrides: ContentOverrides) {
   const overridesPath = await getOverridesPath();
@@ -128,15 +141,15 @@ export function mergeWithDefaults(
   return deepMerge(defaultContent[locale], overrides ?? {});
 }
 
-export async function getLandingContent(locale: Locale): Promise<LandingContent> {
+export const getLandingContent = cache(async (locale: Locale): Promise<LandingContent> => {
   const overrides = await readOverrides();
   return mergeWithDefaults(locale, overrides[locale]);
-}
+});
 
-export async function getAllLandingContent(): Promise<Record<Locale, LandingContent>> {
+export const getAllLandingContent = cache(async (): Promise<Record<Locale, LandingContent>> => {
   const overrides = await readOverrides();
   return locales.reduce<Record<Locale, LandingContent>>((acc, locale) => {
     acc[locale] = mergeWithDefaults(locale, overrides[locale]);
     return acc;
   }, {} as Record<Locale, LandingContent>);
-}
+});

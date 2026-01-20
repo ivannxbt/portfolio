@@ -4,11 +4,34 @@ import { xai } from "@ai-sdk/xai";
 
 const MODEL_NAME = "grok-2-1212";
 
+/**
+ * Helper function to create a text stream response for error messages.
+ * This ensures consistency with successful streaming responses.
+ */
+function createErrorStreamResponse(message: string, status: number) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(message));
+      controller.close();
+    },
+  });
+
+  return new NextResponse(stream, {
+    status,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
   if (!process.env.XAI_API_KEY) {
-    return NextResponse.json(
-      { error: "Missing Grok API key" },
-      { status: 500 }
+    return createErrorStreamResponse(
+      "Error: AI service is unavailable. Please contact the administrator.",
+      500
     );
   }
 
@@ -17,9 +40,9 @@ export async function POST(request: NextRequest) {
     const { message, systemInstruction } = body;
 
     if (!message || typeof message !== "string") {
-      return NextResponse.json(
-        { error: "Message is required" },
-        { status: 400 }
+      return createErrorStreamResponse(
+        "Error: Message is required and must be a string.",
+        400
       );
     }
 
@@ -30,27 +53,19 @@ export async function POST(request: NextRequest) {
     promptParts.push(message.trim());
     const prompt = promptParts.filter(Boolean).join("\n\n");
 
-    const stream = streamText({
+    const result = streamText({
       model: xai(MODEL_NAME),
       prompt,
     });
 
-    let reply = "";
-    for await (const textPart of stream.textStream) {
-      if (typeof textPart === "string") {
-        reply += textPart;
-      }
-    }
-
-    return NextResponse.json({
-      reply: reply.trim() || "No response generated.",
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
+    // Return the stream directly instead of buffering
+    return result.toTextStreamResponse();
+  } catch (error: unknown) {
     console.error("Chat API error:", error);
-    return NextResponse.json(
-      { error: "Unable to reach the Grok service" },
-      { status: 500 }
+    // Don't expose internal error details to the client
+    return createErrorStreamResponse(
+      "Error: Unable to process your request. Please try again later.",
+      500
     );
   }
 }

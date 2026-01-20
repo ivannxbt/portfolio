@@ -3,9 +3,7 @@
 'use client';
 
 import Image from "next/image";
-import Link from "next/link";
-import React, { useState, useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   BrainCircuit,
   Briefcase,
@@ -18,7 +16,6 @@ import {
   Github,
   Layers,
   Linkedin,
-  Loader2,
   MapPin,
   Menu,
   Moon,
@@ -26,7 +23,7 @@ import {
   Sun,
   Twitter,
   X,
-  type LucideIcon,
+  type LucideIcon
 } from "lucide-react";
 import {
   defaultContent,
@@ -34,11 +31,13 @@ import {
   type ProjectItem,
   type BlogEntry,
   type SocialPlatform,
-  type SocialPreview,
   type ProjectIcon,
   type StackIcon,
 } from "@/content/site-content";
 import { GithubContributions } from "@/components/github-contributions";
+import { SocialPreviewOverlay } from "@/components/portfolio/social-preview-overlay";
+import { RichText } from "@/components/portfolio/rich-text";
+import { ChatWidget } from "@/components/portfolio/chat-widget";
 
 const socialIconMap: Record<SocialPlatform, LucideIcon> = {
   github: Github,
@@ -47,49 +46,6 @@ const socialIconMap: Record<SocialPlatform, LucideIcon> = {
   resume: FileText,
 };
 
-const socialPreviewImageMap: Record<SocialPlatform, string | undefined> = {
-  github: "/github.png",
-  linkedin: "/linkedin.png",
-  twitter: "/x.png",
-  resume: undefined,
-};
-
-type SocialPreviewOverlayProps = {
-  platform: SocialPlatform;
-  label: string;
-  preview?: SocialPreview;
-};
-
-const SocialPreviewOverlay = ({ platform, label, preview }: SocialPreviewOverlayProps) => {
-  const previewImage = socialPreviewImageMap[platform];
-  const screenshotImage = preview?.previewImage ?? previewImage;
-  if (!screenshotImage) {
-    return null;
-  }
-
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute left-1/2 top-full mt-2 z-30 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 transition duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
-    >
-      <div className="relative h-[220px] w-[360px] overflow-hidden rounded-[28px] border border-white/20 bg-neutral-900 shadow-[0_35px_60px_rgba(0,0,0,0.5)] transition duration-200 group-focus-within:shadow-[0_38px_80px_rgba(0,0,0,0.45)] group-hover:shadow-[0_38px_80px_rgba(0,0,0,0.45)]">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <Image
-          src={screenshotImage}
-          alt={`${label} screenshot`}
-          width={360}
-          height={220}
-          className="h-full w-full object-cover"
-          priority
-          quality={100}
-          unoptimized
-          sizes="360px"
-          style={{ imageRendering: "auto" }}
-        />
-      </div>
-    </div>
-  );
-};
 
 const projectIconMap: Record<ProjectIcon, LucideIcon> = {
   cloud: Cloud,
@@ -97,254 +53,11 @@ const projectIconMap: Record<ProjectIcon, LucideIcon> = {
   layers: Layers,
 };
 
-  type RichTextProps = {
-  text?: string;
-  className?: string;
-  linkClassName?: string;
-};
-
-const RichText = ({ text, className = "", linkClassName = "" }: RichTextProps) => {
-  if (!text?.trim()) {
-    return null;
-  }
-
-  return (
-    <div className={`${className} whitespace-pre-line`}>
-      <ReactMarkdown
-        components={{
-          p: ({ children }) => <p className="leading-relaxed">{children}</p>,
-          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-            a: ({ href, children, ...props }) => {
-            const external = !!href && /^https?:/i.test(href);
-            return (
-              <a
-                href={href}
-                className={linkClassName}
-                target={external ? "_blank" : undefined}
-                rel={external ? "noreferrer" : undefined}
-                {...props}
-              >
-                {children}
-              </a>
-            );
-          },
-          ul: ({ children }) => <ul className="list-disc space-y-2 pl-6">{children}</ul>,
-          ol: ({ children }) => <ol className="list-decimal space-y-2 pl-6">{children}</ol>,
-          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-          code: ({ children }) => (
-            <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">{children}</code>
-          ),
-          blockquote: ({ children }) => (
-            <blockquote className="border-l-2 border-teal-500/50 pl-4 text-sm italic">
-              {children}
-            </blockquote>
-          ),
-        }}
-      >
-        {text}
-      </ReactMarkdown>
-    </div>
-  );
-};
 
 const githubUsername = "ivannxbt";
 const BLOG_PREVIEW_COUNT = 3;
 const PROJECT_PREVIEW_COUNT = 3;
 
-type FallbackProfile = {
-  intro: string;
-  skills: string;
-  experience: string;
-  education: string;
-  location: string;
-  contact: string;
-  availability: string;
-  defaultMessage: string;
-};
-
-const fallbackChatProfile: Record<Language, FallbackProfile> = {
-  en: {
-    intro:
-      "I'm Iván Caamaño, a telematics engineer focused on AI, data, and software systems in Madrid.",
-    skills:
-      "Daily toolbox: Python, TypeScript, SQL, LangChain, PyTorch, TensorFlow, AWS, Azure, Databricks, Docker, Terraform, and CI/CD.",
-    experience:
-      "Recent deliveries include document-generation agents and RAG copilots at Avvale, IMM risk tooling for BBVA at NFQ, and ML optimization for Indra's defense division.",
-    education:
-      "I earned both a Master's in Network & Telematic Services and a Bachelor's in Telecommunications Engineering from Universidad Politécnica de Madrid.",
-    location: "Based in Madrid, Spain, collaborating remotely when needed.",
-    contact:
-      "Best contact: ivanncaamano@gmail.com. You can also reach me as @ivannxbt on GitHub and @_ivvann on X/LinkedIn.",
-    availability:
-      "Currently at Avvale leading AI programs while open to consulting or advisory projects with tangible impact.",
-    defaultMessage: "Feel free to ask about my skills, education, experience, or availability.",
-  },
-  es: {
-    intro:
-      "Soy Iván Caamaño, ingeniero en telemática especializado en IA, datos y software con base en Madrid.",
-    skills:
-      "Mi caja de herramientas diaria incluye Python, TypeScript, SQL, LangChain, PyTorch, TensorFlow, AWS, Azure, Databricks, Docker y Terraform.",
-    experience:
-      "He liderado agentes de generación documental y copilotos RAG en Avvale, construido software de riesgo IMM para BBVA desde NFQ y optimizado modelos ML en la división de defensa de Indra.",
-    education:
-      "Completé el Máster en Servicios de Red y Telemática y el Grado en Ingeniería de Telecomunicación en la Universidad Politécnica de Madrid.",
-    location: "Resido en Madrid, España, y colaboro con equipos distribuidos.",
-    contact:
-      "Puedes escribirme a ivanncaamano@gmail.com o encontrarme como @ivannxbt en GitHub y @_ivvann en X/LinkedIn.",
-    availability:
-      "Actualmente trabajo en Avvale liderando iniciativas de IA y estoy abierto a colaboraciones o consultorías con buen encaje.",
-    defaultMessage: "Pregunta lo que necesites sobre mis habilidades, formación, experiencia o disponibilidad.",
-  },
-};
-
-const fallbackTopicMatchers: Array<{
-  keywords: string[];
-  getAnswer: (profile: FallbackProfile) => string;
-}> = [
-  {
-    keywords: ["who", "quien", "quién", "about you", "sobre ti", "eres"],
-    getAnswer: (profile) => `${profile.intro} ${profile.availability}`,
-  },
-  {
-    keywords: [
-      "skill",
-      "skills",
-      "stack",
-      "technology",
-      "technologies",
-      "tech",
-      "tool",
-      "tools",
-      "habilidad",
-      "habilidades",
-      "tecnologia",
-      "tecnología",
-      "tecnologias",
-      "herramienta",
-      "herramientas",
-    ],
-    getAnswer: (profile) => profile.skills,
-  },
-  {
-    keywords: [
-      "experience",
-      "experiences",
-      "project",
-      "projects",
-      "job",
-      "jobs",
-      "work",
-      "role",
-      "roles",
-      "career",
-      "exp",
-      "proyecto",
-      "proyectos",
-      "trayectoria",
-    ],
-    getAnswer: (profile) => profile.experience,
-  },
-  {
-    keywords: [
-      "education",
-      "degree",
-      "school",
-      "study",
-      "studies",
-      "master",
-      "bachelor",
-      "universidad",
-      "formacion",
-      "formación",
-    ],
-    getAnswer: (profile) => profile.education,
-  },
-  {
-    keywords: [
-      "where",
-      "based",
-      "location",
-      "city",
-      "ubicado",
-      "ubicación",
-      "ubicacion",
-      "ciudad",
-    ],
-    getAnswer: (profile) => profile.location,
-  },
-  {
-    keywords: [
-      "availability",
-      "available",
-      "consulting",
-      "open",
-      "contratar",
-      "disponible",
-      "colaborar",
-      "colaboración",
-    ],
-    getAnswer: (profile) => profile.availability,
-  },
-  {
-    keywords: [
-      "contact",
-      "email",
-      "reach",
-      "correo",
-      "escribirte",
-      "contarte",
-      "contacto",
-    ],
-    getAnswer: (profile) => profile.contact,
-  },
-];
-
-const getFallbackResponse = (prompt: string, lang: Language) => {
-  const profile = fallbackChatProfile[lang] ?? fallbackChatProfile.en;
-  const normalized = prompt.toLowerCase();
-  const match = fallbackTopicMatchers.find(({ keywords }) =>
-    keywords.some((keyword) => normalized.includes(keyword))
-  );
-
-  if (match) {
-    return match.getAnswer(profile);
-  }
-
-  return `${profile.intro} ${profile.defaultMessage}`;
-};
-
-const callGrokAssistant = async ({
-  prompt,
-  systemInstruction,
-  fallback,
-}: {
-  prompt: string;
-  systemInstruction?: string;
-  fallback?: () => string;
-}) => {
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: prompt,
-        ...(systemInstruction ? { systemInstruction } : {}),
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Chat API error");
-    }
-
-    const data = (await response.json()) as { reply?: string };
-    return data.reply?.trim() ?? fallback?.() ?? "Unable to generate a response.";
-  } catch (error) {
-    console.error("Chat API error:", error);
-    return fallback?.() ?? "Unable to reach the chat service.";
-  }
-};
 
 const TechIcon = ({ label, theme }: { label: string; theme: Theme }) => (
   <span
@@ -364,7 +77,7 @@ const stackIconMap: Record<StackIcon, LucideIcon> = {
   brain: BrainCircuit,
 };
 
-const ContactShowcase = ({
+const ContactShowcase = React.memo(({
   contact,
   theme,
   lang,
@@ -375,7 +88,7 @@ const ContactShowcase = ({
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  const copyEmail = async (value: string, key: string) => {
+  const copyEmail = useCallback(async (value: string, key: string) => {
     try {
       await navigator.clipboard.writeText(value);
       setCopiedKey(key);
@@ -383,9 +96,9 @@ const ContactShowcase = ({
     } catch (error) {
       console.error("Clipboard error:", error);
     }
-  };
+  }, []);
 
-  const items = [
+  const items = useMemo(() => [
     ...contact.socials.map((social) => ({
       key: social.platform,
       label: social.label,
@@ -402,7 +115,7 @@ const ContactShowcase = ({
       type: "copy" as const,
       icon: Send,
     },
-  ];
+  ], [contact.socials, contact.email, lang]);
 
   return (
     <div
@@ -462,9 +175,11 @@ const ContactShowcase = ({
       </div>
     </div>
   );
-};
+});
 
-const ProjectCard = ({ project, lang, theme }: { project: ProjectItem; lang: Language; theme: Theme }) => {
+ContactShowcase.displayName = "ContactShowcase";
+
+const ProjectCard = React.memo(({ project, theme }: { project: ProjectItem; theme: Theme }) => {
   const IconComponent = projectIconMap[project.icon] ?? Layers;
 
   return (
@@ -524,8 +239,11 @@ const ProjectCard = ({ project, lang, theme }: { project: ProjectItem; lang: Lan
       </div>
     </div>
   );
-};
-const BlogRow = ({
+});
+
+ProjectCard.displayName = "ProjectCard";
+
+const BlogRow = React.memo(({
   post,
   lang,
   theme,
@@ -594,9 +312,11 @@ const BlogRow = ({
       </div>
     </article>
   );
-};
+});
 
-const ExperienceCard = ({
+BlogRow.displayName = "BlogRow";
+
+const ExperienceCard = React.memo(({
   item,
   theme,
 }: {
@@ -630,6 +350,7 @@ const ExperienceCard = ({
                 width={48}
                 height={48}
                 className="h-full w-full object-contain"
+                unoptimized
               />
             </div>
           )}
@@ -682,271 +403,42 @@ const ExperienceCard = ({
       </ul>
     </div>
   );
-};
+});
 
-const ChatWidget = ({
-  lang,
-  theme,
-  variant = "floating",
-}: {
-  lang: Language;
-  theme: Theme;
-  variant?: "floating" | "inline";
-}) => {
-  const isInline = variant === "inline";
-  const assistantGreeting =
-    lang === "en"
-      ? "Hi! I'm Ivan's AI Assistant. Ask me anything about his experience or skills."
-      : "¡Hola! Soy el asistente IA de Iván. Pregúntame lo que quieras sobre su experiencia o habilidades.";
-  const [isOpen, setIsOpen] = useState(isInline);
-  const [messages, setMessages] = useState<{ role: "user" | "model"; text: string }[]>(() =>
-    isInline
-      ? []
-      : [
-          {
-            role: "model",
-            text: assistantGreeting,
-          },
-        ]
-  );
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+ExperienceCard.displayName = "ExperienceCard";
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const getBubbleClasses = (role: "user" | "model") => {
-    const base = "max-w-[80%] rounded-2xl px-4 py-2 text-sm transition-shadow duration-200 shadow-[0_20px_40px_rgba(0,0,0,0.25)]";
-    if (role === "user") {
-      return `${base} ${
-        theme === "dark"
-          ? "bg-gradient-to-br from-teal-500/80 to-teal-400/80 text-neutral-950 shadow-[0_20px_40px_rgba(16,185,129,0.4)]"
-          : "bg-gradient-to-br from-neutral-900 to-teal-400 text-white shadow-[0_18px_40px_rgba(15,23,42,0.35)]"
-      }`;
-    }
-    return `${base} ${
-      theme === "dark"
-        ? "bg-neutral-900/90 border border-white/10 text-teal-100"
-        : "bg-white border border-neutral-200 text-neutral-900"
-    }`;
-  };
-
-  useEffect(() => {
-    if (isInline) return;
-    scrollToBottom();
-  }, [messages, isOpen, isInline]);
-
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    const userMsg = input;
-    setInput("");
-    setMessages((prev) => [...prev, { role: "user", text: userMsg }]);
-    setIsLoading(true);
-
-    const systemContext = `
-      You are an AI assistant for Iván Caamaño's portfolio website. 
-      Use the following context to answer questions:
-      - Role: Telematics Engineer, AI/ML Specialist.
-      - Education: Master in Network Services (UPM), Bachelor in Telecom (UPM).
-      - Key Skills: Python, PyTorch, AWS, Azure, RAG, Generative AI.
-      - Projects: AI Doc Generation (AWS), RAG Chatbot (Azure), Radar ML Optimization (Indra).
-      - Tone: Professional, enthusiastic, concise.
-      - Language: Respond in ${lang === "en" ? "English" : "Spanish"}.
-    `;
-
-    const reply = await callGrokAssistant({
-      prompt: userMsg,
-      systemInstruction: systemContext,
-      fallback: () => getFallbackResponse(userMsg, lang),
-    });
-
-    setMessages((prev) => [...prev, { role: "model", text: reply }]);
-    setIsLoading(false);
-  };
-
-  if (isInline) {
-    const lastAssistantMessage = [...messages].reverse().find((msg) => msg.role === "model");
-    return (
-      <div className="space-y-3">
-        <div
-          className={`flex gap-3 rounded-[28px] border px-4 py-3 backdrop-blur-2xl transition ${
-            theme === "dark"
-              ? "bg-black/40 border-white/10 shadow-[0_25px_65px_rgba(0,0,0,0.45)]"
-              : "bg-white/90 border-neutral-200 shadow-[0_25px_65px_rgba(15,23,42,0.12)]"
-          }`}
-        >
-          <input
-            type="text"
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            onKeyDown={(event) => event.key === "Enter" && handleSend()}
-            placeholder={lang === "en" ? "Ask anything about me" : "Pregunta sobre mis skills..."}
-            className={`flex-1 bg-transparent text-sm focus:ring-0 focus:outline-none ${
-              theme === "dark" ? "text-white placeholder:text-neutral-500" : "text-neutral-900 placeholder:text-neutral-400"
-            }`}
-          />
-          <button
-            onClick={handleSend}
-            disabled={isLoading || !input.trim()}
-            className={`rounded-full px-3 py-1 text-sm font-semibold transition ${
-              theme === "dark"
-                ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-black hover:from-teal-400 hover:to-emerald-400"
-                : "bg-black text-white hover:bg-neutral-900 disabled:bg-neutral-300"
-            } disabled:cursor-not-allowed`}
-          >
-            {lang === "en" ? "Send" : "Enviar"}
-          </button>
-        </div>
-        <div className="min-h-[32px] text-sm">
-          {isLoading && (
-            <div className="inline-flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-teal-400">
-              <Loader2 size={16} className="animate-spin" />
-              <span>{lang === "en" ? "Thinking..." : "Pensando..."}</span>
-            </div>
-          )}
-          {!isLoading && lastAssistantMessage && (
-            <div className={getBubbleClasses("model")}>{lastAssistantMessage.text}</div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={
-        isInline ? "w-full" : "fixed bottom-6 right-6 z-50 flex flex-col items-end"
-      }
-    >
-      {isOpen && (
-        <div
-          className={`relative border rounded-[32px] overflow-hidden flex flex-col ${
-            isInline ? "w-full h-[520px]" : "w-80 md:w-96 h-[400px] mb-4"
-          } ${
-            theme === "dark"
-              ? "bg-gradient-to-b from-[#030712] via-[#090b17] to-[#020511] border-white/10 backdrop-blur-3xl text-neutral-100 shadow-[0_35px_90px_rgba(10,10,10,0.7)]"
-              : "bg-white/95 border-neutral-200 text-neutral-900 shadow-[0_40px_80px_rgba(15,23,42,0.25)]"
-          }`}
-        >
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 opacity-40"
-            style={{
-              background: theme === "dark"
-                ? "radial-gradient(circle at 20% 20%, rgba(16,185,129,0.4), transparent 45%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.35), transparent 55%)"
-                : "radial-gradient(circle at 25% 0%, rgba(14,165,233,0.25), transparent 45%), radial-gradient(circle at 80% 0%, rgba(0,0,0,0.15), transparent 55%)",
-            }}
-          />
-          <div
-            className={`relative z-10 p-4 border-b flex justify-between items-center ${
-              theme === "dark"
-                ? "bg-neutral-900/60 border-neutral-800"
-                : "bg-white/95 border-neutral-200"
-            }`}
-          >
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
-                <span
-                  className={`font-medium text-sm ${
-                    theme === "dark" ? "text-neutral-200" : "text-neutral-800"
-                  }`}
-                >
-                  Iván.AI Assistant
-                </span>
-              </div>
-              <span
-                className={`text-[10px] tracking-[0.3em] uppercase ${
-                  theme === "dark" ? "text-neutral-500" : "text-neutral-400"
-                }`}
-              >
-                Powered by Grok 2
-              </span>
-            </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className={`hover:opacity-70 ${
-                theme === "dark"
-                  ? "text-neutral-500 hover:text-white"
-                  : "text-neutral-400 hover:text-black"
-              }`}
-            >
-              <X size={16} />
-            </button>
-          </div>
-
-          <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div className={`${getBubbleClasses(msg.role)} ${msg.role === "user" ? "rounded-tr-none" : "rounded-tl-none"}`}>
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-teal-500/20 to-cyan-500/10 px-3 py-2 shadow-[0_12px_30px_rgba(16,185,129,0.25)]">
-                  <Loader2 size={16} className="animate-spin text-teal-400" />
-                  <span className="text-xs uppercase tracking-[0.3em] text-teal-200">Thinking</span>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          <div
-            className={`relative z-10 p-3 border-t flex gap-2 ${
-              theme === "dark"
-                ? "border-neutral-800 bg-neutral-900/30"
-                : "border-neutral-100 bg-neutral-50"
-            }`}
-          >
-            <input
-              type="text"
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => event.key === "Enter" && handleSend()}
-              placeholder={lang === "en" ? "Ask anything about me" : "Pregunta sobre mis skills..."}
-              className={`flex-1 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-teal-500/50 transition-colors border ${
-                theme === "dark"
-                  ? "bg-neutral-950 border-neutral-800 text-white"
-                  : "bg-white border-neutral-200 text-neutral-900"
-              }`}
-            />
-            <button
-              onClick={handleSend}
-              disabled={isLoading || !input.trim()}
-              className="p-2 bg-teal-600 text-white rounded-full hover:bg-teal-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <Send size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-};
 interface PortfolioLandingProps {
   initialLang?: Language;
+  /**
+   * Optional pre-loaded content for the initial language.
+   * IMPORTANT: If provided, this content MUST match the language specified in initialLang.
+   * Providing mismatched content (e.g., Spanish content with initialLang="en") will cause
+   * incorrect content to display until the client refetches the correct content.
+   * 
+   * This prop is typically used for server-side rendering to improve initial page load performance.
+   */
+  initialContent?: LandingContent;
 }
 
-export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) {
+export function PortfolioLanding({ initialLang = "es", initialContent }: PortfolioLandingProps) {
   const [lang, setLang] = useState<Language>(initialLang);
   const [theme, setTheme] = useState<Theme>("light");
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [contentMap, setContentMap] =
-    useState<Record<Language, LandingContent>>(defaultContent);
+  // Initialize with server-loaded content if available, otherwise use defaults
+  const [contentMap, setContentMap] = useState<Record<Language, LandingContent>>(() => {
+    if (initialContent) {
+      return { ...defaultContent, [initialLang]: initialContent };
+    }
+    return defaultContent;
+  });
   const [contentLoading, setContentLoading] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
+  // Track which languages we've already loaded from the server
+  const loadedLanguagesRef = useRef<Set<Language>>(
+    new Set(initialContent ? [initialLang] : [])
+  );
   const t = contentMap[lang];
   const stackSections = t.stack.sections ?? [];
   const blogPostsToRender = t.blogPosts.slice(0, BLOG_PREVIEW_COUNT);
@@ -983,6 +475,11 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
     let cancelled = false;
 
     const loadContent = async () => {
+      // Skip loading if we already loaded this language from the server
+      if (loadedLanguagesRef.current.has(lang)) {
+        return;
+      }
+
       setContentLoading(true);
       setContentError(null);
       try {
@@ -995,6 +492,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
         const payload = (await response.json()) as { data: LandingContent };
         if (!cancelled && payload.data) {
           setContentMap((prev) => ({ ...prev, [lang]: payload.data }));
+          loadedLanguagesRef.current.add(lang);
         }
       } catch (error) {
         console.error("Failed to fetch content:", error);
@@ -1089,6 +587,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                     ? "text-neutral-400 hover:text-white hover:bg-neutral-900"
                     : "text-neutral-600 hover:text-black hover:bg-gray-100"
                 }`}
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
                 title="Toggle Theme"
               >
                 {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
@@ -1110,6 +609,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           <button
             className={`md:hidden ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}
             onClick={() => setMobileMenu((prev) => !prev)}
+            aria-label={mobileMenu ? "Close menu" : "Open menu"}
           >
             {mobileMenu ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -1254,6 +754,22 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
                   <p>{t.about.education1}</p>
                   <p>{t.about.education2}</p>
                 </div>
+                {t.about.interestsTitle && t.about.interests && t.about.interests.length > 0 && (
+                  <div className={`text-sm space-y-2 mt-6 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}>
+                    <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+                      {t.about.interestsTitle}
+                    </p>
+                    <p>{t.about.interests.join(", ")}</p>
+                  </div>
+                )}
+                {t.about.languagesTitle && t.about.languages && t.about.languages.length > 0 && (
+                  <div className={`text-sm space-y-2 mt-6 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}>
+                    <p className={`font-semibold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
+                      {t.about.languagesTitle}
+                    </p>
+                    <p>{t.about.languages.join(", ")}</p>
+                  </div>
+                )}
               </div>
             </div>
             <div>
@@ -1333,7 +849,7 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
-                Experience
+                {lang === "es" ? "Experiencia" : "Experience"}
               </p>
               <h2 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-neutral-900"}`}>
                 {t.experience.title}
@@ -1361,6 +877,40 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               </a>
             )}
           </div>
+          
+          {t.experience.stats && t.experience.stats.length > 0 && (
+            <div className={`flex flex-wrap items-center gap-3 md:gap-4 mb-10 text-sm ${
+              theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+            }`}>
+              {t.experience.stats.map((stat, index) => {
+                // Extract number from the beginning of the label (e.g., "2+" or "4000+")
+                const match = stat.label.match(/^(\d+\+?)\s*(.+)$/);
+                const number = match ? match[1] : null;
+                const rest = match ? match[2] : stat.label;
+                
+                return (
+                  <React.Fragment key={index}>
+                    <span>
+                      {number && (
+                        <span className={`font-bold ${
+                          theme === "dark" ? "text-teal-400" : "text-teal-600"
+                        }`}>
+                          {number}{' '}
+                        </span>
+                      )}
+                      {rest}
+                    </span>
+                    {index < t.experience.stats!.length - 1 && (
+                      <span className={`text-neutral-500 ${theme === "dark" ? "text-neutral-600" : "text-neutral-400"}`}>
+                        •
+                      </span>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          )}
+          
           {stackSections.length > 0 && (
             <>
               {t.stack.title && (
@@ -1455,7 +1005,6 @@ export function PortfolioLanding({ initialLang = "es" }: PortfolioLandingProps) 
               <ProjectCard
                 key={project.id}
                 project={project}
-                lang={lang}
                 theme={theme}
               />
             ))}
