@@ -30,7 +30,7 @@ function createErrorStreamResponse(message: string, status: number) {
 export async function POST(request: NextRequest) {
   if (!process.env.XAI_API_KEY) {
     return createErrorStreamResponse(
-      "Error: Missing Grok API key. Please configure XAI_API_KEY environment variable.",
+      "Error: AI service is unavailable. Please contact the administrator.",
       500
     );
   }
