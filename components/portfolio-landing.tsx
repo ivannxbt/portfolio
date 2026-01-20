@@ -409,6 +409,14 @@ ExperienceCard.displayName = "ExperienceCard";
 
 interface PortfolioLandingProps {
   initialLang?: Language;
+  /**
+   * Optional pre-loaded content for the initial language.
+   * IMPORTANT: If provided, this content MUST match the language specified in initialLang.
+   * Providing mismatched content (e.g., Spanish content with initialLang="en") will cause
+   * incorrect content to display until the client refetches the correct content.
+   * 
+   * This prop is typically used for server-side rendering to improve initial page load performance.
+   */
   initialContent?: LandingContent;
 }
 
