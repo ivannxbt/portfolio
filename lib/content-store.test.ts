@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import os from 'os';
 
+// NOTE: content-store.ts maintains module-level state (resolvedOverridesPath and pathResolutionPromise)
+// which persists across tests. Tests are designed to work with this shared state rather than
+// attempting to reset modules between tests, as module resets would interfere with mock setup.
+// The first test that triggers path resolution will establish the state used by subsequent tests.
+
 // Mock server-only to prevent it from throwing errors in tests
 vi.mock('server-only', () => ({
   default: {},
