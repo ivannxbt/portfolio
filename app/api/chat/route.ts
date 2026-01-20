@@ -30,26 +30,22 @@ export async function POST(request: NextRequest) {
     promptParts.push(message.trim());
     const prompt = promptParts.filter(Boolean).join("\n\n");
 
-    const stream = streamText({
+    const result = streamText({
       model: xai(MODEL_NAME),
       prompt,
     });
 
-    let reply = "";
-    for await (const textPart of stream.textStream) {
-      if (typeof textPart === "string") {
-        reply += textPart;
-      }
-    }
-
-    return NextResponse.json({
-      reply: reply.trim() || "No response generated.",
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
+    // Return the stream directly instead of buffering
+    return result.toTextStreamResponse();
+  } catch (error: unknown) {
     console.error("Chat API error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Unable to reach the Grok service" },
+      { 
+        error: "Unable to reach the Grok service",
+        details: errorMessage,
+        reply: "No response generated.",
+      },
       { status: 500 }
     );
   }

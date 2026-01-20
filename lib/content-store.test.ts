@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import os from 'os';
-import path from 'path';
 
 // Mock server-only to prevent it from throwing errors in tests
 vi.mock('server-only', () => ({
@@ -22,7 +21,7 @@ vi.mock('fs/promises', () => ({
 
 // Mock react cache
 vi.mock('react', () => ({
-  cache: (fn: Function) => fn,
+  cache: <T extends (...args: never[]) => unknown>(fn: T) => fn,
 }));
 
 // Mock the site-content module
@@ -316,13 +315,13 @@ describe('content-store', () => {
       const { deepMerge } = await import('./content-store');
 
       const target = {};
-      const source = { a: {} } as any;
+      const source: { a: Record<string, unknown> } = { a: {} };
 
       // Create a deeply nested structure that exceeds MAX_MERGE_DEPTH
-      let current = source.a;
+      let current: Record<string, unknown> = source.a;
       for (let i = 0; i < 60; i++) {
         current.b = {};
-        current = current.b;
+        current = current.b as Record<string, unknown>;
       }
 
       expect(() => deepMerge(target, source)).toThrow('Maximum merge depth');
