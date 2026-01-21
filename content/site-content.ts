@@ -467,7 +467,7 @@ const englishContent: LandingContent = {
     ],
   },
   footer: {
-    copyright: "© 2025 Iván Caamaño.",
+    copyright: "© 2026 Iván Caamaño.",
   },
 };
 
@@ -782,7 +782,7 @@ const spanishContent: LandingContent = {
     ],
   },
   footer: {
-    copyright: "© 2025 Iván Caamaño.",
+    copyright: "© 2026 Iván Caamaño.",
   },
 };
 
