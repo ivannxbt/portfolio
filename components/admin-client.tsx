@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { createClient } from "@/lib/supabase/client";
 import {
   defaultContent,
   type LandingContent,
@@ -291,7 +291,7 @@ type AdminClientProps = {
 
 export function AdminClient({ initialContent }: AdminClientProps) {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [lang, setLang] = useState<"en" | "es">("en");
   const [content, setContent] = useState<LandingContent | null>(initialContent);
   const [loading, setLoading] = useState(false);
@@ -301,6 +301,19 @@ export function AdminClient({ initialContent }: AdminClientProps) {
   const [isDirty, setIsDirty] = useState(false);
   const dirtyRef = useRef(false);
   const isInitialMount = useRef(true);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
+      if (!user) {
+        router.push('/admin/login');
+      }
+    };
+    checkAuth();
+  }, [router]);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     branding: true,
     navigation: false,
@@ -327,7 +340,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
   };
 
   useEffect(() => {
-    if (!session) return;
+    if (!isAuthenticated) return;
 
     // Skip fetching on initial mount for English (we have initialContent)
     if (isInitialMount.current && lang === "en") {
@@ -376,7 +389,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     loadContent();
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, session?.user?.email]); // Use primitive dependency instead of session object
+  }, [lang, isAuthenticated]);
 
   const updateContent = (updater: (current: LandingContent) => LandingContent) => {
     setContent((prev) => {
@@ -436,29 +449,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     }
   };
 
-  if (status === "loading") {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center">
-        <p className="text-sm text-gray-600">Checking session...</p>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center px-6">
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 text-center max-w-md space-y-4 shadow-lg">
-          <h1 className="text-2xl font-semibold text-gray-900">Admin login required</h1>
-          <p className="text-sm text-gray-600">
-            Please sign in to manage the site content.
-          </p>
-          <button
-            onClick={() => router.push("/admin/login")}
-            className="w-full rounded-full bg-teal-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
-          >
-            Go to login
-          </button>
-        </div>
+        <p className="text-sm text-gray-600">Checking authentication...</p>
       </div>
     );
   }
@@ -470,6 +464,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
       </div>
     );
   }
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/admin/login');
+    router.refresh();
+  };
 
   const themeSettings = content.theme ?? fallbackTheme;
 
@@ -533,7 +534,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                 </span>
               )}
               <button
-                onClick={() => signOut({ callbackUrl: "/admin/login" })}
+                onClick={handleSignOut}
                 className="flex items-center gap-2 rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
               >
                 <LogOut className="w-4 h-4" />

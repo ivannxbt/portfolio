@@ -1,101 +1,76 @@
 import "server-only";
 
 import { cache } from "react";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import os from "os";
-import path from "path";
-
 import {
   defaultContent,
   type LandingContent,
 } from "@/content/site-content";
 import { locales, type Locale } from "@/lib/i18n";
+import { createClient } from "@/lib/supabase/server";
 
 export type ContentOverrides = Partial<Record<Locale, Partial<LandingContent>>>;
 
-const defaultOverridesPath = path.join(process.cwd(), "data", "content-overrides.json");
-const fallbackOverridesPath = path.join(os.tmpdir(), "content-overrides.json");
-
-let resolvedOverridesPath: string | undefined;
-let pathResolutionPromise: Promise<string> | undefined;
-
-function isSystemCode(error: unknown, code: string): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    typeof (error as { code?: unknown }).code === "string" &&
-    (error as { code: string }).code === code
-  );
-}
-
-const isErofs = (error: unknown) => isSystemCode(error, "EROFS");
-const isEnoent = (error: unknown) => isSystemCode(error, "ENOENT");
-const isEperm = (error: unknown) => isSystemCode(error, "EPERM");
-const isEacces = (error: unknown) => isSystemCode(error, "EACCES");
-
-async function ensureOverridesFileExists(targetPath: string) {
-  await mkdir(path.dirname(targetPath), { recursive: true });
-  try {
-    await readFile(targetPath, "utf-8");
-  } catch (error: unknown) {
-    if (isEnoent(error)) {
-      await writeFile(targetPath, "{}", "utf-8");
-    } else {
-      throw error;
-    }
-  }
-}
-
-async function getOverridesPath() {
-  if (resolvedOverridesPath) {
-    return resolvedOverridesPath;
-  }
-
-  if (!pathResolutionPromise) {
-    pathResolutionPromise = (async () => {
-      try {
-        await ensureOverridesFileExists(defaultOverridesPath);
-        resolvedOverridesPath = defaultOverridesPath;
-      } catch (error: unknown) {
-        if (isErofs(error) || isEperm(error) || isEacces(error)) {
-          console.warn(
-            `Primary overrides path is not writable (${error instanceof Error ? error.message : String(error)}), using fallback: ${fallbackOverridesPath}`
-          );
-          await ensureOverridesFileExists(fallbackOverridesPath);
-          resolvedOverridesPath = fallbackOverridesPath;
-        } else {
-          throw error;
-        }
-      }
-
-      return resolvedOverridesPath!;
-    })();
-  }
-
-  return pathResolutionPromise;
-}
-
+/**
+ * Read content overrides from Supabase database
+ */
 export const readOverrides = cache(async (): Promise<ContentOverrides> => {
-  const overridesPath = await getOverridesPath();
-  const raw = await readFile(overridesPath, "utf-8");
-  if (!raw.trim()) {
-    return {};
-  }
-
   try {
-    return JSON.parse(raw) as ContentOverrides;
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("content_overrides")
+      .select("locale, content");
+
+    if (error) {
+      console.error("Error reading content overrides from database:", error);
+      return {};
+    }
+
+    if (!data || data.length === 0) {
+      return {};
+    }
+
+    // Convert array of locale/content pairs to ContentOverrides object
+    const overrides: ContentOverrides = {};
+    for (const row of data) {
+      overrides[row.locale as Locale] = row.content as Partial<LandingContent>;
+    }
+
+    return overrides;
   } catch (error) {
-    console.warn("Invalid overrides file detected. Resetting to empty object.", (error instanceof Error ? error.message : String(error)));
-    await writeFile(overridesPath, "{}", "utf-8");
+    console.error("Unexpected error reading content overrides:", error);
     return {};
   }
 });
 
-export async function writeOverrides(overrides: ContentOverrides) {
-  const overridesPath = await getOverridesPath();
-  await mkdir(path.dirname(overridesPath), { recursive: true });
-  await writeFile(overridesPath, JSON.stringify(overrides, null, 2), "utf-8");
+/**
+ * Write content overrides to Supabase database
+ */
+export async function writeOverrides(overrides: ContentOverrides, userId?: string) {
+  try {
+    const supabase = await createClient();
+
+    // Update or insert each locale's content
+    for (const [locale, content] of Object.entries(overrides)) {
+      const { error } = await supabase
+        .from("content_overrides")
+        .upsert({
+          locale,
+          content,
+          updated_by: userId,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: "locale",
+        });
+
+      if (error) {
+        console.error(`Error writing content override for locale ${locale}:`, error);
+        throw error;
+      }
+    }
+  } catch (error) {
+    console.error("Unexpected error writing content overrides:", error);
+    throw error;
+  }
 }
 
 const MAX_MERGE_DEPTH = 50;

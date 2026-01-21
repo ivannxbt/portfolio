@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -15,21 +15,30 @@ export default function AdminLoginPage() {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    const result = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-      callbackUrl: "/admin",
-    });
 
-    setLoading(false);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
 
-    if (result?.error) {
-      setError("Invalid credentials.");
-      return;
+      if (error) {
+        setError("Invalid credentials.");
+        setLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        // Successfully logged in, redirect to admin page
+        router.push("/admin");
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An error occurred during login. Please try again.");
+      setLoading(false);
     }
-
-    router.push("/admin");
   };
 
   return (

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { LandingContent } from "@/content/site-content";
 import { isValidLocale, type Locale } from "@/lib/i18n";
-import { getServerSession } from "next-auth";
-import { getAuthOptions, NEXTAUTH_SECRET_ERROR } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import {
   deepMerge,
   getAllLandingContent,
@@ -40,13 +39,11 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const authOptions = getAuthOptions();
-    if (!authOptions) {
-      console.error("Content API PUT blocked:", NEXTAUTH_SECRET_ERROR);
-      return NextResponse.json({ error: NEXTAUTH_SECRET_ERROR }, { status: 500 });
-    }
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    // Check authentication with Supabase
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -69,7 +66,7 @@ export async function PUT(request: NextRequest) {
     const overrides = await readOverrides();
     const current = overrides[lang] ?? {};
     overrides[lang] = deepMerge(current, content);
-    await writeOverrides(overrides);
+    await writeOverrides(overrides, user.id);
 
     const data = await getLandingContent(lang);
     return NextResponse.json({ data });
