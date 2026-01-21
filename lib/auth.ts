@@ -6,7 +6,6 @@ import { secretConfig } from "@/lib/secret-config";
 
 const adminEmail = (secretConfig.adminEmail ?? process.env.ADMIN_EMAIL ?? "").toLowerCase();
 const adminPasswordHash = secretConfig.adminPasswordHash ?? process.env.ADMIN_PASSWORD_HASH;
-const adminPlainPassword = process.env.ADMIN_PASSWORD;
 const nextAuthSecret = secretConfig.nextAuthSecret ?? process.env.NEXTAUTH_SECRET;
 
 export const NEXTAUTH_SECRET_ERROR =
@@ -23,20 +22,15 @@ function createCredentialsProvider() {
       const email = credentials?.email?.toLowerCase().trim();
       const password = credentials?.password;
 
-      if (!adminEmail || (!adminPasswordHash && !adminPlainPassword)) {
-        throw new Error("Admin credentials are not configured.");
+      if (!adminEmail || !adminPasswordHash) {
+        throw new Error("Admin credentials are not configured. A hashed password is required.");
       }
 
       if (!password) {
         return null;
       }
 
-      let isPasswordValid = false;
-      if (adminPasswordHash) {
-        isPasswordValid = await bcrypt.compare(password, adminPasswordHash);
-      } else if (adminPlainPassword) {
-        isPasswordValid = password === adminPlainPassword;
-      }
+      const isPasswordValid = await bcrypt.compare(password, adminPasswordHash);
 
       if (email === adminEmail && isPasswordValid) {
         return {
