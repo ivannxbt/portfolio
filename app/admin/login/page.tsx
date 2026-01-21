@@ -33,38 +33,43 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 p-8 shadow-2xl">
-        <p className="text-sm uppercase tracking-[0.3em] text-teal-400 text-center">Admin Portal</p>
-        <h1 className="mt-2 mb-6 text-center text-3xl font-semibold">Sign in</h1>
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center px-4">
+      <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-white p-8 shadow-2xl">
+        <p className="text-sm uppercase tracking-[0.3em] text-teal-600 text-center">Admin Portal</p>
+        <h1 className="mt-2 mb-6 text-center text-3xl font-semibold text-gray-900">Sign in</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block text-sm text-zinc-400">
+          <label className="block text-sm text-gray-700">
             Email
             <input
               type="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white"
+              className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
               placeholder="you@example.com"
               required
             />
           </label>
-          <label className="block text-sm text-zinc-400">
+          <label className="block text-sm text-gray-700">
             Password
             <input
               type="password"
+              name="password"
+              autoComplete="current-password"
+              spellCheck={false}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white"
+              className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
               placeholder="********"
               required
             />
           </label>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-full bg-teal-500 py-3 text-sm font-semibold text-black transition hover:bg-teal-400 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-full bg-teal-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Signing in…" : "Sign in"}
           </button>

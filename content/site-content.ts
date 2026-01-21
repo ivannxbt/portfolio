@@ -96,6 +96,19 @@ export interface LandingContent {
     educationTitle: string;
     education1: string;
     education2: string;
+    /**
+     * NOTE: These fields are not currently editable via the AdminClient CMS.
+     * Manage `interestsTitle` and `interests` via direct file editing in `content/site-content.ts`
+     * or the corresponding overrides JSON, not through the /admin UI.
+     */
+    interestsTitle: string;
+    interests: string[];
+    /**
+     * NOTE: These language-related fields are also maintained via direct file editing
+     * and are not exposed as form fields in the AdminClient.
+     */
+    languagesTitle: string;
+    languages: string[];
   };
   experience: {
     title: string;
@@ -103,6 +116,14 @@ export interface LandingContent {
     cta: string;
     rolesLabel: string;
     roles: ExperienceItem[];
+    /**
+     * Additional experience statistics (e.g. years, projects).
+     *
+     * NOTE: This field is intentionally not editable via the Admin CMS
+     * (`/admin`). To change these values, update the content files
+     * directly (e.g. defaultContent or content-overrides.json).
+     */
+    stats?: Array<{ label: string; value: string }>;
   };
   stack: {
     title: string;
@@ -187,12 +208,23 @@ const englishContent: LandingContent = {
     educationTitle: "Education",
     education1: "M.Eng. Network and Telematic Services (UPM)",
     education2: "B.Eng. Telecommunications Technologies (UPM)",
+    interestsTitle: "Interests",
+    interests: ["AI/ML", "Software", "Data", "Blockchain", "E-commerce"],
+    languagesTitle: "Languages",
+    languages: ["Spanish (native)", "English (C2)", "French (B1)"],
   },
   experience: {
     title: "Work Experience",
     subtitle: "Recent roles pulled from my CV with the impact I delivered.",
     cta: "Download CV",
     rolesLabel: "Roles",
+    stats: [
+      { label: "2+ Years of Total Experience", value: "2+" },
+      { label: "5+ Freelance Projects", value: "5+" },
+      { label: "4+ Company (Confidential) Projects", value: "4+" },
+      { label: "4000+ Hours of Coding (From March 15, 2024 to Present)", value: "4000+" },
+      { label: "1000+ GitHub Contributions", value: "1000+" },
+    ],
     roles: [
       {
         role: "AI & Data Analyst",
@@ -451,7 +483,7 @@ const englishContent: LandingContent = {
     ],
   },
   footer: {
-    copyright: "© 2025 Iván Caamaño.",
+    copyright: "© 2026 Iván Caamaño.",
   },
 };
 
@@ -491,12 +523,23 @@ const spanishContent: LandingContent = {
     educationTitle: "Educación",
     education1: "M.Eng. en Servicios de Red y Telemática (UPM)",
     education2: "B.Eng. en Tecnologías de Telecomunicación (UPM)",
+    interestsTitle: "Intereses",
+    interests: ["IA/ML", "Software", "Datos", "Blockchain", "E-commerce"],
+    languagesTitle: "Idiomas",
+    languages: ["Español (nativo)", "Inglés (C2)", "Francés (B1)"],
   },
   experience: {
     title: "Experiencia profesional",
     subtitle: "Roles recientes sacados de mi CV con el impacto entregado.",
     cta: "Descargar CV",
     rolesLabel: "Cargos",
+    stats: [
+      { label: "2+ Años de Experiencia Total", value: "2+" },
+      { label: "5+ Proyectos Freelance", value: "5+" },
+      { label: "4+ Proyectos Empresariales (Confidenciales)", value: "4+" },
+      { label: "4000+ Horas de Código (Desde el 15 de marzo de 2024 hasta el presente)", value: "4000+" },
+      { label: "1000+ Contribuciones en GitHub", value: "1000+" },
+    ],
     roles: [
       {
         role: "AI & Data Analyst",
@@ -755,7 +798,7 @@ const spanishContent: LandingContent = {
     ],
   },
   footer: {
-    copyright: "© 2025 Iván Caamaño.",
+    copyright: "© 2026 Iván Caamaño.",
   },
 };
 

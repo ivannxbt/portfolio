@@ -1,10 +1,10 @@
 import NextAuth from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import { getAuthOptions, NEXTAUTH_SECRET_ERROR } from "@/lib/auth";
 
 const authOptions = getAuthOptions();
-const handler = authOptions ? NextAuth(authOptions) : null;
+
 let hasLoggedMissingConfig = false;
 
 const respondWithMissingConfig = () => {
@@ -15,23 +15,7 @@ const respondWithMissingConfig = () => {
   return NextResponse.json({ error: NEXTAUTH_SECRET_ERROR }, { status: 500 });
 };
 
-type NextAuthRouteContext = { params: Promise<{ nextauth: string[] }> };
+// NextAuth v4 App Router pattern: handler is used for both GET and POST
+const handler = authOptions ? NextAuth(authOptions) : respondWithMissingConfig;
 
-const buildNextAuthContext = async (context: NextAuthRouteContext) => {
-  const { nextauth } = await context.params;
-  return { params: { nextauth } };
-};
-
-export async function GET(request: NextRequest, context: NextAuthRouteContext) {
-  if (!handler) {
-    return respondWithMissingConfig();
-  }
-  return handler(request, await buildNextAuthContext(context));
-}
-
-export async function POST(request: NextRequest, context: NextAuthRouteContext) {
-  if (!handler) {
-    return respondWithMissingConfig();
-  }
-  return handler(request, await buildNextAuthContext(context));
-}
+export { handler as GET, handler as POST };
