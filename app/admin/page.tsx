@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { requireAuthOptions } from "@/lib/auth";
 import { AdminClient } from "@/components/admin-client";
 import { getLandingContent } from "@/lib/content-store";
-import { type LandingContent } from "@/content/site-content";
 
 export default async function AdminPage() {
   const authOptions = requireAuthOptions();
@@ -13,7 +12,8 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  // Fetch content for English (default language)
+  // Fetch content for English (default language) on the server.
+  // AdminClient is responsible for fetching other languages via /api/content?lang=...
   const initialContent = await getLandingContent("en");
 
   return <AdminClient initialContent={initialContent} />;
