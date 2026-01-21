@@ -11,6 +11,15 @@ const nextAuthSecret = secretConfig.nextAuthSecret ?? process.env.NEXTAUTH_SECRE
 export const NEXTAUTH_SECRET_ERROR =
   "NextAuth requires a secret. Provide `nextAuthSecret` in data/secret-config.json or set the `NEXTAUTH_SECRET` environment variable.";
 
+/**
+ * Creates a NextAuth credentials provider that authenticates a single admin account.
+ *
+ * The provider accepts `email` and `password` fields and validates the password
+ * against the configured admin password hash.
+ *
+ * @returns A configured CredentialsProvider whose `authorize` method returns an admin user object `{ id: "admin", name: "Site Admin", email }` on successful authentication or `null` on failure.
+ * @throws Error if the admin email or admin password hash are not configured.
+ */
 function createCredentialsProvider() {
   return CredentialsProvider({
     name: "Credentials",
