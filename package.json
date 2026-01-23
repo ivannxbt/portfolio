@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "secrets:init": "node scripts/manage-secret-config.mjs",
+    "verify:supabase": "node scripts/verify-supabase.mjs",
     "lint": "eslint",
     "test": "vitest",
     "test:ui": "vitest --ui",
