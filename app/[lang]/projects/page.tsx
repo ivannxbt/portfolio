@@ -2,6 +2,7 @@ import { ProjectCard } from "@/components/project-card";
 import { RichText } from "@/components/rich-text";
 import { getProjects } from "@/lib/mdx";
 import { getTranslations, type Locale } from "@/lib/i18n";
+import { AnimatedProjectsGrid } from "@/components/animated-projects-grid";
 
 interface PageProps {
   params: Promise<{ lang: Locale }>;
@@ -37,20 +38,14 @@ export default async function ProjectsPage({ params }: PageProps) {
         {projects.length === 0 ? (
           <p className="text-center text-neutral-500">{t.projects.empty}</p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project, index) => (
-              <ProjectCard
-                key={project.slug}
-                project={project}
-                locale={lang}
-                highlightLabel={t.projects.highlightLabel}
-                stackLabel={t.projects.stackLabel}
-                viewProjectLabel={t.projects.viewProject}
-                viewCodeLabel={t.projects.viewCode}
-                index={index}
-              />
-            ))}
-          </div>
+          <AnimatedProjectsGrid
+            projects={projects}
+            locale={lang}
+            highlightLabel={t.projects.highlightLabel}
+            stackLabel={t.projects.stackLabel}
+            viewProjectLabel={t.projects.viewProject}
+            viewCodeLabel={t.projects.viewCode}
+          />
         )}
       </div>
     </section>

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SessionProviders } from "@/components/session-provider";
 import { getLandingContent } from "@/lib/content-store";
@@ -56,6 +58,8 @@ export default function RootLayout({
     <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body className="antialiased bg-zinc-950 text-zinc-50 font-sans">
         <SessionProviders>{children}</SessionProviders>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 type ContributionDay = {
   date: string;
@@ -64,6 +65,7 @@ const LEVEL_COLORS: Record<"dark" | "light", Record<number, string>> = {
 export function GithubContributions({ username, theme, copy }: GithubContributionsProps) {
   const [data, setData] = useState<ContributionsResponse | null>(null);
   const [hasError, setHasError] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
   const cacheRef = useRef<Map<string, ContributionsResponse | null>>(new Map());
 
   useEffect(() => {
@@ -253,21 +255,57 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
       <div className="overflow-x-auto py-4">
         <div className="px-6">
           {data && data.weeks.length > 0 ? (
-            <div className="flex gap-1">
-              {data.weeks.map((week) => (
-                <div key={week.days[0]?.date} className="flex flex-col gap-1 flex-shrink-0">
-                  {week.days.map((day) => (
-                    <span
+            <motion.div
+              className="flex gap-1"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.01,
+                    delayChildren: 0.1,
+                  },
+                },
+              }}
+            >
+              {data.weeks.map((week, weekIndex) => (
+                <motion.div
+                  key={week.days[0]?.date}
+                  className="flex flex-col gap-1 flex-shrink-0"
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.8 },
+                    visible: { opacity: 1, scale: 1 },
+                  }}
+                >
+                  {week.days.map((day, dayIndex) => (
+                    <motion.span
                       key={day.date}
                       className={`h-3.5 w-3.5 rounded-sm transition-colors flex-shrink-0 ${
                         LEVEL_COLORS[theme][day.level as keyof typeof LEVEL_COLORS["dark"]]
                       }`}
                       title={`${day.date}: ${day.count} ${copy.tooltipSuffix}`}
+                      whileHover={!prefersReducedMotion ? {
+                        scale: 1.4,
+                        transition: { type: "spring", stiffness: 400, damping: 30 }
+                      } : {}}
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{
+                        opacity: 1,
+                        scale: 1,
+                        transition: {
+                          delay: (weekIndex * 7 + dayIndex) * 0.005,
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 30,
+                        },
+                      }}
                     />
                   ))}
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
             <div
               className={`h-32 rounded-2xl ${

@@ -4,6 +4,7 @@
 
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
   BrainCircuit,
   Briefcase,
@@ -38,6 +39,7 @@ import { GithubContributions } from "@/components/github-contributions";
 import { SocialPreviewOverlay } from "@/components/portfolio/social-preview-overlay";
 import { RichText } from "@/components/portfolio/rich-text";
 import { ChatWidget } from "@/components/portfolio/chat-widget";
+import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, staggerItem, scrollViewport } from "@/lib/animations";
 
 const socialIconMap: Record<SocialPlatform, LucideIcon> = {
   github: Github,
@@ -441,10 +443,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
   );
   const t = contentMap[lang];
   const stackSections = t.stack.sections ?? [];
-  const blogPostsToRender = t.blogPosts.slice(0, BLOG_PREVIEW_COUNT);
-  const previewProjects = t.projectItems.slice(0, PROJECT_PREVIEW_COUNT);
-  const projectsToRender = showAllProjects ? t.projectItems : previewProjects;
-  const canToggleProjects = t.projectItems.length > previewProjects.length;
+  const blogPostsToRender = (t.blogPosts ?? []).slice(0, BLOG_PREVIEW_COUNT);
+  const previewProjects = (t.projectItems ?? []).slice(0, PROJECT_PREVIEW_COUNT);
+  const projectsToRender = showAllProjects ? (t.projectItems ?? []) : previewProjects;
+  const canToggleProjects = (t.projectItems ?? []).length > previewProjects.length;
   const viewMoreProjectsLabel =
     t.projects.viewMore ?? (lang === "en" ? "View more projects" : "Ver más proyectos");
   const viewLessProjectsLabel =
@@ -672,66 +674,97 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
           <div className="absolute top-20 right-0 -z-10 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] opacity-50" />
           <ContactShowcase contact={t.contact} theme={theme} lang={lang} />
 
-          <h1
+          <motion.h1
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={fadeInUp}
             className={`text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] ${
               theme === "dark" ? "text-white" : "text-neutral-900"
             }`}
           >
             {t.hero.headline}
-          </h1>
+          </motion.h1>
 
-          <RichText
-            text={t.hero.subheadline}
-            className={`text-lg max-w-2xl mb-12 ${
-              theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-            }`}
-            linkClassName={
-              theme === "dark"
-                ? "text-teal-400 underline underline-offset-4 hover:text-white"
-                : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
-            }
-          />
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={fadeInUp}
+          >
+            <RichText
+              text={t.hero.subheadline}
+              className={`text-lg max-w-2xl mb-12 ${
+                theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+              }`}
+              linkClassName={
+                theme === "dark"
+                  ? "text-teal-400 underline underline-offset-4 hover:text-white"
+                  : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+              }
+            />
+          </motion.div>
 
-          <div className="flex flex-wrap items-center gap-6">
-            <a
+          <motion.div
+            className="flex flex-wrap items-center gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={staggerContainer}
+          >
+            <motion.a
               href="#projects"
               className={`px-8 py-4 font-semibold rounded-full transition-all flex items-center gap-2 ${
                 theme === "dark"
                   ? "bg-white text-black hover:bg-neutral-200"
                   : "bg-neutral-900 text-white hover:bg-neutral-800"
               }`}
+              variants={staggerItem}
             >
               {t.hero.cta}
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href={`mailto:${t.contact.email}`}
               className={`px-8 py-4 font-medium transition-colors border-b border-transparent ${
                 theme === "dark"
                   ? "text-neutral-400 hover:text-white hover:border-white"
                   : "text-neutral-600 hover:text-black hover:border-black"
               }`}
+              variants={staggerItem}
             >
               {t.hero.contact}
-            </a>
-          </div>
+            </motion.a>
+          </motion.div>
 
-          <div className="mt-16">
+          <motion.div
+            className="mt-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={fadeInUp}
+          >
             <ChatWidget lang={lang} theme={theme} variant="inline" />
-          </div>
+          </motion.div>
         </section>
 
-        <section
+        <motion.section
           id="about"
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+          variants={staggerContainer}
         >
           <div className="grid md:grid-cols-[1fr_2fr] gap-12">
-            <div className="flex flex-col gap-6">
-              <div
+            <motion.div className="flex flex-col gap-6" variants={staggerItem}>
+              <motion.div
                 className={`self-center md:self-start rounded-full p-[3px] shadow-xl ${
                   theme === "dark"
                     ? "bg-gradient-to-tr from-teal-600 via-purple-600 to-blue-500"
                     : "bg-gradient-to-tr from-teal-400 via-fuchsia-400 to-blue-400"
                 }`}
+                whileHover={{ rotate: 5, scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
               >
                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-neutral-900">
                   <Image
@@ -742,7 +775,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                     sizes="(min-width: 768px) 10rem, 8rem"
                   />
                 </div>
-              </div>
+              </motion.div>
               <div>
                 <h2 className={`text-3xl font-bold mb-6 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
                   {t.about.title}
@@ -771,8 +804,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                   </div>
                 )}
               </div>
-            </div>
-            <div>
+            </motion.div>
+            <motion.div variants={staggerItem}>
               <RichText
                 text={t.about.summary}
                 className={`text-xl mb-8 ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}
@@ -782,17 +815,21 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                     : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
                 }
               />
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
-        <section
+        <motion.section
           id="activity"
           className={`py-24 border-t ${
             theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"
           }`}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+          variants={fadeInLeft}
         >
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <motion.div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
                 {t.activity.eyebrow}
@@ -825,9 +862,15 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
               <Github size={16} />
               {t.activity.profileLabel}
             </a>
-          </div>
+          </motion.div>
 
-          <div className="mt-8">
+          <motion.div
+            className="mt-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={fadeInUp}
+          >
             <GithubContributions
               username={githubUsername}
               theme={theme}
@@ -839,8 +882,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                 tooltipSuffix: t.activity.tooltipSuffix,
               }}
             />
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
         <section
           id="experience"
@@ -918,15 +961,22 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                   {t.stack.title}
                 </p>
               )}
-              <div className="grid gap-6 mt-8 md:grid-cols-3">
+              <motion.div
+                className="grid gap-6 mt-8 md:grid-cols-3"
+                initial="hidden"
+                whileInView="visible"
+                viewport={scrollViewport}
+                variants={staggerContainer}
+              >
                 {stackSections.map((section) => {
                   const Icon = stackIconMap[section.icon] ?? Code2;
                   return (
-                    <div
+                    <motion.div
                       key={section.title}
                       className={`rounded-2xl border p-5 ${
                         theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
                       }`}
+                      variants={staggerItem}
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <div
@@ -952,10 +1002,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                           <TechIcon key={item} label={item} theme={theme} />
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
-              </div>
+              </motion.div>
             </>
           )}
 
@@ -969,11 +1019,19 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
             </p>
           )}
 
-          <div className="grid gap-6 mt-6">
+          <motion.div
+            className="grid gap-6 mt-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={staggerContainer}
+          >
             {t.experience.roles.map((role) => (
-              <ExperienceCard key={`${role.role}-${role.period}`} item={role} theme={theme} />
+              <motion.div key={`${role.role}-${role.period}`} variants={staggerItem}>
+                <ExperienceCard item={role} theme={theme} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </section>
 
         <section
@@ -1042,15 +1100,23 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                   : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
               }
             />
-            <div className="flex flex-col">
+            <motion.div
+              className="flex flex-col"
+              initial="hidden"
+              whileInView="visible"
+              viewport={scrollViewport}
+              variants={staggerContainer}
+            >
               {blogPostsToRender.length ? (
                 blogPostsToRender.map((post) => (
-                  <BlogRow key={post.id} post={post} lang={lang} theme={theme} readMoreLabel={t.blog.readMore} />
+                  <motion.div key={post.id} variants={staggerItem}>
+                    <BlogRow post={post} lang={lang} theme={theme} readMoreLabel={t.blog.readMore} />
+                  </motion.div>
                 ))
               ) : (
                 <p className={`text-sm ${theme === "dark" ? "text-neutral-600" : "text-neutral-500"}`}>{t.blog.empty}</p>
               )}
-            </div>
+            </motion.div>
             <a
               href={`/${lang}/blog`}
               className={`inline-block mt-8 text-sm transition-colors ${
@@ -1091,11 +1157,23 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
             >
               {t.contact.email}
             </a>
-            <div className="mt-12 flex flex-wrap gap-4">
+            <motion.div
+              className="mt-12 flex flex-wrap gap-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={scrollViewport}
+              variants={staggerContainer}
+            >
               {t.contact.socials.map((social) => {
                 const Icon = socialIconMap[social.platform] ?? Github;
                 return (
-                  <div key={social.url} className="relative group overflow-visible">
+                  <motion.div
+                    key={social.url}
+                    className="relative group overflow-visible"
+                    variants={staggerItem}
+                    whileHover={{ rotate: 360, scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  >
                     <a
                       href={social.url}
                       target="_blank"
@@ -1110,10 +1188,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                       <Icon size={20} />
                     </a>
                     <SocialPreviewOverlay platform={social.platform} label={social.label} preview={social.preview} />
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
         </section>
       </main>

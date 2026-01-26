@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowUpRight, Cloud, Database, Github, Layers } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 
 import type { ProjectEntry } from "@/lib/mdx";
 import type { Locale } from "@/lib/i18n";
@@ -61,6 +62,7 @@ export function ProjectCard({
   viewCodeLabel,
   index = 0,
 }: ProjectCardProps) {
+  const prefersReducedMotion = useReducedMotion();
   const { frontmatter } = project;
   const formattedDate = new Date(frontmatter.date).toLocaleDateString(
     locale === "es" ? "es-ES" : "en-US",
@@ -69,10 +71,22 @@ export function ProjectCard({
       year: "numeric",
     }
   );
+
+  // Hover animation (scale up slightly + enhance shadow)
+  const hoverAnimation = !prefersReducedMotion ? {
+    scale: 1.02,
+    y: -4,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 30,
+    },
+  } : {};
+
   return (
-    <article
-      className="group relative flex h-full flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-6 text-left shadow-[0_30px_60px_-35px_rgba(15,23,42,0.25)] transition-all duration-200 hover:border-teal-500/70 hover:shadow-[0_40px_120px_-40px_rgba(16,185,129,0.3)] animate-fade-in-up"
-      style={{ animationDelay: `${index * 60}ms` }}
+    <motion.article
+      className="group relative flex h-full flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-6 text-left shadow-[0_30px_60px_-35px_rgba(15,23,42,0.25)] transition-all duration-200 hover:border-teal-500/70 hover:shadow-[0_40px_120px_-40px_rgba(16,185,129,0.3)]"
+      whileHover={hoverAnimation}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
@@ -150,6 +164,6 @@ export function ProjectCard({
           </Link>
         )}
       </div>
-    </article>
+    </motion.article>
   );
 }
