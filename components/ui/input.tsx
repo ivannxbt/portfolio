@@ -33,7 +33,11 @@ const inputVariants: Variants = {
   },
 };
 
-export interface InputProps extends React.ComponentProps<"input"> {
+export interface InputProps
+  extends Omit<
+    React.ComponentProps<"input">,
+    "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd"
+  > {
   /** Show error state with red border and shake animation */
   error?: boolean;
   /** Show success state with green border and pulse animation */

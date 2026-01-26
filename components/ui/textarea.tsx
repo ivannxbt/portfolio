@@ -33,7 +33,11 @@ const textareaVariants: Variants = {
   },
 };
 
-export interface TextareaProps extends React.ComponentProps<"textarea"> {
+export interface TextareaProps
+  extends Omit<
+    React.ComponentProps<"textarea">,
+    "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd"
+  > {
   /** Show error state with red border and shake animation */
   error?: boolean;
   /** Show success state with green border and pulse animation */
