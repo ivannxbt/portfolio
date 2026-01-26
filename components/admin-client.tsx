@@ -1669,16 +1669,16 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             </label>
 
             <div className="space-y-4">
-              {content.blogPosts.map((post, index) => (
+              {(content.blogPosts || []).map((post, index) => (
                 <div key={post.id} className="rounded-xl border border-gray-200 bg-white p-4 space-y-3 shadow-sm">
                   <div className="flex items-center justify-between text-xs text-gray-600">
                     <span>Entry {index + 1}</span>
-                    {content.blogPosts.length > 1 && (
+                    {(content.blogPosts?.length ?? 0) > 1 && (
                       <button
                         type="button"
                         onClick={() =>
                           updateContent((prev) => {
-                            const blogPosts = prev.blogPosts.slice();
+                            const blogPosts = (prev.blogPosts || []).slice();
                             blogPosts.splice(index, 1);
                             return { ...prev, blogPosts: blogPosts.length ? blogPosts : [createBlogEntry()] };
                           })
@@ -1698,7 +1698,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         value={post.id}
                         onChange={(event) =>
                           updateContent((prev) => {
-                            const blogPosts = prev.blogPosts.slice();
+                            const blogPosts = (prev.blogPosts || []).slice();
                             blogPosts[index] = { ...blogPosts[index], id: Number(event.target.value) };
                             return { ...prev, blogPosts };
                           })
@@ -1714,7 +1714,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         value={post.date}
                         onChange={(event) =>
                           updateContent((prev) => {
-                            const blogPosts = prev.blogPosts.slice();
+                            const blogPosts = (prev.blogPosts || []).slice();
                             blogPosts[index] = { ...blogPosts[index], date: event.target.value };
                             return { ...prev, blogPosts };
                           })
@@ -1731,7 +1731,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       value={post.title}
                       onChange={(event) =>
                         updateContent((prev) => {
-                          const blogPosts = prev.blogPosts.slice();
+                          const blogPosts = (prev.blogPosts || []).slice();
                           blogPosts[index] = { ...blogPosts[index], title: event.target.value };
                           return { ...prev, blogPosts };
                         })
@@ -1746,7 +1746,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     value={post.summary}
                     onChange={(text) =>
                       updateContent((prev) => {
-                        const blogPosts = prev.blogPosts.slice();
+                        const blogPosts = (prev.blogPosts || []).slice();
                         blogPosts[index] = { ...blogPosts[index], summary: text };
                         return { ...prev, blogPosts };
                       })
@@ -1761,7 +1761,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       value={post.image ?? ""}
                       onChange={(event) =>
                         updateContent((prev) => {
-                          const blogPosts = prev.blogPosts.slice();
+                          const blogPosts = (prev.blogPosts || []).slice();
                           blogPosts[index] = { ...blogPosts[index], image: event.target.value };
                           return { ...prev, blogPosts };
                         })
@@ -1778,7 +1778,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       value={post.url ?? ""}
                       onChange={(event) =>
                         updateContent((prev) => {
-                          const blogPosts = prev.blogPosts.slice();
+                          const blogPosts = (prev.blogPosts || []).slice();
                           blogPosts[index] = { ...blogPosts[index], url: event.target.value };
                           return { ...prev, blogPosts };
                         })
@@ -1797,7 +1797,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               onClick={() =>
                 updateContent((prev) => ({
                   ...prev,
-                  blogPosts: [...prev.blogPosts, createBlogEntry()],
+                  blogPosts: [...(prev.blogPosts || []), createBlogEntry()],
                 }))
               }
               className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"

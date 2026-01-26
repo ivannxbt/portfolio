@@ -9,6 +9,7 @@
 
 import { motion, useReducedMotion, Variants } from "framer-motion";
 import { ReactNode } from "react";
+import type { JSX } from "react";
 import {
   fadeInUp,
   fadeInDown,

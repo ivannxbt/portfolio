@@ -71,7 +71,7 @@ interface AnimationControlsReturn {
  */
 export function useAnimationControls(): AnimationControlsReturn {
   const controls = useFramerControls();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotion() ?? false;
 
   /**
    * Animate to a specific variant
@@ -108,7 +108,7 @@ export function useAnimationControls(): AnimationControlsReturn {
       for (const step of steps) {
         // Wait for delay if specified
         if (step.delay) {
-          await new Promise((resolve) => setTimeout(resolve, step.delay * 1000));
+          await new Promise((resolve) => setTimeout(resolve, step.delay! * 1000));
         }
 
         // Animate to variant
