@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { streamText } from "ai";
-import { xai } from "@ai-sdk/xai";
-
-const MODEL_NAME = "grok-2-1212";
+import {
+  streamAIResponse,
+  isAIConfigured,
+  getAIProvider,
+  getModelName,
+} from "@/lib/ai-client";
 
 /**
  * Helper function to create a text stream response for error messages.
@@ -28,7 +30,8 @@ function createErrorStreamResponse(message: string, status: number) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!process.env.XAI_API_KEY) {
+  // Check if AI provider is configured
+  if (!isAIConfigured()) {
     return createErrorStreamResponse(
       "Error: AI service is unavailable. Please contact the administrator.",
       500
@@ -46,20 +49,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const promptParts = [];
-    if (systemInstruction && typeof systemInstruction === "string") {
-      promptParts.push(systemInstruction.trim());
-    }
-    promptParts.push(message.trim());
-    const prompt = promptParts.filter(Boolean).join("\n\n");
-
-    const result = streamText({
-      model: xai(MODEL_NAME),
-      prompt,
+    // Stream AI response using configured provider
+    const stream = await streamAIResponse({
+      message,
+      systemInstruction:
+        typeof systemInstruction === "string" ? systemInstruction : undefined,
     });
 
-    // Return the stream directly instead of buffering
-    return result.toTextStreamResponse();
+    // Return the stream with appropriate headers
+    return new NextResponse(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
   } catch (error: unknown) {
     console.error("Chat API error:", error);
     // Don't expose internal error details to the client
@@ -71,8 +75,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
+  const provider = getAIProvider();
+  const model = getModelName();
+
   return NextResponse.json({
-    message: "Chat API endpoint. Use POST to chat with Grok.",
+    message: `Chat API endpoint. Use POST to chat with ${provider === "claude" ? "Claude" : "Grok"}.`,
+    provider,
+    model,
     usage: {
       method: "POST",
       body: {

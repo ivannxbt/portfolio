@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   BrainCircuit,
   Loader2,
@@ -241,6 +242,7 @@ type ChatWidgetProps = {
 export const ChatWidget = React.memo<ChatWidgetProps>(
   ({ lang, theme, variant = "floating" }) => {
     const isInline = variant === "inline";
+    const prefersReducedMotion = useReducedMotion();
     const assistantGreeting =
       lang === "en"
         ? "Hi! I'm Ivan's AI Assistant. Ask me anything about his experience or skills."
@@ -448,16 +450,21 @@ export const ChatWidget = React.memo<ChatWidgetProps>(
           isInline ? "w-full" : "fixed bottom-6 right-6 z-50 flex flex-col items-end"
         }
       >
-        {isOpen && (
-          <div
-            className={`relative border rounded-[32px] overflow-hidden flex flex-col ${
-              isInline ? "w-full h-[520px]" : "w-80 md:w-96 h-[400px] mb-4"
-            } ${
-              theme === "dark"
-                ? "bg-gradient-to-b from-[#030712] via-[#090b17] to-[#020511] border-white/10 backdrop-blur-3xl text-neutral-100 shadow-[0_35px_90px_rgba(10,10,10,0.7)]"
-                : "bg-white/95 border-neutral-200 text-neutral-900 shadow-[0_40px_80px_rgba(15,23,42,0.25)]"
-            }`}
-          >
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0, originX: 1, originY: 1 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              className={`relative border rounded-[32px] overflow-hidden flex flex-col ${
+                isInline ? "w-full h-[520px]" : "w-80 md:w-96 h-[400px] mb-4"
+              } ${
+                theme === "dark"
+                  ? "bg-gradient-to-b from-[#030712] via-[#090b17] to-[#020511] border-white/10 backdrop-blur-3xl text-neutral-100 shadow-[0_35px_90px_rgba(10,10,10,0.7)]"
+                  : "bg-white/95 border-neutral-200 text-neutral-900 shadow-[0_40px_80px_rgba(15,23,42,0.25)]"
+              }`}
+            >
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-40"
@@ -494,7 +501,9 @@ export const ChatWidget = React.memo<ChatWidgetProps>(
                       theme === "dark" ? "text-neutral-500" : "text-neutral-400"
                     }`}
                   >
-                    Powered by Grok 2
+                    {process.env.NEXT_PUBLIC_AI_PROVIDER === "claude"
+                      ? "Powered by Claude"
+                      : "Powered by Grok 2"}
                   </span>
                 </div>
               </div>
@@ -512,43 +521,67 @@ export const ChatWidget = React.memo<ChatWidgetProps>(
             </div>
 
             <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  {msg.role === "model" && (
-                    <div className={`flex-shrink-0 mb-1 ${theme === "dark" ? "text-teal-400/80" : "text-teal-600/80"}`}>
+              <AnimatePresence mode="popLayout">
+                {messages.map((msg) => (
+                  <motion.div
+                    key={msg.id}
+                    layout
+                    initial={{
+                      opacity: 0,
+                      x: msg.role === "user" ? 20 : -20,
+                      y: 10
+                    }}
+                    animate={{ opacity: 1, x: 0, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    {msg.role === "model" && (
+                      <div className={`flex-shrink-0 mb-1 ${theme === "dark" ? "text-teal-400/80" : "text-teal-600/80"}`}>
+                        <BrainCircuit size={16} strokeWidth={2} />
+                      </div>
+                    )}
+                    <div className={`${getBubbleClasses(msg.role)} ${msg.role === "user" ? "rounded-tr-sm" : "rounded-tl-sm"} transition-all duration-300`}>
+                      <p className="leading-relaxed">{msg.text}</p>
+                    </div>
+                    {msg.role === "user" && (
+                      <div className={`flex-shrink-0 mb-1 ${theme === "dark" ? "text-neutral-500" : "text-neutral-400"}`}>
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center text-xs font-bold text-neutral-900">
+                          I
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              <AnimatePresence>
+                {isLoading && (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, x: -20, y: 10 }}
+                    animate={{ opacity: 1, x: 0, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="flex justify-start items-center gap-2"
+                  >
+                    <div className={`flex-shrink-0 ${theme === "dark" ? "text-teal-400/80" : "text-teal-600/80"}`}>
                       <BrainCircuit size={16} strokeWidth={2} />
                     </div>
-                  )}
-                  <div className={`${getBubbleClasses(msg.role)} ${msg.role === "user" ? "rounded-tr-sm" : "rounded-tl-sm"} transition-all duration-300`}>
-                    <p className="leading-relaxed">{msg.text}</p>
-                  </div>
-                  {msg.role === "user" && (
-                    <div className={`flex-shrink-0 mb-1 ${theme === "dark" ? "text-neutral-500" : "text-neutral-400"}`}>
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center text-xs font-bold text-neutral-900">
-                        I
-                      </div>
+                    <div className={`flex items-center gap-2.5 rounded-2xl px-4 py-2.5 backdrop-blur-xl transition-all duration-300 ${
+                      theme === "dark"
+                        ? "bg-gradient-to-r from-teal-500/20 via-emerald-500/15 to-teal-500/20 border border-teal-500/30 text-teal-300 shadow-[0_8px_25px_rgba(16,185,129,0.2)]"
+                        : "bg-gradient-to-r from-teal-50 via-emerald-50/50 to-teal-50 border border-teal-200/50 text-teal-700 shadow-[0_8px_25px_rgba(16,185,129,0.15)]"
+                    }`}>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Loader2 size={16} />
+                      </motion.div>
+                      <span className="text-xs font-medium uppercase tracking-wider">{lang === "en" ? "Thinking" : "Pensando"}</span>
                     </div>
-                  )}
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start items-center gap-2">
-                  <div className={`flex-shrink-0 ${theme === "dark" ? "text-teal-400/80" : "text-teal-600/80"}`}>
-                    <BrainCircuit size={16} strokeWidth={2} />
-                  </div>
-                  <div className={`flex items-center gap-2.5 rounded-2xl px-4 py-2.5 backdrop-blur-xl transition-all duration-300 ${
-                    theme === "dark"
-                      ? "bg-gradient-to-r from-teal-500/20 via-emerald-500/15 to-teal-500/20 border border-teal-500/30 text-teal-300 shadow-[0_8px_25px_rgba(16,185,129,0.2)]"
-                      : "bg-gradient-to-r from-teal-50 via-emerald-50/50 to-teal-50 border border-teal-200/50 text-teal-700 shadow-[0_8px_25px_rgba(16,185,129,0.15)]"
-                  }`}>
-                    <Loader2 size={16} className="animate-spin" />
-                    <span className="text-xs font-medium uppercase tracking-wider">{lang === "en" ? "Thinking" : "Pensando"}</span>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <div ref={messagesEndRef} />
             </div>
 
@@ -597,8 +630,9 @@ export const ChatWidget = React.memo<ChatWidgetProps>(
                 )}
               </button>
             </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }

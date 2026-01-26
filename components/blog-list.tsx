@@ -3,18 +3,20 @@
 import Image from "next/image";
 import { useState } from "react";
 import useSWR from "swr";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, CalendarDays, Sun, Moon } from "lucide-react";
 
 import type { Locale } from "@/lib/i18n";
 import type { BlogEntry, LandingContent } from "@/content/site-content";
+import { staggerContainer, staggerItem, scrollViewport } from "@/lib/animations";
 
 const fetcher = async (url: string) => {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error("Failed to fetch blog data.");
   }
-  const payload = (await response.json()) as { data: LandingContent };
-  return payload.data?.blogPosts ?? [];
+  const payload = (await response.json()) as { posts: BlogEntry[] };
+  return payload.posts ?? [];
 };
 
 interface BlogListProps {
@@ -33,7 +35,7 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
 
   // Use SWR for automatic request deduplication and caching
   const { data: posts, error, isLoading } = useSWR<BlogEntry[]>(
-    `/api/content?lang=${locale}`,
+    `/api/substack`,
     fetcher,
     {
       fallbackData: initialPosts,
@@ -97,15 +99,33 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
         )}
 
         {loading && (
-          <div
-            className={`rounded-3xl px-6 py-12 text-center text-sm ${
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={`rounded-3xl px-6 py-12 text-center text-sm relative overflow-hidden ${
               isDark
                 ? "border border-white/5 bg-zinc-950/60 text-zinc-400"
                 : "border border-neutral-200 bg-white text-neutral-500"
             }`}
           >
+            {/* Shimmer effect */}
+            <motion.div
+              className={`absolute inset-0 -translate-x-full ${
+                isDark
+                  ? "bg-gradient-to-r from-transparent via-white/5 to-transparent"
+                  : "bg-gradient-to-r from-transparent via-neutral-300/30 to-transparent"
+              }`}
+              animate={{
+                x: ["100%", "-100%"],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                ease: "linear",
+              }}
+            />
             Fetching latest entries…
-          </div>
+          </motion.div>
         )}
 
         {!loading && (!posts || posts.length === 0) && (
@@ -120,16 +140,25 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
           </p>
         )}
 
-        <div className="grid gap-6">
-          {posts?.map((post) => {
-            const link = post.url;
-            const isExternal = Boolean(link);
-            const coverImage = post.image?.trim() || "/blog/default.svg";
-            return (
-              <article
-                key={post.id}
-                className={`flex flex-col gap-4 rounded-3xl p-6 transition-colors ${cardBg}`}
-              >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={loading ? "skeleton" : "content"}
+            className="grid gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={staggerContainer}
+          >
+            {posts?.map((post) => {
+              const link = post.url;
+              const isExternal = Boolean(link);
+              const coverImage = post.image?.trim() || "/blog/default.svg";
+              return (
+                <motion.article
+                  key={post.id}
+                  className={`flex flex-col gap-4 rounded-3xl p-6 transition-colors ${cardBg}`}
+                  variants={staggerItem}
+                >
                 <div
                   className={`relative h-48 w-full overflow-hidden rounded-2xl border ${
                     isDark ? "border-white/5 bg-white/5" : "border-neutral-200 bg-neutral-100"
@@ -166,10 +195,11 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
                     {copy.readMore} <ArrowUpRight size={16} />
                   </a>
                 )}
-              </article>
-            );
-          })}
-        </div>
+                </motion.article>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

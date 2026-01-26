@@ -1,8 +1,13 @@
+"use client";
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { motion, useReducedMotion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { hoverScale, tapScale } from "@/lib/animations";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-zinc-700",
@@ -39,17 +44,51 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  /** Show loading spinner and disable button */
+  loading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+  ({ className, variant, size, asChild = false, loading = false, children, disabled, ...props }, ref) => {
+    const prefersReducedMotion = useReducedMotion();
+    const Comp = asChild ? Slot : motion.button;
+
+    // Disable button when loading
+    const isDisabled = disabled || loading;
+
+    // Motion props (only apply when not using asChild and animations are enabled)
+    const motionProps = !asChild && !prefersReducedMotion ? {
+      whileHover: hoverScale,
+      whileTap: tapScale,
+      transition: { type: "spring", stiffness: 400, damping: 30 },
+    } : {};
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        disabled={isDisabled}
+        {...motionProps}
         {...props}
-      />
+      >
+        {loading ? (
+          <>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            >
+              <Loader2 className="h-4 w-4" />
+            </motion.div>
+            {children}
+          </>
+        ) : (
+          children
+        )}
+      </Comp>
     );
   }
 );

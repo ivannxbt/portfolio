@@ -157,7 +157,7 @@ export interface LandingContent {
     readMore: string;
     empty: string;
   };
-  blogPosts: BlogEntry[];
+  blogPosts?: BlogEntry[];
   contact: {
     title: string;
     text: string;
@@ -347,56 +347,6 @@ const englishContent: LandingContent = {
     readMore: "Read article",
     empty: "No articles published yet.",
   },
-  blogPosts: [
-    {
-      id: 1,
-      date: "May 2025",
-      title: "My AI Stack Is for Solving Boring Work",
-      summary:
-        "Why I obsess over pragmatic agents: scoped context windows, ruthless observability, and using LLMs only when latency and cost prove the ROI.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 2,
-      date: "Apr 2025",
-      title: "Venezuela Wants Builders, Not Saviors",
-      summary:
-        "Notes from my trips home: talent is everywhere, trust is scarce, and the real leverage is small funds plus patient execution in local currency.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 3,
-      date: "Mar 2025",
-      title: "Crypto Rails as Emergency Exit",
-      summary:
-        "How I use stablecoins and onchain rails as a resilience plan—multi-sig treasuries, compliance guardrails, and custody discipline learned the hard way.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 4,
-      date: "Feb 2025",
-      title: "Watching the Economy Like an Engineer",
-      summary:
-        "The macro dashboard on my desk: liquidity, shipping costs, labor churn, and how each signal shapes the projects I greenlight.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 5,
-      date: "Jan 2025",
-      title: "Capitalism as a Craft, Not a Dogma",
-      summary:
-        "Personal rules for building companies: profit with constraints, equity for contributors, and ruthless clarity on who owns the downside.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 6,
-      date: "Dec 2024",
-      title: "Taming Consumism in My Own Routine",
-      summary:
-        "I track cravings like metrics—cutting pointless upgrades, buying local, and investing surplus into community experiments instead of gadgets.",
-      image: "/blog/default.svg",
-    },
-  ],
   contact: {
     title: "Let's Connect",
     text: "Based in Madrid. Open to collaborations in AI, Data Engineering, and Blockchain projects.",
@@ -662,56 +612,6 @@ const spanishContent: LandingContent = {
     readMore: "Leer artículo",
     empty: "Aún no hay artículos publicados.",
   },
-  blogPosts: [
-    {
-      id: 1,
-      date: "May 2025",
-      title: "Mi stack de IA está hecho para resolver trabajo aburrido",
-      summary:
-        "Por qué me obsesionan los agentes pragmáticos: ventanas de contexto delimitadas, observabilidad implacable y usar LLM sólo cuando la latencia y el coste justifican el ROI.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 2,
-      date: "Apr 2025",
-      title: "Venezuela necesita constructores, no salvadores",
-      summary:
-        "Notas de mis viajes a casa: el talento está en todas partes, la confianza escasea y la verdadera ventaja llega de fondos pequeños con ejecución paciente en moneda local.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 3,
-      date: "Mar 2025",
-      title: "Rieles cripto como salida de emergencia",
-      summary:
-        "Cómo uso stablecoins y rieles onchain como plan de resiliencia: tesorerías multi-sig, guardarraíles de cumplimiento y disciplina de custodia aprendida a pulso.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 4,
-      date: "Feb 2025",
-      title: "Observo la economía con mirada de ingeniero",
-      summary:
-        "El dashboard macro en mi escritorio: liquidez, costes logísticos, rotación laboral y cómo cada señal influye en los proyectos que apruebo.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 5,
-      date: "Jan 2025",
-      title: "El capitalismo como oficio, no dogma",
-      summary:
-        "Reglas personales para construir empresas: beneficio con límites, equidad para el equipo y claridad implacable sobre quién asume el riesgo.",
-      image: "/blog/default.svg",
-    },
-    {
-      id: 6,
-      date: "Dec 2024",
-      title: "Domando el consumismo en mi rutina",
-      summary:
-        "Registro los antojos como métricas: evito upgrades inútiles, compro local y canalizo el excedente hacia experimentos comunitarios.",
-      image: "/blog/default.svg",
-    },
-  ],
   contact: {
     title: "Contacto",
     text: "Con base en Madrid. Abierto a colaboraciones en IA, ingeniería de datos y blockchain.",
