@@ -2,7 +2,7 @@
   "en": {
     "hero": {
       "headline": "Welcome to my portfolio!",
-      "subheadline": "I'm currently an AI & Software Engineer at @Avvale, and I do freelance too, plus heavily active on Twitter/X sharing my progress and story.",
+      "subheadline": "I'm currently an AI & Software Engineer at @Avvale, and I do freelance too.",
       "role": "",
       "greeting": "",
       "cta": "View Projects",
@@ -417,7 +417,7 @@
   "es": {
     "hero": {
       "headline": "Bienvenidos a mi portafolio!",
-      "subheadline": "Actualmente soy AI & Software Engineer en @Avvale, también trabajo como freelance y comparto cosas en Twitter/X.",
+      "subheadline": "Actualmente soy AI & Software Engineer en @Avvale, y también hago freelance.",
       "role": "",
       "greeting": "",
       "cta": "Ver proyectos",

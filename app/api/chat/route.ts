@@ -6,35 +6,12 @@ import {
   getModelName,
 } from "@/lib/ai-client";
 
-/**
- * Helper function to create a text stream response for error messages.
- * This ensures consistency with successful streaming responses.
- */
-function createErrorStreamResponse(message: string, status: number) {
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    start(controller) {
-      controller.enqueue(encoder.encode(message));
-      controller.close();
-    },
-  });
-
-  return new NextResponse(stream, {
-    status,
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-    },
-  });
-}
-
 export async function POST(request: NextRequest) {
   // Check if AI provider is configured
   if (!isAIConfigured()) {
-    return createErrorStreamResponse(
-      "Error: AI service is unavailable. Please contact the administrator.",
-      500
+    return NextResponse.json(
+      { error: "AI service is unavailable. Please contact the administrator." },
+      { status: 500 }
     );
   }
 
@@ -43,33 +20,40 @@ export async function POST(request: NextRequest) {
     const { message, systemInstruction } = body;
 
     if (!message || typeof message !== "string") {
-      return createErrorStreamResponse(
-        "Error: Message is required and must be a string.",
-        400
+      return NextResponse.json(
+        { error: "Message is required and must be a string." },
+        { status: 400 }
       );
     }
 
-    // Stream AI response using configured provider
+    // Get the stream from the provider
     const stream = await streamAIResponse({
       message,
       systemInstruction:
         typeof systemInstruction === "string" ? systemInstruction : undefined,
     });
 
-    // Return the stream with appropriate headers
-    return new NextResponse(stream, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-      },
-    });
+    // Buffer the stream to return a single JSON response
+    // This is necessary because the client components expect JSON, not a stream
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let reply = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      reply += decoder.decode(value, { stream: true });
+    }
+    // Flush any remaining text
+    reply += decoder.decode();
+
+    return NextResponse.json({ reply });
   } catch (error: unknown) {
     console.error("Chat API error:", error);
     // Don't expose internal error details to the client
-    return createErrorStreamResponse(
-      "Error: Unable to process your request. Please try again later.",
-      500
+    return NextResponse.json(
+      { error: "Unable to process your request. Please try again later." },
+      { status: 500 }
     );
   }
 }
@@ -79,7 +63,7 @@ export async function GET() {
   const model = getModelName();
 
   return NextResponse.json({
-    message: `Chat API endpoint. Use POST to chat with ${provider === "claude" ? "Claude" : "Grok"}.`,
+    message: `Chat API endpoint. Use POST to chat with Gemini.`,
     provider,
     model,
     usage: {

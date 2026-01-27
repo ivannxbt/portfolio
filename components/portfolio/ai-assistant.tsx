@@ -324,9 +324,7 @@ export function AIAssistant({
             theme === "dark" ? "text-zinc-600" : "text-zinc-400"
           }`}
         >
-          {process.env.NEXT_PUBLIC_AI_PROVIDER === "claude"
-            ? "Powered by Claude"
-            : "Powered by Grok 2"}
+          Powered by Gemini
         </span>
       </div>
     </div>
