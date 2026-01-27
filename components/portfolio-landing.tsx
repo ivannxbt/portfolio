@@ -38,8 +38,21 @@ import {
 import { GithubContributions } from "@/components/github-contributions";
 import { SocialPreviewOverlay } from "@/components/portfolio/social-preview-overlay";
 import { RichText } from "@/components/portfolio/rich-text";
-import { ChatWidget } from "@/components/portfolio/chat-widget";
-import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, staggerItem, scrollViewport } from "@/lib/animations";
+import { ClairoChat } from "@/components/portfolio/clairo-chat";
+import {
+  fadeInUp,
+  fadeInLeft,
+  fadeInRight,
+  staggerContainer,
+  staggerItem,
+  scrollViewport,
+  codeReveal,
+  elevate,
+  developerStagger,
+  developerStaggerItem,
+  glowInteraction,
+  pageTransition
+} from "@/lib/animations";
 
 const socialIconMap: Record<SocialPlatform, LucideIcon> = {
   github: Github,
@@ -185,12 +198,15 @@ const ProjectCard = React.memo(({ project, theme }: { project: ProjectItem; them
   const IconComponent = projectIconMap[project.icon] ?? Layers;
 
   return (
-    <div
-      className={`group relative border rounded-xl p-6 transition-all duration-300 flex flex-col h-full hover:shadow-lg ${
+    <motion.div
+      className={`group relative border rounded-xl p-6 flex flex-col h-full overflow-hidden ${
         theme === "dark"
-          ? "bg-[#0a0a0a] border-neutral-900 hover:border-neutral-700 hover:shadow-[0_0_30px_-10px_rgba(255,255,255,0.05)]"
-          : "bg-white border-neutral-200 hover:border-teal-500/30 hover:shadow-teal-900/5"
+          ? "bg-[#0a0a0a] border-neutral-900"
+          : "bg-white border-neutral-200"
       }`}
+      initial="rest"
+      whileHover="hover"
+      variants={elevate}
     >
       <div className="mb-6">
         <div
@@ -239,7 +255,7 @@ const ProjectCard = React.memo(({ project, theme }: { project: ProjectItem; them
           </span>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 });
 
@@ -416,13 +432,18 @@ interface PortfolioLandingProps {
    * IMPORTANT: If provided, this content MUST match the language specified in initialLang.
    * Providing mismatched content (e.g., Spanish content with initialLang="en") will cause
    * incorrect content to display until the client refetches the correct content.
-   * 
+   *
    * This prop is typically used for server-side rendering to improve initial page load performance.
    */
   initialContent?: LandingContent;
+  /**
+   * Pre-fetched Substack blog posts to display in the blog section.
+   * These replace any hardcoded blog posts in the content.
+   */
+  substackPosts?: BlogEntry[];
 }
 
-export function PortfolioLanding({ initialLang = "es", initialContent }: PortfolioLandingProps) {
+export function PortfolioLanding({ initialLang = "es", initialContent, substackPosts }: PortfolioLandingProps) {
   const [lang, setLang] = useState<Language>(initialLang);
   const [theme, setTheme] = useState<Theme>("light");
   const [scrolled, setScrolled] = useState(false);
@@ -443,7 +464,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
   );
   const t = contentMap[lang];
   const stackSections = t.stack.sections ?? [];
-  const blogPostsToRender = (t.blogPosts ?? []).slice(0, BLOG_PREVIEW_COUNT);
+  const blogPostsToRender = substackPosts ?? (t.blogPosts ?? []).slice(0, BLOG_PREVIEW_COUNT);
   const previewProjects = (t.projectItems ?? []).slice(0, PROJECT_PREVIEW_COUNT);
   const projectsToRender = showAllProjects ? (t.projectItems ?? []) : previewProjects;
   const canToggleProjects = (t.projectItems ?? []).length > previewProjects.length;
@@ -526,7 +547,11 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
   };
 
   return (
-    <div
+    <motion.div
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageTransition}
       className={`min-h-screen font-sans transition-colors duration-300 ${
         theme === "dark"
           ? "bg-[#050505] text-neutral-200 selection:bg-teal-900/30 selection:text-teal-50"
@@ -676,9 +701,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
 
           <motion.h1
             initial="hidden"
-            whileInView="visible"
-            viewport={scrollViewport}
-            variants={fadeInUp}
+            animate="visible"
+            variants={codeReveal}
             className={`text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] ${
               theme === "dark" ? "text-white" : "text-neutral-900"
             }`}
@@ -708,43 +732,40 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
           <motion.div
             className="flex flex-wrap items-center gap-6"
             initial="hidden"
-            whileInView="visible"
-            viewport={scrollViewport}
-            variants={staggerContainer}
+            animate="visible"
+            variants={developerStagger}
           >
             <motion.a
               href="#projects"
-              className={`px-8 py-4 font-semibold rounded-full transition-all flex items-center gap-2 ${
+              className={`px-8 py-4 font-semibold rounded-full flex items-center gap-2 ${
                 theme === "dark"
-                  ? "bg-white text-black hover:bg-neutral-200"
-                  : "bg-neutral-900 text-white hover:bg-neutral-800"
+                  ? "bg-white text-black"
+                  : "bg-neutral-900 text-white"
               }`}
-              variants={staggerItem}
+              variants={developerStaggerItem}
+              whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0, 229, 255, 0.3)" }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
             >
               {t.hero.cta}
             </motion.a>
             <motion.a
               href={`mailto:${t.contact.email}`}
-              className={`px-8 py-4 font-medium transition-colors border-b border-transparent ${
+              className={`px-8 py-4 font-medium border-b-2 ${
                 theme === "dark"
-                  ? "text-neutral-400 hover:text-white hover:border-white"
-                  : "text-neutral-600 hover:text-black hover:border-black"
+                  ? "text-neutral-400 border-neutral-800 hover:text-white hover:border-white"
+                  : "text-neutral-600 border-neutral-300 hover:text-black hover:border-black"
               }`}
-              variants={staggerItem}
+              variants={developerStaggerItem}
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
             >
               {t.hero.contact}
             </motion.a>
           </motion.div>
 
-          <motion.div
-            className="mt-16"
-            initial="hidden"
-            whileInView="visible"
-            viewport={scrollViewport}
-            variants={fadeInUp}
-          >
-            <ChatWidget lang={lang} theme={theme} variant="inline" />
-          </motion.div>
+          {/* Chat widget - renders in portal to document.body */}
+          <ClairoChat lang={lang} theme={theme} />
         </section>
 
         <motion.section
@@ -757,14 +778,12 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
         >
           <div className="grid md:grid-cols-[1fr_2fr] gap-12">
             <motion.div className="flex flex-col gap-6" variants={staggerItem}>
-              <motion.div
+              <div
                 className={`self-center md:self-start rounded-full p-[3px] shadow-xl ${
                   theme === "dark"
                     ? "bg-gradient-to-tr from-teal-600 via-purple-600 to-blue-500"
                     : "bg-gradient-to-tr from-teal-400 via-fuchsia-400 to-blue-400"
                 }`}
-                whileHover={{ rotate: 5, scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
               >
                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-neutral-900">
                   <Image
@@ -775,7 +794,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                     sizes="(min-width: 768px) 10rem, 8rem"
                   />
                 </div>
-              </motion.div>
+              </div>
               <div>
                 <h2 className={`text-3xl font-bold mb-6 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
                   {t.about.title}
@@ -966,7 +985,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                 initial="hidden"
                 whileInView="visible"
                 viewport={scrollViewport}
-                variants={staggerContainer}
+                variants={developerStagger}
               >
                 {stackSections.map((section) => {
                   const Icon = stackIconMap[section.icon] ?? Code2;
@@ -976,7 +995,9 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                       className={`rounded-2xl border p-5 ${
                         theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
                       }`}
-                      variants={staggerItem}
+                      variants={developerStaggerItem}
+                      whileHover={{ y: -4, boxShadow: "0 10px 25px rgba(0, 229, 255, 0.1)" }}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <div
@@ -1024,10 +1045,15 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
             initial="hidden"
             whileInView="visible"
             viewport={scrollViewport}
-            variants={staggerContainer}
+            variants={developerStagger}
           >
             {t.experience.roles.map((role) => (
-              <motion.div key={`${role.role}-${role.period}`} variants={staggerItem}>
+              <motion.div
+                key={`${role.role}-${role.period}`}
+                variants={developerStaggerItem}
+                whileHover={{ x: 4, boxShadow: "0 10px 30px rgba(0, 229, 255, 0.1)" }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              >
                 <ExperienceCard item={role} theme={theme} />
               </motion.div>
             ))}
@@ -1058,15 +1084,22 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
             />
           )}
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <motion.div
+            className="grid md:grid-cols-3 gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={developerStagger}
+          >
             {projectsToRender.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                theme={theme}
-              />
+              <motion.div key={project.id} variants={developerStaggerItem}>
+                <ProjectCard
+                  project={project}
+                  theme={theme}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
           {canToggleProjects && (
             <div className="mt-8 text-left">
               <button
@@ -1088,9 +1121,25 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
         >
           <div className="max-w-3xl">
-            <h2 className={`text-2xl font-bold mb-8 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
-              {t.blog.title}
-            </h2>
+            <div className="flex items-center gap-3 mb-8">
+              <h2 className={`text-2xl font-bold ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
+                {t.blog.title}
+              </h2>
+              {substackPosts && substackPosts.length > 0 && (
+                <a
+                  href={`https://${process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || ''}.substack.com`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full border transition-colors ${
+                    theme === "dark"
+                      ? "text-orange-400 border-orange-400/30 bg-orange-400/5 hover:border-orange-400/50"
+                      : "text-orange-600 border-orange-600/30 bg-orange-50 hover:border-orange-600/50"
+                  }`}
+                >
+                  From Substack
+                </a>
+              )}
+            </div>
             <RichText
               text={t.blog.description}
               className={`text-sm mb-6 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
@@ -1105,11 +1154,16 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
               initial="hidden"
               whileInView="visible"
               viewport={scrollViewport}
-              variants={staggerContainer}
+              variants={developerStagger}
             >
               {blogPostsToRender.length ? (
                 blogPostsToRender.map((post) => (
-                  <motion.div key={post.id} variants={staggerItem}>
+                  <motion.div
+                    key={post.id}
+                    variants={developerStaggerItem}
+                    whileHover={{ x: 8, backgroundColor: theme === "dark" ? "rgba(10, 10, 10, 0.5)" : "rgba(255, 255, 255, 0.8)" }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  >
                     <BlogRow post={post} lang={lang} theme={theme} readMoreLabel={t.blog.readMore} />
                   </motion.div>
                 ))
@@ -1162,7 +1216,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
               initial="hidden"
               whileInView="visible"
               viewport={scrollViewport}
-              variants={staggerContainer}
+              variants={developerStagger}
             >
               {t.contact.socials.map((social) => {
                 const Icon = socialIconMap[social.platform] ?? Github;
@@ -1170,9 +1224,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
                   <motion.div
                     key={social.url}
                     className="relative group overflow-visible"
-                    variants={staggerItem}
-                    whileHover={{ rotate: 360, scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    variants={developerStaggerItem}
                   >
                     <a
                       href={social.url}
@@ -1204,6 +1256,6 @@ export function PortfolioLanding({ initialLang = "es", initialContent }: Portfol
         <p className="text-neutral-500 text-sm font-mono">{t.footer.copyright}</p>
       </footer>
 
-    </div>
+    </motion.div>
   );
 }

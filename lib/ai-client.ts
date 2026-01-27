@@ -1,37 +1,31 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { xai } from "@ai-sdk/xai";
-import { streamText } from "ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // AI Provider Configuration
-export type AIProvider = "claude" | "grok";
+export type AIProvider = "gemini";
 
-const AI_PROVIDER = (process.env.AI_PROVIDER || "grok") as AIProvider;
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const XAI_API_KEY = process.env.XAI_API_KEY;
+const AI_PROVIDER = "gemini" as const;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 // Model configurations
 const MODELS = {
-  claude: "claude-sonnet-4-5-20250929",
-  grok: "grok-2-1212",
+  gemini: "gemini-2.0-flash-exp",
 } as const;
 
-// Initialize Anthropic client (lazy initialization)
-let anthropicClient: Anthropic | null = null;
+// Initialize Gemini client (lazy initialization)
+let geminiClient: GoogleGenerativeAI | null = null;
 
-function getAnthropicClient(): Anthropic {
-  if (!ANTHROPIC_API_KEY) {
+function getGeminiClient(): GoogleGenerativeAI {
+  if (!GOOGLE_API_KEY) {
     throw new Error(
-      "ANTHROPIC_API_KEY environment variable is required when using Claude provider"
+      "GOOGLE_API_KEY environment variable is required when using Gemini provider"
     );
   }
 
-  if (!anthropicClient) {
-    anthropicClient = new Anthropic({
-      apiKey: ANTHROPIC_API_KEY,
-    });
+  if (!geminiClient) {
+    geminiClient = new GoogleGenerativeAI(GOOGLE_API_KEY);
   }
 
-  return anthropicClient;
+  return geminiClient;
 }
 
 /**
@@ -45,71 +39,53 @@ export interface StreamConfig {
 }
 
 /**
- * Unified streaming interface for both Claude and Grok
+ * Stream AI response from Gemini
  *
  * Returns a ReadableStream that can be consumed by the client
  */
 export async function streamAIResponse(
   config: StreamConfig
 ): Promise<ReadableStream<Uint8Array>> {
-  const provider = config.provider || AI_PROVIDER;
   const systemInstruction = config.systemInstruction || "";
   const maxTokens = config.maxTokens || 1024;
 
-  if (provider === "claude") {
-    return streamClaudeResponse({
-      message: config.message,
-      systemInstruction,
-      maxTokens,
-    });
-  } else {
-    return streamGrokResponse({
-      message: config.message,
-      systemInstruction,
-      maxTokens,
-    });
-  }
+  return streamGeminiResponse({
+    message: config.message,
+    systemInstruction,
+    maxTokens,
+  });
 }
 
 /**
- * Stream response from Claude (Anthropic)
+ * Stream response from Gemini (Google)
  */
-async function streamClaudeResponse(config: {
+async function streamGeminiResponse(config: {
   message: string;
   systemInstruction: string;
   maxTokens: number;
 }): Promise<ReadableStream<Uint8Array>> {
-  const client = getAnthropicClient();
+  const client = getGeminiClient();
   const encoder = new TextEncoder();
+  const model = client.getGenerativeModel({
+    model: MODELS.gemini,
+    systemInstruction: config.systemInstruction || undefined,
+  });
 
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const claudeStream = client.messages.stream({
-          model: MODELS.claude,
-          max_tokens: config.maxTokens,
-          system: config.systemInstruction || undefined,
-          messages: [
-            {
-              role: "user",
-              content: config.message,
-            },
-          ],
-        });
+        const result = await model.generateContentStream(config.message);
 
-        claudeStream.on("text", (text) => {
-          controller.enqueue(encoder.encode(text));
-        });
+        for await (const chunk of result.stream) {
+          const text = chunk.text();
+          if (text) {
+            controller.enqueue(encoder.encode(text));
+          }
+        }
 
-        claudeStream.on("error", (error) => {
-          console.error("Claude streaming error:", error);
-          controller.error(error);
-        });
-
-        await claudeStream.finalMessage();
         controller.close();
       } catch (error: unknown) {
-        console.error("Claude API error:", error);
+        console.error("Gemini streaming error:", error);
         controller.error(error);
       }
     },
@@ -119,58 +95,22 @@ async function streamClaudeResponse(config: {
 }
 
 /**
- * Stream response from Grok (xAI) using Vercel AI SDK
- */
-async function streamGrokResponse(config: {
-  message: string;
-  systemInstruction: string;
-  maxTokens: number;
-}): Promise<ReadableStream<Uint8Array>> {
-  if (!XAI_API_KEY) {
-    throw new Error(
-      "XAI_API_KEY environment variable is required when using Grok provider"
-    );
-  }
-
-  const promptParts = [];
-  if (config.systemInstruction) {
-    promptParts.push(config.systemInstruction.trim());
-  }
-  promptParts.push(config.message.trim());
-  const prompt = promptParts.filter(Boolean).join("\n\n");
-
-  const result = streamText({
-    model: xai(MODELS.grok),
-    prompt,
-  });
-
-  return result.toTextStreamResponse().body!;
-}
-
-/**
  * Get current AI provider configuration
  */
 export function getAIProvider(): AIProvider {
-  return AI_PROVIDER;
+  return "gemini";
 }
 
 /**
  * Get model name for current provider
  */
-export function getModelName(provider?: AIProvider): string {
-  const activeProvider = provider || AI_PROVIDER;
-  return MODELS[activeProvider];
+export function getModelName(): string {
+  return MODELS.gemini;
 }
 
 /**
  * Check if AI provider is properly configured
  */
-export function isAIConfigured(provider?: AIProvider): boolean {
-  const activeProvider = provider || AI_PROVIDER;
-
-  if (activeProvider === "claude") {
-    return !!ANTHROPIC_API_KEY;
-  } else {
-    return !!XAI_API_KEY;
-  }
+export function isAIConfigured(): boolean {
+  return !!GOOGLE_API_KEY;
 }

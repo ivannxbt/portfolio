@@ -315,3 +315,158 @@ export const hoverProps = {
   whileHover: hoverScale,
   whileTap: tapScale,
 };
+
+/**
+ * Developer-vibe animations
+ */
+
+// Terminal typing effect
+export const terminalType: Variants = {
+  hidden: {
+    opacity: 0,
+    width: 0,
+  },
+  visible: {
+    opacity: 1,
+    width: "auto",
+    transition: {
+      duration: 1,
+      ease: "linear",
+    },
+  },
+};
+
+// Code reveal (slides in from left with slight glow)
+export const codeReveal: Variants = {
+  hidden: {
+    opacity: 0,
+    x: -30,
+    filter: "blur(4px)",
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    transition: {
+      ...ease.out,
+      duration: 0.6,
+    },
+  },
+};
+
+// Glitch effect on hover
+export const glitchHover = {
+  scale: 1.02,
+  textShadow: "2px 2px 0px rgba(0, 255, 65, 0.3), -2px -2px 0px rgba(0, 229, 255, 0.3)",
+  transition: {
+    duration: 0.1,
+  },
+};
+
+// Smooth elevation (for cards)
+export const elevate: Variants = {
+  rest: {
+    y: 0,
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+  },
+  hover: {
+    y: -4,
+    boxShadow: "0 10px 30px rgba(0, 229, 255, 0.1), 0 0 20px rgba(0, 255, 65, 0.05)",
+    transition: spring.gentle,
+  },
+};
+
+// Parallax scroll effect
+export const parallax = {
+  slow: {
+    y: [0, -30],
+    transition: {
+      duration: 1.5,
+      ease: "linear",
+    },
+  },
+  fast: {
+    y: [0, -60],
+    transition: {
+      duration: 1,
+      ease: "linear",
+    },
+  },
+};
+
+// Stagger with faster timing for snappier feel
+export const developerStagger: Variants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05, // Faster stagger
+      delayChildren: 0.1,
+    },
+  },
+};
+
+// Stagger item with more pronounced movement
+export const developerStaggerItem: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 30,
+    scale: 0.95,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      ...ease.out,
+      duration: 0.5,
+    },
+  },
+};
+
+// Smooth glow on interaction
+export const glowInteraction = {
+  rest: {
+    filter: "brightness(1) drop-shadow(0 0 0px transparent)",
+  },
+  hover: {
+    filter: "brightness(1.1) drop-shadow(0 0 8px rgba(0, 229, 255, 0.4))",
+    transition: {
+      duration: 0.3,
+    },
+  },
+  tap: {
+    filter: "brightness(0.9) drop-shadow(0 0 4px rgba(0, 229, 255, 0.6))",
+    transition: {
+      duration: 0.1,
+    },
+  },
+};
+
+// Page transition (smooth fade with slight scale)
+export const pageTransition: Variants = {
+  initial: {
+    opacity: 0,
+    scale: 0.98,
+    filter: "blur(10px)",
+  },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1], // Smooth ease-out
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 1.02,
+    filter: "blur(10px)",
+    transition: {
+      duration: 0.4,
+    },
+  },
+};

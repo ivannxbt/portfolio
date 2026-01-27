@@ -63,7 +63,7 @@ export async function GET() {
   const model = getModelName();
 
   return NextResponse.json({
-    message: `Chat API endpoint. Use POST to chat with ${provider === "claude" ? "Claude" : "Grok"}.`,
+    message: `Chat API endpoint. Use POST to chat with Gemini.`,
     provider,
     model,
     usage: {
