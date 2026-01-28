@@ -36,7 +36,7 @@ import {
   type StackIcon,
 } from "@/content/site-content";
 import { GithubContributions } from "@/components/github-contributions";
-import { SocialPreviewOverlay } from "@/components/portfolio/social-preview-overlay";
+
 import { RichText } from "@/components/portfolio/rich-text";
 import { ClairoChat } from "@/components/portfolio/clairo-chat";
 import {
@@ -76,11 +76,10 @@ const PROJECT_PREVIEW_COUNT = 3;
 
 const TechIcon = ({ label, theme }: { label: string; theme: Theme }) => (
   <span
-    className={`text-xs font-mono px-2 py-1 rounded transition-colors cursor-default border ${
-      theme === "dark"
-        ? "text-neutral-400 bg-neutral-900 border-neutral-800 hover:border-neutral-600"
-        : "text-neutral-600 bg-white border-neutral-200 hover:border-neutral-400"
-    }`}
+    className={`text-xs font-mono px-2 py-1 rounded transition-colors cursor-default border ${theme === "dark"
+      ? "text-neutral-400 bg-neutral-900 border-neutral-800 hover:border-neutral-600"
+      : "text-neutral-600 bg-white border-neutral-200 hover:border-neutral-400"
+      }`}
   >
     {label}
   </span>
@@ -134,59 +133,52 @@ const ContactShowcase = React.memo(({
 
   return (
     <div
-      className={`relative mb-10 flex flex-wrap items-center gap-4 rounded-2xl border px-4 py-3 ${
-        theme === "dark" ? "border-white/10 bg-white/5" : "border-neutral-200 bg-white"
-      }`}
+      className={`relative mb-10 flex flex-wrap items-center gap-4 rounded-2xl border px-4 py-3 ${theme === "dark" ? "border-white/10 bg-white/5" : "border-neutral-200 bg-white"
+        }`}
     >
       <div className="flex flex-wrap items-center gap-2 md:gap-4">
-          {items.map((item) => {
-            const Icon = item.icon;
+        {items.map((item) => {
+          const Icon = item.icon;
 
-            if (item.type === "link") {
-              return (
-                <div key={item.key} className="relative group">
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`flex items-center gap-2.5 rounded-full border px-3 py-1.5 text-sm font-medium tracking-wide transition-colors ${
-                      theme === "dark"
-                        ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
-                        : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400"
-                    }`}
-                  >
-                    <Icon aria-hidden size={16} className="shrink-0" />
-                    <span>{item.label}</span>
-                  </a>
-                  <SocialPreviewOverlay
-                    platform={item.platform ?? "github"}
-                    label={item.label}
-                    preview={item.preview}
-                  />
-                </div>
-              );
-            }
-
+          if (item.type === "link") {
             return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => copyEmail(item.value, item.key)}
-                className={`text-sm font-medium tracking-wide flex items-center gap-2 rounded-full border px-3 py-1.5 focus:outline-none transition-colors ${
-                  theme === "dark"
+              <div key={item.key} className="relative group">
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`flex items-center gap-2.5 rounded-full border px-3 py-1.5 text-sm font-medium tracking-wide transition-colors ${theme === "dark"
                     ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
                     : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400"
-                }`}
-              >
-                <Icon size={16} />
-                {copiedKey === item.key
-                  ? lang === "en"
-                    ? "Copied!"
-                    : "¡Copiado!"
-                  : item.label}
-              </button>
+                    }`}
+                >
+                  <Icon aria-hidden size={16} className="shrink-0" />
+                  <span>{item.label}</span>
+                </a>
+
+              </div>
             );
-          })}
+          }
+
+          return (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => copyEmail(item.value, item.key)}
+              className={`text-sm font-medium tracking-wide flex items-center gap-2 rounded-full border px-3 py-1.5 focus:outline-none transition-colors ${theme === "dark"
+                ? "text-neutral-400 border-white/10 hover:text-white hover:border-white/30"
+                : "text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:border-neutral-400"
+                }`}
+            >
+              <Icon size={16} />
+              {copiedKey === item.key
+                ? lang === "en"
+                  ? "Copied!"
+                  : "¡Copiado!"
+                : item.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -199,41 +191,37 @@ const ProjectCard = React.memo(({ project, theme }: { project: ProjectItem; them
 
   return (
     <motion.div
-      className={`group relative border rounded-xl p-6 flex flex-col h-full overflow-hidden ${
-        theme === "dark"
-          ? "bg-[#0a0a0a] border-neutral-900"
-          : "bg-white border-neutral-200"
-      }`}
+      className={`group relative border rounded-xl p-6 flex flex-col h-full overflow-hidden ${theme === "dark"
+        ? "bg-[#0a0a0a] border-neutral-900"
+        : "bg-white border-neutral-200"
+        }`}
       initial="rest"
       whileHover="hover"
       variants={elevate}
     >
       <div className="mb-6">
         <div
-          className={`flex h-14 w-14 items-center justify-center rounded-full border-2 transition-colors ${
-            theme === "dark"
-              ? "border-teal-500/60 bg-neutral-900 text-neutral-300 group-hover:border-teal-400/80"
-              : "border-teal-400/70 bg-teal-50 text-teal-700 group-hover:border-teal-400/90"
-          }`}
+          className={`flex h-14 w-14 items-center justify-center rounded-full border-2 transition-colors ${theme === "dark"
+            ? "border-teal-500/60 bg-neutral-900 text-neutral-300 group-hover:border-teal-400/80"
+            : "border-teal-400/70 bg-teal-50 text-teal-700 group-hover:border-teal-400/90"
+            }`}
         >
           <IconComponent size={24} strokeWidth={1.5} />
         </div>
       </div>
 
       <h3
-        className={`text-lg font-semibold mb-2 ${
-          theme === "dark"
-            ? "text-neutral-200 group-hover:text-white"
-            : "text-neutral-800 group-hover:text-teal-700"
-        }`}
+        className={`text-lg font-semibold mb-2 ${theme === "dark"
+          ? "text-neutral-200 group-hover:text-white"
+          : "text-neutral-800 group-hover:text-teal-700"
+          }`}
       >
         {project.title}
       </h3>
       <RichText
         text={project.desc}
-        className={`text-sm leading-relaxed mb-6 flex-grow ${
-          theme === "dark" ? "text-neutral-500" : "text-neutral-600"
-        }`}
+        className={`text-sm leading-relaxed mb-6 flex-grow ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"
+          }`}
         linkClassName={
           theme === "dark"
             ? "text-teal-400 underline underline-offset-4 hover:text-white"
@@ -242,9 +230,8 @@ const ProjectCard = React.memo(({ project, theme }: { project: ProjectItem; them
       />
 
       <div
-        className={`flex flex-wrap gap-2 mt-auto pt-4 border-t ${
-          theme === "dark" ? "border-neutral-900/50" : "border-neutral-100"
-        }`}
+        className={`flex flex-wrap gap-2 mt-auto pt-4 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-100"
+          }`}
       >
         {project.tags.map((tag) => (
           <span
@@ -277,14 +264,12 @@ const BlogRow = React.memo(({
   const coverImage = post.image?.trim() || "/blog/default.svg";
   return (
     <article
-      className={`group flex gap-4 rounded-2xl px-3 py-3 transition-colors ${
-        theme === "dark" ? "hover:bg-neutral-900/50" : "hover:bg-white"
-      }`}
+      className={`group flex gap-4 rounded-2xl px-3 py-3 transition-colors ${theme === "dark" ? "hover:bg-neutral-900/50" : "hover:bg-white"
+        }`}
     >
       <div
-        className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border ${
-          theme === "dark" ? "border-neutral-800 bg-neutral-900/50" : "border-neutral-200 bg-white"
-        }`}
+        className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border ${theme === "dark" ? "border-neutral-800 bg-neutral-900/50" : "border-neutral-200 bg-white"
+          }`}
       >
         <Image
           src={coverImage}
@@ -298,20 +283,18 @@ const BlogRow = React.memo(({
         <div className="flex flex-wrap items-center gap-4">
           <span className="text-xs font-mono text-neutral-500">{post.date}</span>
           <h4
-            className={`text-base font-medium transition-colors ${
-              theme === "dark"
-                ? "text-neutral-300 group-hover:text-teal-400"
-                : "text-neutral-800 group-hover:text-teal-600"
-            }`}
+            className={`text-base font-medium transition-colors ${theme === "dark"
+              ? "text-neutral-300 group-hover:text-teal-400"
+              : "text-neutral-800 group-hover:text-teal-600"
+              }`}
           >
             {post.title}
           </h4>
         </div>
         <RichText
           text={post.summary}
-          className={`text-sm ${
-            theme === "dark" ? "text-neutral-500" : "text-neutral-600"
-          }`}
+          className={`text-sm ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"
+            }`}
           linkClassName={
             theme === "dark"
               ? "text-teal-400 underline underline-offset-4 hover:text-white"
@@ -320,9 +303,8 @@ const BlogRow = React.memo(({
         />
         <a
           href={link}
-          className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-            theme === "dark" ? "text-teal-400" : "text-teal-600"
-          }`}
+          className={`text-xs font-semibold uppercase tracking-[0.25em] ${theme === "dark" ? "text-teal-400" : "text-teal-600"
+            }`}
           {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
         >
           {readMoreLabel} &rarr;
@@ -350,17 +332,15 @@ const ExperienceCard = React.memo(({
 
   return (
     <div
-      className={`border rounded-2xl p-6 transition-colors ${
-        theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
-      }`}
+      className={`border rounded-2xl p-6 transition-colors ${theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+        }`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
           {showCompanyLogo && (
             <div
-              className={`relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border p-2 ${
-                logoContainerStyle
-              }`}
+              className={`relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border p-2 ${logoContainerStyle
+                }`}
             >
               <Image
                 src={item.companyLogo!}
@@ -384,9 +364,8 @@ const ExperienceCard = React.memo(({
           </div>
         </div>
         <div
-          className={`flex h-12 w-12 items-center justify-center rounded-full ${
-            theme === "dark" ? "bg-neutral-900 text-neutral-300" : "bg-teal-50 text-teal-700"
-          }`}
+          className={`flex h-12 w-12 items-center justify-center rounded-full ${theme === "dark" ? "bg-neutral-900 text-neutral-300" : "bg-teal-50 text-teal-700"
+            }`}
         >
           <Briefcase size={18} strokeWidth={1.5} />
         </div>
@@ -552,16 +531,14 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className={`min-h-screen font-sans transition-colors duration-300 ${
-        theme === "dark"
-          ? "bg-[#050505] text-neutral-200 selection:bg-teal-900/30 selection:text-teal-50"
-          : "bg-gray-50 text-neutral-800 selection:bg-teal-100 selection:text-teal-900"
-      }`}
+      className={`min-h-screen font-sans transition-colors duration-300 ${theme === "dark"
+        ? "bg-[#050505] text-neutral-200 selection:bg-teal-900/30 selection:text-teal-50"
+        : "bg-gray-50 text-neutral-800 selection:bg-teal-100 selection:text-teal-900"
+        }`}
     >
       <div
-        className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-500 ${
-          theme === "dark" ? "opacity-[0.03]" : "opacity-[0.03]"
-        }`}
+        className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-500 ${theme === "dark" ? "opacity-[0.03]" : "opacity-[0.03]"
+          }`}
         style={{
           backgroundImage: `radial-gradient(${theme === "dark" ? "#ffffff" : "#000000"} 1px, transparent 1px)`,
           backgroundSize: "24px 24px",
@@ -569,19 +546,16 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
       />
 
       <header
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          scrolled
-            ? `${
-                theme === "dark" ? "bg-[#050505]/80 border-neutral-900" : "bg-white/80 border-gray-200"
-              } backdrop-blur-md border-b py-3`
-            : "py-6 bg-transparent"
-        }`}
+        className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
+          ? `${theme === "dark" ? "bg-[#050505]/80 border-neutral-900" : "bg-white/80 border-gray-200"
+          } backdrop-blur-md border-b py-3`
+          : "py-6 bg-transparent"
+          }`}
       >
         <div className="max-w-5xl mx-auto px-6 flex items-center justify-between">
           <div
-            className={`font-bold text-lg tracking-tight flex items-center gap-2 ${
-              theme === "dark" ? "text-neutral-100" : "text-neutral-900"
-            }`}
+            className={`font-bold text-lg tracking-tight flex items-center gap-2 ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"
+              }`}
           >
             <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/10 bg-white/5">
               <Image
@@ -596,9 +570,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           </div>
 
           <nav
-            className={`hidden md:flex items-center gap-8 text-sm font-medium ${
-              theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-            }`}
+            className={`hidden md:flex items-center gap-8 text-sm font-medium ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+              }`}
           >
             {Object.entries(t.nav).map(([key, value]) => (
               <a key={key} href={`#${key}`} className="hover:text-teal-500 transition-colors capitalize">
@@ -609,27 +582,25 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             <div className="flex items-center gap-3 ml-4 border-l pl-4 border-neutral-800/50">
               <button
                 onClick={toggleTheme}
-                className={`p-2 rounded-full transition-colors ${
-                  theme === "dark"
-                    ? "text-neutral-400 hover:text-white hover:bg-neutral-900"
-                    : "text-neutral-600 hover:text-black hover:bg-gray-100"
-                }`}
+                className={`p-2 rounded-full transition-colors ${theme === "dark"
+                  ? "text-neutral-400 hover:text-white hover:bg-neutral-900"
+                  : "text-neutral-600 hover:text-black hover:bg-gray-100"
+                  }`}
                 aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
                 title="Toggle Theme"
               >
                 {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
               </button>
 
-              <button
-                onClick={() => setLang((prev) => (prev === "en" ? "es" : "en"))}
-                className={`px-2 py-1 text-xs font-mono border rounded transition-all ${
-                  theme === "dark"
-                    ? "border-neutral-800 text-neutral-500 hover:border-neutral-600 hover:text-white"
-                    : "border-gray-200 text-neutral-500 hover:border-gray-300 hover:text-black"
-                }`}
+              <a
+                href={lang === "en" ? "/es" : "/en"}
+                className={`px-2 py-1 text-xs font-mono border rounded transition-all ${theme === "dark"
+                  ? "border-neutral-800 text-neutral-500 hover:border-neutral-600 hover:text-white"
+                  : "border-gray-200 text-neutral-500 hover:border-gray-300 hover:text-black"
+                  }`}
               >
-                {lang.toUpperCase()}
-              </button>
+                {lang === "en" ? "ES" : "EN"}
+              </a>
             </div>
           </nav>
 
@@ -645,14 +616,12 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
 
       {mobileMenu && (
         <div
-          className={`fixed inset-0 z-40 pt-24 px-6 md:hidden ${
-            theme === "dark" ? "bg-[#050505]" : "bg-white"
-          }`}
+          className={`fixed inset-0 z-40 pt-24 px-6 md:hidden ${theme === "dark" ? "bg-[#050505]" : "bg-white"
+            }`}
         >
           <nav
-            className={`flex flex-col gap-6 text-xl font-medium ${
-              theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-            }`}
+            className={`flex flex-col gap-6 text-xl font-medium ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+              }`}
           >
             {Object.entries(t.nav).map(([key, value]) => (
               <a
@@ -665,15 +634,12 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
               </a>
             ))}
             <div className="flex gap-4 mt-4">
-              <button
-                onClick={() => {
-                  setLang((prev) => (prev === "en" ? "es" : "en"));
-                  setMobileMenu(false);
-                }}
+              <a
+                href={lang === "en" ? "/es" : "/en"}
                 className="text-teal-500 text-base"
               >
                 {lang === "en" ? "Switch to Spanish" : "Cambiar a Inglés"}
-              </button>
+              </a>
               <button
                 onClick={() => {
                   toggleTheme();
@@ -703,9 +669,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             initial="hidden"
             animate="visible"
             variants={codeReveal}
-            className={`text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] ${
-              theme === "dark" ? "text-white" : "text-neutral-900"
-            }`}
+            className={`text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] ${theme === "dark" ? "text-white" : "text-neutral-900"
+              }`}
           >
             {t.hero.headline}
           </motion.h1>
@@ -718,9 +683,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           >
             <RichText
               text={t.hero.subheadline}
-              className={`text-lg max-w-2xl mb-12 ${
-                theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-              }`}
+              className={`text-lg max-w-2xl mb-12 ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                }`}
               linkClassName={
                 theme === "dark"
                   ? "text-teal-400 underline underline-offset-4 hover:text-white"
@@ -737,11 +701,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           >
             <motion.a
               href="#projects"
-              className={`px-8 py-4 font-semibold rounded-full flex items-center gap-2 ${
-                theme === "dark"
-                  ? "bg-white text-black"
-                  : "bg-neutral-900 text-white"
-              }`}
+              className={`px-8 py-4 font-semibold rounded-full flex items-center gap-2 ${theme === "dark"
+                ? "bg-white text-black"
+                : "bg-neutral-900 text-white"
+                }`}
               variants={developerStaggerItem}
               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0, 229, 255, 0.3)" }}
               whileTap={{ scale: 0.98 }}
@@ -751,11 +714,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             </motion.a>
             <motion.a
               href={`mailto:${t.contact.email}`}
-              className={`px-8 py-4 font-medium border-b-2 ${
-                theme === "dark"
-                  ? "text-neutral-400 border-neutral-800 hover:text-white hover:border-white"
-                  : "text-neutral-600 border-neutral-300 hover:text-black hover:border-black"
-              }`}
+              className={`px-8 py-4 font-medium border-b-2 ${theme === "dark"
+                ? "text-neutral-400 border-neutral-800 hover:text-white hover:border-white"
+                : "text-neutral-600 border-neutral-300 hover:text-black hover:border-black"
+                }`}
               variants={developerStaggerItem}
               whileHover={{ y: -2 }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -779,11 +741,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           <div className="grid md:grid-cols-[1fr_2fr] gap-12">
             <motion.div className="flex flex-col gap-6" variants={staggerItem}>
               <div
-                className={`self-center md:self-start rounded-full p-[3px] shadow-xl ${
-                  theme === "dark"
-                    ? "bg-gradient-to-tr from-teal-600 via-purple-600 to-blue-500"
-                    : "bg-gradient-to-tr from-teal-400 via-fuchsia-400 to-blue-400"
-                }`}
+                className={`self-center md:self-start rounded-full p-[3px] shadow-xl ${theme === "dark"
+                  ? "bg-gradient-to-tr from-teal-600 via-purple-600 to-blue-500"
+                  : "bg-gradient-to-tr from-teal-400 via-fuchsia-400 to-blue-400"
+                  }`}
               >
                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-neutral-900">
                   <Image
@@ -840,9 +801,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
 
         <motion.section
           id="activity"
-          className={`py-24 border-t ${
-            theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"
-          }`}
+          className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"
+            }`}
           initial="hidden"
           whileInView="visible"
           viewport={scrollViewport}
@@ -854,16 +814,14 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                 {t.activity.eyebrow}
               </p>
               <h2
-                className={`text-3xl font-bold ${
-                  theme === "dark" ? "text-white" : "text-neutral-900"
-                }`}
+                className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-neutral-900"
+                  }`}
               >
                 {t.activity.title}
               </h2>
               <p
-                className={`mt-3 max-w-2xl text-sm ${
-                  theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-                }`}
+                className={`mt-3 max-w-2xl text-sm ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                  }`}
               >
                 {t.activity.description}
               </p>
@@ -872,11 +830,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
               href={`https://github.com/${githubUsername}`}
               target="_blank"
               rel="noreferrer"
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${
-                theme === "dark"
-                  ? "border-white/10 text-white hover:border-white/40"
-                  : "border-neutral-300 text-neutral-800 hover:border-neutral-500"
-              }`}
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${theme === "dark"
+                ? "border-white/10 text-white hover:border-white/40"
+                : "border-neutral-300 text-neutral-800 hover:border-neutral-500"
+                }`}
             >
               <Github size={16} />
               {t.activity.profileLabel}
@@ -917,9 +874,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                 {t.experience.title}
               </h2>
               <p
-                className={`mt-3 max-w-3xl text-sm ${
-                  theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-                }`}
+                className={`mt-3 max-w-3xl text-sm ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                  }`}
               >
                 {t.experience.subtitle}
               </p>
@@ -928,35 +884,32 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
               <a
                 href="/cv_iacc.pdf"
                 download
-                className={`px-8 py-3 font-semibold rounded-full transition-all flex items-center justify-center ${
-                  theme === "dark"
-                    ? "bg-white text-black hover:bg-neutral-200"
-                    : "bg-neutral-900 text-white hover:bg-neutral-800"
-                }`}
+                className={`px-8 py-3 font-semibold rounded-full transition-all flex items-center justify-center ${theme === "dark"
+                  ? "bg-white text-black hover:bg-neutral-200"
+                  : "bg-neutral-900 text-white hover:bg-neutral-800"
+                  }`}
               >
                 <Download size={16} className="mr-2" />
                 {t.experience.cta}
               </a>
             )}
           </div>
-          
+
           {t.experience.stats && t.experience.stats.length > 0 && (
-            <div className={`flex flex-wrap items-center gap-3 md:gap-4 mb-10 text-sm ${
-              theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-            }`}>
+            <div className={`flex flex-wrap items-center gap-3 md:gap-4 mb-10 text-sm ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+              }`}>
               {t.experience.stats.map((stat, index) => {
                 // Extract number from the beginning of the label (e.g., "2+" or "4000+")
                 const match = stat.label.match(/^(\d+\+?)\s*(.+)$/);
                 const number = match ? match[1] : null;
                 const rest = match ? match[2] : stat.label;
-                
+
                 return (
                   <React.Fragment key={index}>
                     <span>
                       {number && (
-                        <span className={`font-bold ${
-                          theme === "dark" ? "text-teal-400" : "text-teal-600"
-                        }`}>
+                        <span className={`font-bold ${theme === "dark" ? "text-teal-400" : "text-teal-600"
+                          }`}>
                           {number}{' '}
                         </span>
                       )}
@@ -972,7 +925,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
               })}
             </div>
           )}
-          
+
           {stackSections.length > 0 && (
             <>
               {t.stack.title && (
@@ -992,18 +945,16 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                   return (
                     <motion.div
                       key={section.title}
-                      className={`rounded-2xl border p-5 ${
-                        theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
-                      }`}
+                      className={`rounded-2xl border p-5 ${theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+                        }`}
                       variants={developerStaggerItem}
                       whileHover={{ y: -4, boxShadow: "0 10px 25px rgba(0, 229, 255, 0.1)" }}
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <div
-                          className={`p-2 rounded-full ${
-                            theme === "dark" ? "bg-neutral-900 text-neutral-100" : "bg-teal-50 text-teal-700"
-                          }`}
+                          className={`p-2 rounded-full ${theme === "dark" ? "bg-neutral-900 text-neutral-100" : "bg-teal-50 text-teal-700"
+                            }`}
                         >
                           <Icon size={18} />
                         </div>
@@ -1032,9 +983,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
 
           {t.experience.rolesLabel && (
             <p
-              className={`mt-10 mb-6 text-xs tracking-[0.3em] uppercase ${
-                theme === "dark" ? "text-neutral-500" : "text-neutral-500"
-              }`}
+              className={`mt-10 mb-6 text-xs tracking-[0.3em] uppercase ${theme === "dark" ? "text-neutral-500" : "text-neutral-500"
+                }`}
             >
               {t.experience.rolesLabel}
             </p>
@@ -1106,9 +1056,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                 type="button"
                 onClick={() => setShowAllProjects((prev) => !prev)}
                 aria-expanded={showAllProjects}
-                className={`inline-flex items-center text-sm font-medium transition-colors ${
-                  theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
-                }`}
+                className={`inline-flex items-center text-sm font-medium transition-colors ${theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
+                  }`}
               >
                 {showAllProjects ? viewLessProjectsLabel : viewMoreProjectsLabel} &rarr;
               </button>
@@ -1130,11 +1079,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                   href={`https://${process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || ''}.substack.com`}
                   target="_blank"
                   rel="noreferrer"
-                  className={`text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full border transition-colors ${
-                    theme === "dark"
-                      ? "text-orange-400 border-orange-400/30 bg-orange-400/5 hover:border-orange-400/50"
-                      : "text-orange-600 border-orange-600/30 bg-orange-50 hover:border-orange-600/50"
-                  }`}
+                  className={`text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full border transition-colors ${theme === "dark"
+                    ? "text-orange-400 border-orange-400/30 bg-orange-400/5 hover:border-orange-400/50"
+                    : "text-orange-600 border-orange-600/30 bg-orange-50 hover:border-orange-600/50"
+                    }`}
                 >
                   From Substack
                 </a>
@@ -1173,9 +1121,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             </motion.div>
             <a
               href={`/${lang}/blog`}
-              className={`inline-block mt-8 text-sm transition-colors ${
-                theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
-              }`}
+              className={`inline-block mt-8 text-sm transition-colors ${theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
+                }`}
             >
               {t.blog.viewAll} &rarr;
             </a>
@@ -1192,9 +1139,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             </h2>
             <RichText
               text={t.contact.text}
-              className={`mb-8 max-w-2xl ${
-                theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-              }`}
+              className={`mb-8 max-w-2xl ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                }`}
               linkClassName={
                 theme === "dark"
                   ? "text-teal-400 underline underline-offset-4 hover:text-white"
@@ -1203,11 +1149,10 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             />
             <a
               href={`mailto:${t.contact.email}`}
-              className={`text-xl md:text-2xl font-medium transition-colors border-b-2 pb-1 ${
-                theme === "dark"
-                  ? "text-white border-neutral-800 hover:text-teal-400 hover:border-teal-400"
-                  : "text-neutral-900 border-neutral-200 hover:text-teal-600 hover:border-teal-600"
-              }`}
+              className={`text-xl md:text-2xl font-medium transition-colors border-b-2 pb-1 ${theme === "dark"
+                ? "text-white border-neutral-800 hover:text-teal-400 hover:border-teal-400"
+                : "text-neutral-900 border-neutral-200 hover:text-teal-600 hover:border-teal-600"
+                }`}
             >
               {t.contact.email}
             </a>
@@ -1231,15 +1176,14 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                       target="_blank"
                       rel="noreferrer"
                       aria-label={social.label}
-                      className={`inline-flex h-12 w-12 items-center justify-center rounded-full border transition-colors ${
-                        theme === "dark"
-                          ? "border-white/10 text-neutral-400 hover:border-white/30 hover:text-white"
-                          : "border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-900"
-                      }`}
+                      className={`inline-flex h-12 w-12 items-center justify-center rounded-full border transition-colors ${theme === "dark"
+                        ? "border-white/10 text-neutral-400 hover:border-white/30 hover:text-white"
+                        : "border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-900"
+                        }`}
                     >
                       <Icon size={20} />
                     </a>
-                    <SocialPreviewOverlay platform={social.platform} label={social.label} preview={social.preview} />
+
                   </motion.div>
                 );
               })}
@@ -1249,9 +1193,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
       </main>
 
       <footer
-        className={`py-12 text-center border-t mt-12 ${
-          theme === "dark" ? "border-neutral-900" : "border-neutral-200"
-        }`}
+        className={`py-12 text-center border-t mt-12 ${theme === "dark" ? "border-neutral-900" : "border-neutral-200"
+          }`}
       >
         <p className="text-neutral-500 text-sm font-mono">{t.footer.copyright}</p>
       </footer>
