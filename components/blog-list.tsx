@@ -48,9 +48,9 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
   const errorMessage = error ? "Unable to refresh blog entries." : null;
 
   const isDark = theme === "dark";
-  const pageBg = isDark ? "bg-[#050505] text-white" : "bg-gray-50 text-neutral-900";
-  const cardBg = isDark ? "bg-zinc-950/60 border-white/5" : "bg-white border-neutral-200 shadow-sm";
-  const mutedText = isDark ? "text-zinc-400" : "text-neutral-500";
+  const pageBg = isDark ? "bg-[#1a1a1a] text-white" : "bg-gray-50 text-neutral-900";
+  const cardBg = isDark ? "bg-slate-950/60 border-white/5" : "bg-white border-neutral-200 shadow-sm";
+  const mutedText = isDark ? "text-slate-400" : "text-neutral-500";
 
   return (
     <div className={`min-h-screen px-6 py-12 transition-colors duration-300 ${pageBg}`}>
@@ -104,7 +104,7 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
             animate={{ opacity: 1 }}
             className={`rounded-3xl px-6 py-12 text-center text-sm relative overflow-hidden ${
               isDark
-                ? "border border-white/5 bg-zinc-950/60 text-zinc-400"
+                ? "border border-white/5 bg-slate-950/60 text-slate-400"
                 : "border border-neutral-200 bg-white text-neutral-500"
             }`}
           >
@@ -132,7 +132,7 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
           <p
             className={`rounded-3xl px-6 py-12 text-center text-sm ${
               isDark
-                ? "border border-white/5 bg-zinc-950/60 text-zinc-400"
+                ? "border border-white/5 bg-slate-950/60 text-slate-400"
                 : "border border-neutral-200 bg-white text-neutral-500"
             }`}
           >
@@ -172,14 +172,14 @@ export function BlogList({ locale, copy, initialPosts }: BlogListProps) {
                     className="object-cover"
                   />
                 </div>
-                <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-zinc-500">
+                <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500">
                   <CalendarDays className={`h-4 w-4 ${isDark ? "" : "text-neutral-500"}`} />
                   <span className={isDark ? "" : "text-neutral-500"}>{post.date}</span>
                 </div>
                 <h2 className="text-2xl font-semibold">{post.title}</h2>
                 <p
                   className={`text-base leading-relaxed whitespace-pre-line ${
-                    isDark ? "text-zinc-300" : "text-neutral-600"
+                    isDark ? "text-slate-300" : "text-neutral-600"
                   }`}
                 >
                   {post.summary}

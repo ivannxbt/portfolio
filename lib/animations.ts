@@ -470,3 +470,62 @@ export const pageTransition: Variants = {
     },
   },
 };
+
+// Neo-brutalist card elevation with offset shadow
+export const brutalElevate: Variants = {
+  rest: {
+    y: 0,
+    x: 0,
+    rotate: 0,
+    boxShadow: "4px 4px 0px rgba(0, 0, 0, 0.1)",
+  },
+  hover: {
+    y: -8,
+    x: -4,
+    rotate: 0.5,
+    boxShadow: "8px 8px 0px rgba(0, 229, 255, 0.3), 12px 12px 0px rgba(0, 255, 65, 0.2)",
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 20,
+    },
+  },
+};
+
+// Refined minimal card elevation with subtle teal glow
+export const refinedElevate: Variants = {
+  rest: {
+    y: 0,
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+  },
+  hover: {
+    y: -4,
+    boxShadow: "0 10px 30px rgba(0, 229, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)",
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 30,
+    },
+  },
+};
+
+// Stagger tags entrance
+export const tagStagger: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+export const tagItem: Variants = {
+  hidden: { opacity: 0, x: -10 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.2 },
+  },
+};

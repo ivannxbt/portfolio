@@ -18,15 +18,15 @@ export default async function ContactPage({ params }: PageProps) {
           <h1 className="text-4xl font-semibold text-white sm:text-5xl">
             {t.contact.title}
           </h1>
-          <p className="text-lg text-zinc-400">{t.contact.description}</p>
-          <p className="text-zinc-400">{t.contact.callout}</p>
+          <p className="text-lg text-slate-400">{t.contact.description}</p>
+          <p className="text-slate-400">{t.contact.callout}</p>
         </header>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+        <div className="rounded-2xl border border-slate-800/30 bg-slate-950/60 p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             {t.contact.details?.map((detail) => (
               <div key={detail.label} className="space-y-1">
-                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                   {detail.label}
                 </p>
                 {"href" in detail && detail.href ? (

@@ -21,7 +21,7 @@ export function LanguageSwitcher({ currentLang }: LanguageSwitcherProps) {
   const otherLang = locales.find((l) => l !== currentLang) || "en";
 
   return (
-    <Button asChild variant="ghost" size="sm" className="text-zinc-400 hover:text-white">
+    <Button asChild variant="ghost" size="sm" className="text-slate-400 hover:text-white">
       <Link href={`/${otherLang}${pathWithoutLocale}`}>
         <Globe className="h-4 w-4 mr-1" />
         {otherLang.toUpperCase()}
