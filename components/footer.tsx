@@ -19,13 +19,13 @@ export function Footer({ lang }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-zinc-900 bg-zinc-950/80">
+    <footer className="border-t border-slate-900 bg-slate-950/80">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
             {t.footer.tagline}
           </p>
-          <p className="mt-2 text-zinc-400">
+          <p className="mt-2 text-slate-400">
             © {currentYear} Iván Caamaño. {t.footer.rights}
           </p>
         </div>
@@ -35,7 +35,7 @@ export function Footer({ lang }: FooterProps) {
             href={socialLinks.github}
             target="_blank"
             rel="noreferrer"
-            className="text-zinc-400 transition-colors hover:text-white"
+            className="text-slate-400 transition-colors hover:text-white"
           >
             <Github className="h-5 w-5" />
             <span className="sr-only">GitHub</span>
@@ -44,7 +44,7 @@ export function Footer({ lang }: FooterProps) {
             href={socialLinks.linkedin}
             target="_blank"
             rel="noreferrer"
-            className="text-zinc-400 transition-colors hover:text-white"
+            className="text-slate-400 transition-colors hover:text-white"
           >
             <Linkedin className="h-5 w-5" />
             <span className="sr-only">LinkedIn</span>
@@ -53,14 +53,14 @@ export function Footer({ lang }: FooterProps) {
             href={socialLinks.twitter}
             target="_blank"
             rel="noreferrer"
-            className="text-zinc-400 transition-colors hover:text-white"
+            className="text-slate-400 transition-colors hover:text-white"
           >
             <Twitter className="h-5 w-5" />
             <span className="sr-only">Twitter</span>
           </Link>
           <Link
             href={socialLinks.email}
-            className="text-zinc-400 transition-colors hover:text-white"
+            className="text-slate-400 transition-colors hover:text-white"
           >
             <Mail className="h-5 w-5" />
             <span className="sr-only">Email</span>

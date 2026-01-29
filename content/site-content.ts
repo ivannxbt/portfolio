@@ -31,6 +31,9 @@ export interface ProjectItem {
   title: string;
   desc: string;
   tags: string[];
+  liveUrl?: string;
+  githubUrl?: string;
+  image?: string;
 }
 
 export interface BlogEntry {
@@ -337,6 +340,20 @@ const englishContent: LandingContent = {
       desc: "Developed ML models for AESA radar data processing (Eurofighter), improving efficiency by 30% using TensorFlow and PyTorch.",
       tags: ["PyTorch", "TensorFlow", "Signal Proc", "Python"],
     },
+    {
+      id: 4,
+      icon: "cloud",
+      title: "Nexxo Waitlist",
+      desc: "Interactive waitlist landing with AI-powered features, geolocation mapping, and bilingual support. Built with Next.js 16 and Gemini AI integration.",
+      tags: ["Next.js", "TypeScript", "Gemini AI", "i18n"],
+    },
+    {
+      id: 5,
+      icon: "layers",
+      title: "Caamaño Inmuebles",
+      desc: "Modern multilingual landing page for real estate company in Margarita Island, Venezuela. Features responsive design and WhatsApp integration.",
+      tags: ["Next.js", "TypeScript", "Tailwind", "Real Estate"],
+    },
   ],
   blog: {
     title: "Latest Insights",
@@ -601,6 +618,20 @@ const spanishContent: LandingContent = {
       title: "Optimización ML para radar",
       desc: "Desarrollé modelos ML para procesar datos radar AESA (Eurofighter), mejorando la eficiencia en un 30%.",
       tags: ["PyTorch", "TensorFlow", "Signal Proc", "Python"],
+    },
+    {
+      id: 4,
+      icon: "cloud",
+      title: "Nexxo Waitlist",
+      desc: "Página de lista de espera interactiva con funciones de IA, mapeo de geolocalización y soporte multilingüe. Construida con Next.js 16 e integración de Gemini AI.",
+      tags: ["Next.js", "TypeScript", "Gemini AI", "i18n"],
+    },
+    {
+      id: 5,
+      icon: "layers",
+      title: "Caamaño Inmuebles",
+      desc: "Landing page moderna y multilingüe para inmobiliaria en Isla de Margarita, Venezuela. Incluye diseño responsive e integración WhatsApp.",
+      tags: ["Next.js", "TypeScript", "Tailwind", "Inmobiliaria"],
     },
   ],
   blog: {

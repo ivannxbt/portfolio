@@ -18,10 +18,10 @@
 }
 
 :root[data-theme="dark"] {
-  --background: #050505;
-  --foreground: #f8fafc;
-  --selection-background: rgba(16, 185, 129, 0.45);
-  --selection-color: #e0f2fe;
+  --background: #1a1a1a;
+  --foreground: #e5e7eb;
+  --selection-background: rgba(16, 185, 129, 0.25);
+  --selection-color: #d1d5db;
 }
 
 @theme inline {
@@ -103,8 +103,8 @@ html {
 }
 
 .markdown-body pre {
-  background: #0f0f10;
-  border: 1px solid #27272a;
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 0.75rem;
   padding: 1rem;
   overflow-x: auto;
@@ -240,4 +240,49 @@ html {
 /* Smooth transitions for all interactive elements */
 * {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Neo-brutalist gradient backgrounds */
+.project-gradient-1 {
+  background: linear-gradient(135deg, rgba(0, 255, 65, 0.08) 0%, rgba(0, 255, 65, 0.02) 100%);
+  border-color: rgba(0, 255, 65, 0.3);
+}
+
+.project-gradient-2 {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(0, 229, 255, 0.02) 100%);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.project-gradient-3 {
+  background: linear-gradient(135deg, rgba(199, 146, 234, 0.08) 0%, rgba(199, 146, 234, 0.02) 100%);
+  border-color: rgba(199, 146, 234, 0.3);
+}
+
+.project-gradient-4 {
+  background: linear-gradient(135deg, rgba(255, 157, 102, 0.08) 0%, rgba(255, 157, 102, 0.02) 100%);
+  border-color: rgba(255, 157, 102, 0.3);
+}
+
+.project-gradient-5 {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.08) 0%, rgba(20, 184, 166, 0.02) 100%);
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+/* Brutalist effects */
+.brutal-border {
+  border-width: 3px;
+  border-style: solid;
+}
+
+.brutal-noise {
+  position: relative;
+}
+
+.brutal-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
 }

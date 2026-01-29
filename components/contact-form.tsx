@@ -116,7 +116,7 @@ export function ContactForm({ translations: t, lang }: ContactFormProps) {
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-zinc-300 mb-2"
+          className="block text-sm font-medium text-slate-300 mb-2"
         >
           {t.name}
         </label>
@@ -128,7 +128,7 @@ export function ContactForm({ translations: t, lang }: ContactFormProps) {
           onChange={handleChange}
           error={!!errors.name}
           placeholder={t.namePlaceholder}
-          className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500"
+          className="bg-slate-900 border-slate-800/30 text-white placeholder:text-slate-500"
         />
         <AnimatePresence>
           {errors.name && (
@@ -149,7 +149,7 @@ export function ContactForm({ translations: t, lang }: ContactFormProps) {
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-zinc-300 mb-2"
+          className="block text-sm font-medium text-slate-300 mb-2"
         >
           {t.email}
         </label>
@@ -161,7 +161,7 @@ export function ContactForm({ translations: t, lang }: ContactFormProps) {
           onChange={handleChange}
           error={!!errors.email}
           placeholder={t.emailPlaceholder}
-          className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500"
+          className="bg-slate-900 border-slate-800/30 text-white placeholder:text-slate-500"
         />
         <AnimatePresence>
           {errors.email && (
@@ -182,7 +182,7 @@ export function ContactForm({ translations: t, lang }: ContactFormProps) {
       <div>
         <label
           htmlFor="message"
-          className="block text-sm font-medium text-zinc-300 mb-2"
+          className="block text-sm font-medium text-slate-300 mb-2"
         >
           {t.message}
         </label>
@@ -194,7 +194,7 @@ export function ContactForm({ translations: t, lang }: ContactFormProps) {
           error={!!errors.message}
           rows={5}
           placeholder={t.messagePlaceholder}
-          className="bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500"
+          className="bg-slate-900 border-slate-800/30 text-white placeholder:text-slate-500"
         />
         <AnimatePresence>
           {errors.message && (

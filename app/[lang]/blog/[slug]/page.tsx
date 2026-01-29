@@ -46,7 +46,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   return (
     <article className="px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl space-y-8">
-        <Button asChild variant="ghost" className="text-zinc-400">
+        <Button asChild variant="ghost" className="text-slate-400">
           <Link href={`/${lang}/blog`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             {lang === "es" ? "Volver al blog" : "Back to blog"}
@@ -54,20 +54,20 @@ export default async function BlogPostPage({ params }: PageProps) {
         </Button>
 
         <header className="space-y-4">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-slate-500">
             <CalendarDays className="h-4 w-4" />
             <span>{formattedDate}</span>
           </div>
           <h1 className="text-4xl font-semibold text-white sm:text-5xl">
             {post.frontmatter.title}
           </h1>
-          <p className="text-lg text-zinc-300">{post.frontmatter.summary}</p>
+          <p className="text-lg text-slate-300">{post.frontmatter.summary}</p>
           {post.frontmatter.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {post.frontmatter.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 rounded-full border border-zinc-800 px-3 py-1 text-xs uppercase tracking-[0.2em] text-zinc-500"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-800/30 px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-500"
                 >
                   <Tag className="h-3 w-3" />
                   {tag}
@@ -78,7 +78,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         </header>
 
         {coverImage && (
-          <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950/60">
+          <div className="overflow-hidden rounded-3xl border border-slate-800/30 bg-slate-950/60">
             <div className="relative h-64 w-full sm:h-80">
               <Image
                 src={coverImage}
@@ -92,12 +92,12 @@ export default async function BlogPostPage({ params }: PageProps) {
           </div>
         )}
 
-        <div className="markdown-body space-y-6 text-base leading-relaxed text-zinc-200">
+        <div className="markdown-body space-y-6 text-base leading-relaxed text-slate-200">
           {post.content}
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
-          <p className="text-sm text-zinc-400">
+        <div className="rounded-2xl border border-slate-800/30 bg-slate-950/60 p-6">
+          <p className="text-sm text-slate-400">
             {lang === "es"
               ? "¿Listo para llevar algo similar a producción? Escríbeme."
               : "Ready to ship something similar? Let's collaborate."}

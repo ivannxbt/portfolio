@@ -27,16 +27,16 @@ interface HeroSectionProps {
 
 export function HeroSection({ lang, copy, actions }: HeroSectionProps) {
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-900/70 to-zinc-950 p-8 sm:p-12">
+    <section className="relative overflow-hidden rounded-3xl border border-slate-800/30 bg-gradient-to-b from-slate-900/70 to-slate-950 p-8 sm:p-12">
       <div className="max-w-3xl animate-fade-in-up">
-        <p className="text-sm uppercase tracking-[0.3em] text-zinc-400">
+        <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
           {copy.greeting}
         </p>
         <h1 className="mt-3 text-4xl font-semibold text-white sm:text-5xl md:text-6xl">
           {copy.name}
         </h1>
-        <p className="mt-4 text-lg text-zinc-400 sm:text-xl">{copy.role}</p>
-        <p className="mt-6 text-lg leading-relaxed text-zinc-300">
+        <p className="mt-4 text-lg text-slate-400 sm:text-xl">{copy.role}</p>
+        <p className="mt-6 text-lg leading-relaxed text-slate-300">
           {copy.description}
         </p>
         <p className="mt-4 text-sm uppercase tracking-[0.2em] text-teal-300">
@@ -61,7 +61,7 @@ export function HeroSection({ lang, copy, actions }: HeroSectionProps) {
 
         <Link
           href={`/${lang}/contact`}
-          className="mt-6 inline-flex items-center text-sm font-medium text-zinc-300 hover:text-white"
+          className="mt-6 inline-flex items-center text-sm font-medium text-slate-300 hover:text-white"
         >
           {actions.contact}
           <ArrowUpRight className="ml-1 h-4 w-4" />
@@ -75,10 +75,10 @@ export function HeroSection({ lang, copy, actions }: HeroSectionProps) {
         {copy.metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-2xl border border-zinc-800/80 bg-zinc-900/60 px-4 py-5"
+            className="rounded-2xl border border-slate-800/40 bg-slate-900/60 px-4 py-5"
           >
             <p className="text-3xl font-semibold text-white">{metric.value}</p>
-            <p className="mt-2 text-sm uppercase tracking-[0.2em] text-zinc-500">
+            <p className="mt-2 text-sm uppercase tracking-[0.2em] text-slate-500">
               {metric.label}
             </p>
           </div>

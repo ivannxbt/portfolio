@@ -71,7 +71,7 @@ export default async function AboutPage({ params }: PageProps) {
     <div className="px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl space-y-12">
         <header className="space-y-6">
-          <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
             {t.about.title}
           </p>
           <h1 className="text-4xl font-semibold text-white sm:text-5xl">
@@ -80,7 +80,7 @@ export default async function AboutPage({ params }: PageProps) {
           {t.about.paragraphs.map((paragraph) => (
             <p
               key={paragraph}
-              className="text-lg leading-relaxed text-zinc-300"
+              className="text-lg leading-relaxed text-slate-300"
             >
               {paragraph}
             </p>
@@ -100,17 +100,17 @@ export default async function AboutPage({ params }: PageProps) {
               </Link>
             </Button>
           </div>
-          <p className="text-sm text-zinc-500">{t.about.contactCTA}</p>
+          <p className="text-sm text-slate-500">{t.about.contactCTA}</p>
         </header>
 
         <section className="grid gap-4 sm:grid-cols-3">
           {t.about.highlights.map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5"
+              className="rounded-2xl border border-slate-800/30 bg-slate-950/60 p-5"
             >
               <p className="text-3xl font-semibold text-white">{item.value}</p>
-              <p className="mt-2 text-sm uppercase tracking-[0.2em] text-zinc-500">
+              <p className="mt-2 text-sm uppercase tracking-[0.2em] text-slate-500">
                 {item.label}
               </p>
             </div>
@@ -125,7 +125,7 @@ export default async function AboutPage({ params }: PageProps) {
             {t.about.timeline.map((item) => (
               <div
                 key={`${item.role}-${item.period}`}
-                className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5"
+                className="rounded-2xl border border-slate-800/30 bg-slate-950/60 p-5"
               >
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
@@ -140,14 +140,14 @@ export default async function AboutPage({ params }: PageProps) {
                       <p className="text-lg font-semibold text-white">
                         {item.role}
                       </p>
-                      <p className="text-sm text-zinc-400">{item.company}</p>
+                      <p className="text-sm text-slate-400">{item.company}</p>
                     </div>
                   </div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                     {item.period}
                   </p>
                 </div>
-                <p className="mt-3 text-zinc-300">{item.description}</p>
+                <p className="mt-3 text-slate-300">{item.description}</p>
               </div>
             ))}
           </div>
@@ -161,12 +161,12 @@ export default async function AboutPage({ params }: PageProps) {
             {t.about.expertise.map((item) => (
               <div
                 key={item.title}
-                className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5"
+                className="rounded-2xl border border-slate-800/30 bg-slate-950/60 p-5"
               >
                 <p className="text-lg font-semibold text-white">
                   {item.title}
                 </p>
-                <p className="mt-2 text-sm text-zinc-300">{item.description}</p>
+                <p className="mt-2 text-sm text-slate-300">{item.description}</p>
               </div>
             ))}
           </div>
@@ -179,14 +179,14 @@ export default async function AboutPage({ params }: PageProps) {
           <div className="space-y-6">
             {skillGroups.map((group) => (
               <div key={group.title.en}>
-                <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">
+                <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
                   {lang === "es" ? group.title.es : group.title.en}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {group.items.map((item) => (
                     <span
                       key={item}
-                      className="rounded-full border border-zinc-800/80 px-4 py-2 text-sm text-zinc-300"
+                      className="rounded-full border border-slate-800/40 px-4 py-2 text-sm text-slate-300"
                     >
                       {item}
                     </span>
@@ -207,16 +207,16 @@ export default async function AboutPage({ params }: PageProps) {
                 {t.about.education.map((item) => (
                   <div
                     key={`${item.school}-${item.period}`}
-                    className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5"
+                    className="rounded-2xl border border-slate-800/30 bg-slate-950/60 p-5"
                   >
                     <p className="text-lg font-semibold text-white">
                       {item.degree}
                     </p>
-                    <p className="text-sm text-zinc-400">{item.school}</p>
-                    <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                    <p className="text-sm text-slate-400">{item.school}</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                       {item.period}
                     </p>
-                    <p className="mt-2 text-sm text-zinc-300">{item.details}</p>
+                    <p className="mt-2 text-sm text-slate-300">{item.details}</p>
                   </div>
                 ))}
               </div>
@@ -227,13 +227,13 @@ export default async function AboutPage({ params }: PageProps) {
                 <h2 className="text-2xl font-semibold text-white">
                   {t.about.languagesTitle}
                 </h2>
-                <ul className="mt-3 space-y-2 text-zinc-300">
+                <ul className="mt-3 space-y-2 text-slate-300">
                   {t.about.languages.map((language) => (
                     <li key={language.label} className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-white">
                         {language.label}
                       </span>
-                      <span className="text-sm text-zinc-500">
+                      <span className="text-sm text-slate-500">
                         {language.level}
                       </span>
                     </li>
@@ -249,7 +249,7 @@ export default async function AboutPage({ params }: PageProps) {
                   {t.about.interests.map((interest) => (
                     <span
                       key={interest}
-                      className="rounded-full border border-zinc-800/80 px-3 py-1 text-sm text-zinc-300"
+                      className="rounded-full border border-slate-800/40 px-3 py-1 text-sm text-slate-300"
                     >
                       {interest}
                     </span>

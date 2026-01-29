@@ -189,13 +189,13 @@ export function AIAssistant({
         <div
           className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 ${
             theme === "dark"
-              ? "bg-zinc-950/50 border-zinc-800"
-              : "bg-white/90 border-zinc-200"
+              ? "bg-slate-950/50 border-slate-800/30"
+              : "bg-white/90 border-slate-200"
           }`}
         >
           <div
             className={`flex items-center justify-between px-4 py-3 border-b ${
-              theme === "dark" ? "border-zinc-800" : "border-zinc-200"
+              theme === "dark" ? "border-slate-800/30" : "border-slate-200"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -207,7 +207,7 @@ export function AIAssistant({
               />
               <span
                 className={`text-sm font-medium ${
-                  theme === "dark" ? "text-zinc-300" : "text-zinc-700"
+                  theme === "dark" ? "text-slate-300" : "text-slate-700"
                 }`}
               >
                 Conversation
@@ -217,8 +217,8 @@ export function AIAssistant({
               onClick={clearConversation}
               className={`p-1 rounded-md transition-colors ${
                 theme === "dark"
-                  ? "hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300"
-                  : "hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600"
+                  ? "hover:bg-slate-800 text-slate-500 hover:text-slate-300"
+                  : "hover:bg-slate-100 text-slate-400 hover:text-slate-600"
               }`}
               aria-label="Clear conversation"
             >
@@ -238,11 +238,11 @@ export function AIAssistant({
                   className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                     msg.role === "user"
                       ? theme === "dark"
-                        ? "bg-teal-500/90 text-zinc-950"
-                        : "bg-zinc-900 text-white"
+                        ? "bg-teal-500/90 text-slate-950"
+                        : "bg-slate-900 text-white"
                       : theme === "dark"
-                        ? "bg-zinc-800/80 text-zinc-100"
-                        : "bg-zinc-100 text-zinc-900"
+                        ? "bg-slate-800/80 text-slate-100"
+                        : "bg-slate-100 text-slate-900"
                   }`}
                 >
                   <p className="leading-relaxed whitespace-pre-wrap">
@@ -260,8 +260,8 @@ export function AIAssistant({
       <div
         className={`relative rounded-full border backdrop-blur-md transition-all duration-300 ${
           theme === "dark"
-            ? "bg-zinc-950/80 border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-            : "bg-white/95 border-zinc-200 shadow-[0_8px_32px_rgba(0,0,0,0.1)]"
+            ? "bg-slate-950/80 border-slate-800/30 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            : "bg-white/95 border-slate-200 shadow-[0_8px_32px_rgba(0,0,0,0.1)]"
         } ${isExpanded ? "shadow-2xl" : "hover:shadow-xl"}`}
       >
         <div className="flex items-center gap-3 px-5 py-3.5">
@@ -283,8 +283,8 @@ export function AIAssistant({
             disabled={isLoading}
             className={`flex-1 bg-transparent text-sm font-medium placeholder:font-normal focus:outline-none ${
               theme === "dark"
-                ? "text-zinc-100 placeholder:text-zinc-500"
-                : "text-zinc-900 placeholder:text-zinc-400"
+                ? "text-slate-100 placeholder:text-slate-500"
+                : "text-slate-900 placeholder:text-slate-400"
             }`}
           />
 
@@ -294,11 +294,11 @@ export function AIAssistant({
             className={`flex-shrink-0 flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 transform active:scale-95 ${
               !input.trim() || isLoading
                 ? theme === "dark"
-                  ? "bg-zinc-800/50 text-zinc-600 cursor-not-allowed"
-                  : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
+                  ? "bg-slate-800/50 text-slate-600 cursor-not-allowed"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
                 : theme === "dark"
-                  ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-zinc-950 shadow-[0_4px_16px_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.5)] hover:scale-105"
-                  : "bg-gradient-to-r from-zinc-900 to-zinc-800 text-white shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:scale-105"
+                  ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 shadow-[0_4px_16px_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.5)] hover:scale-105"
+                  : "bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:scale-105"
             }`}
             aria-label={texts.send}
           >
@@ -321,7 +321,7 @@ export function AIAssistant({
       <div className="text-center">
         <span
           className={`text-[10px] tracking-wider uppercase font-medium ${
-            theme === "dark" ? "text-zinc-600" : "text-zinc-400"
+            theme === "dark" ? "text-slate-600" : "text-slate-400"
           }`}
         >
           Powered by Gemini

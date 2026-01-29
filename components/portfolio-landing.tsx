@@ -1,4 +1,5 @@
-﻿// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+﻿
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 'use client';
 
@@ -26,6 +27,7 @@ import {
   X,
   type LucideIcon
 } from "lucide-react";
+import { CursorSpotlight } from "./cursor-spotlight";
 import {
   defaultContent,
   type LandingContent,
@@ -36,6 +38,7 @@ import {
   type StackIcon,
 } from "@/content/site-content";
 import { GithubContributions } from "@/components/github-contributions";
+import { ProjectCardBrutal } from "@/components/project-card-brutal";
 
 import { RichText } from "@/components/portfolio/rich-text";
 import { ClairoChat } from "@/components/portfolio/clairo-chat";
@@ -661,7 +664,14 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             {contentError && <p className="text-red-400">{contentError}</p>}
           </div>
         )}
-        <section id="home" className="pt-40 pb-32 flex flex-col justify-center min-h-[80vh]">
+        <section id="home" className="relative pt-40 pb-32 flex flex-col justify-center min-h-[80vh]">
+          {/* Subtle ambient glow effect - gentle floating animation */}
+          <CursorSpotlight
+            color={theme === "dark" ? "#f6a6ff" : "#f696ff"}
+            size={450}
+            intensity={0.08}
+            blur={120}
+          />
           <div className="absolute top-20 right-0 -z-10 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] opacity-50" />
           <ContactShowcase contact={t.contact} theme={theme} lang={lang} />
 
@@ -1035,17 +1045,19 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           )}
 
           <motion.div
+            key={`projects-grid-${showAllProjects ? 'expanded' : 'collapsed'}`}
             className="grid md:grid-cols-3 gap-6"
             initial="hidden"
             whileInView="visible"
             viewport={scrollViewport}
             variants={developerStagger}
           >
-            {projectsToRender.map((project) => (
+            {projectsToRender.map((project, index) => (
               <motion.div key={project.id} variants={developerStaggerItem}>
-                <ProjectCard
+                <ProjectCardBrutal
                   project={project}
                   theme={theme}
+                  index={index}
                 />
               </motion.div>
             ))}
