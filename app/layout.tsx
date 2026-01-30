@@ -1,10 +1,32 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono, IBM_Plex_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SessionProviders } from "@/components/session-provider";
 import { getLandingContent } from "@/lib/content-store";
 import type { Locale } from "@/lib/i18n";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-body",
+  weight: ["400", "500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-heading",
+  weight: ["400", "500", "600", "700"],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+  weight: ["400", "500", "600"],
+});
 
 const DEFAULT_META_LOCALE: Locale = "en";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ivan-caamano.me";
@@ -28,8 +50,8 @@ export async function generateMetadata(): Promise<Metadata> {
     description: branding.description,
     icons: branding.favicon
       ? {
-          icon: [{ url: branding.favicon }],
-        }
+        icon: [{ url: branding.favicon }],
+      }
       : undefined,
     openGraph: {
       title: branding.title,
@@ -55,7 +77,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
+    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable} ${ibmPlexMono.variable}`} style={{ colorScheme: "dark" }}>
       <body className="antialiased bg-slate-950 text-slate-50 font-sans">
         <SessionProviders>{children}</SessionProviders>
         <Analytics />

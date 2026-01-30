@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 
 type ContributionDay = {
   date: string;
@@ -45,30 +44,64 @@ interface GithubContributionsProps {
 // Cache TTL: 1 hour (in milliseconds)
 const CACHE_TTL = 60 * 60 * 1000;
 
-const LEVEL_COLORS: Record<"dark" | "light", Record<number, string>> = {
+// SVG cell dimensions
+const CELL_SIZE = 14;  // h-3.5 w-3.5 = 14px
+const GAP = 4;         // gap-1 = 4px
+
+// SVG colors (replacing Tailwind classes)
+const SVG_COLORS: Record<"dark" | "light", Record<number, string>> = {
   dark: {
-    0: "bg-[#1f1f1f]",
-    1: "bg-teal-900/30",
-    2: "bg-teal-800/60",
-    3: "bg-teal-600/80",
-    4: "bg-teal-400",
+    0: "#1f1f1f",
+    1: "rgba(20, 83, 45, 0.3)",   // teal-900/30
+    2: "rgba(17, 94, 117, 0.6)",  // teal-800/60
+    3: "rgba(13, 148, 136, 0.8)", // teal-600/80
+    4: "#2dd4bf",                  // teal-400
   },
   light: {
-    0: "bg-neutral-200",
-    1: "bg-teal-200",
-    2: "bg-teal-300",
-    3: "bg-teal-400",
-    4: "bg-teal-500",
+    0: "#e5e5e5",    // neutral-200
+    1: "#99f6e4",    // teal-200
+    2: "#5eead4",    // teal-300
+    3: "#2dd4bf",    // teal-400
+    4: "#14b8a6",    // teal-500
   },
 };
 
 export function GithubContributions({ username, theme, copy }: GithubContributionsProps) {
   const [data, setData] = useState<ContributionsResponse | null>(null);
   const [hasError, setHasError] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const cacheRef = useRef<Map<string, ContributionsResponse | null>>(new Map());
+  const hasLoadedRef = useRef(false);
 
+  // IntersectionObserver for lazy loading
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: '100px', // Start loading 100px before visible
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Fetch data only when visible
+  useEffect(() => {
+    if (!isVisible || hasLoadedRef.current) return;
+
     let cancelled = false;
     const year = new Date().getFullYear();
     const cacheKey = `github-contributions-${username}-${year}`;
@@ -162,6 +195,8 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
 
     const load = async () => {
       setHasError(false);
+      hasLoadedRef.current = true;
+
       // Check cache first
       const cachedData = getCachedData();
       if (cachedData && !cancelled) {
@@ -187,9 +222,9 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
         for (let i = 0; i < contributions.length; i += 7) {
           weeks.push({ days: contributions.slice(i, i + 7) });
         }
-        
+
         const contributionsData = { total, weeks };
-        
+
         if (!cancelled) {
           setData(contributionsData);
           setCachedData(contributionsData);
@@ -206,10 +241,17 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
     return () => {
       cancelled = true;
     };
-  }, [username]);
+  }, [username, isVisible]);
+
+  // Calculate SVG dimensions
+  const weeksCount = data?.weeks.length ?? 53;
+  const daysCount = 7;
+  const svgWidth = weeksCount * (CELL_SIZE + GAP) - GAP;
+  const svgHeight = daysCount * (CELL_SIZE + GAP) - GAP;
 
   return (
     <div
+      ref={containerRef}
       className={`overflow-hidden rounded-3xl border ${
         theme === "dark"
           ? "border-white/5 bg-[#0c0c0c]"
@@ -255,57 +297,47 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
       <div className="overflow-x-auto py-4">
         <div className="px-6">
           {data && data.weeks.length > 0 ? (
-            <motion.div
-              className="flex gap-1"
-              initial="hidden"
-              animate="visible"
-              variants={{
-                hidden: { opacity: 0 },
-                visible: {
-                  opacity: 1,
-                  transition: {
-                    staggerChildren: 0.01,
-                    delayChildren: 0.1,
-                  },
-                },
-              }}
+            <svg
+              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+              className="w-full h-auto contrib-chart"
+              style={{ minWidth: svgWidth }}
+              role="img"
+              aria-label={`${copy.heatmapLabel} - ${data.total} ${copy.commitsLabel}`}
             >
-              {data.weeks.map((week, weekIndex) => (
-                <motion.div
-                  key={week.days[0]?.date}
-                  className="flex flex-col gap-1 flex-shrink-0"
-                  variants={{
-                    hidden: { opacity: 0, scale: 0.8 },
-                    visible: { opacity: 1, scale: 1 },
-                  }}
-                >
-                  {week.days.map((day, dayIndex) => (
-                    <motion.span
-                      key={day.date}
-                      className={`h-3.5 w-3.5 rounded-sm transition-colors flex-shrink-0 ${
-                        LEVEL_COLORS[theme][day.level as keyof typeof LEVEL_COLORS["dark"]]
-                      }`}
-                      title={`${day.date}: ${day.count} ${copy.tooltipSuffix}`}
-                      whileHover={!prefersReducedMotion ? {
-                        scale: 1.4,
-                        transition: { type: "spring", stiffness: 400, damping: 30 }
-                      } : {}}
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{
-                        opacity: 1,
-                        scale: 1,
-                        transition: {
-                          delay: (weekIndex * 7 + dayIndex) * 0.005,
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 30,
-                        },
-                      }}
-                    />
-                  ))}
-                </motion.div>
-              ))}
-            </motion.div>
+              <style>{`
+                .contrib-chart {
+                  opacity: 0;
+                  animation: chart-fade-in 0.5s ease-out forwards;
+                }
+                .contrib-cell {
+                  transition: transform 0.15s ease-out;
+                  transform-origin: center;
+                  transform-box: fill-box;
+                }
+                .contrib-cell:hover {
+                  transform: scale(1.3);
+                }
+                @keyframes chart-fade-in {
+                  to { opacity: 1; }
+                }
+              `}</style>
+              {data.weeks.map((week, weekIndex) =>
+                week.days.map((day, dayIndex) => (
+                  <rect
+                    key={day.date}
+                    x={weekIndex * (CELL_SIZE + GAP)}
+                    y={dayIndex * (CELL_SIZE + GAP)}
+                    width={CELL_SIZE}
+                    height={CELL_SIZE}
+                    rx={2}
+                    fill={SVG_COLORS[theme][day.level as keyof typeof SVG_COLORS["dark"]]}
+                    className="contrib-cell"
+                  >
+                    <title>{`${day.date}: ${day.count} ${copy.tooltipSuffix}`}</title>
+                  </rect>
+                ))
+              )}
+            </svg>
           ) : (
             <div
               className={`h-32 rounded-2xl ${

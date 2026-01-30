@@ -6,6 +6,7 @@
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import {
   BrainCircuit,
   Briefcase,
@@ -37,11 +38,34 @@ import {
   type ProjectIcon,
   type StackIcon,
 } from "@/content/site-content";
-import { GithubContributions } from "@/components/github-contributions";
 import { ProjectCardBrutal } from "@/components/project-card-brutal";
 
 import { RichText } from "@/components/portfolio/rich-text";
-import { ClairoChat } from "@/components/portfolio/clairo-chat";
+
+const GithubContributions = dynamic(
+  () => import("@/components/github-contributions").then(mod => mod.GithubContributions),
+  {
+    ssr: true,
+    loading: () => <div className="h-32 rounded-2xl bg-white/5 animate-pulse" />
+  }
+);
+
+const ClairoChat = dynamic(
+  () => import("@/components/portfolio/clairo-chat").then(mod => mod.ClairoChat),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-2xl">
+        <div className="rounded-3xl bg-neutral-950/80 backdrop-blur-xl border border-white/10">
+          <div className="flex items-center gap-3 px-6 py-4">
+            <div className="w-6 h-6 rounded-full bg-white/10 animate-pulse" />
+            <div className="flex-1 h-5 rounded bg-white/5 animate-pulse" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+);
 import {
   fadeInUp,
   fadeInLeft,
@@ -519,10 +543,27 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
   }, [lang]);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
+    let ticking = false;
+    let lastScrolled = scrolled;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const newScrolled = window.scrollY > 50;
+          // Only update state if the value actually changed
+          if (newScrolled !== lastScrolled) {
+            lastScrolled = newScrolled;
+            setScrolled(newScrolled);
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [scrolled]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -665,13 +706,6 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           </div>
         )}
         <section id="home" className="relative pt-40 pb-32 flex flex-col justify-center min-h-[80vh]">
-          {/* Subtle ambient glow effect - gentle floating animation */}
-          <CursorSpotlight
-            color={theme === "dark" ? "#f6a6ff" : "#f696ff"}
-            size={450}
-            intensity={0.08}
-            blur={120}
-          />
           <div className="absolute top-20 right-0 -z-10 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] opacity-50" />
           <ContactShowcase contact={t.contact} theme={theme} lang={lang} />
 
@@ -1046,7 +1080,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
 
           <motion.div
             key={`projects-grid-${showAllProjects ? 'expanded' : 'collapsed'}`}
-            className="grid md:grid-cols-3 gap-6"
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 items-end"
             initial="hidden"
             whileInView="visible"
             viewport={scrollViewport}

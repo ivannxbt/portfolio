@@ -1,4 +1,5 @@
 import Parser from "rss-parser";
+import { unstable_cache } from "next/cache";
 import type { BlogEntry } from "@/content/site-content";
 
 interface SubstackRSSItem {
@@ -49,7 +50,7 @@ export function transformRSSItemToBlogEntry(
   };
 }
 
-export async function getSubstackPosts(limit?: number): Promise<BlogEntry[]> {
+const fetchSubstackPosts = async (limit?: number): Promise<BlogEntry[]> => {
   if (!SUBSTACK_USERNAME) {
     console.error("Cannot fetch Substack posts: NEXT_PUBLIC_SUBSTACK_USERNAME is not set");
     return [];
@@ -68,4 +69,10 @@ export async function getSubstackPosts(limit?: number): Promise<BlogEntry[]> {
     console.error("Error fetching Substack RSS feed:", error);
     return [];
   }
-}
+};
+
+export const getSubstackPosts = unstable_cache(
+  fetchSubstackPosts,
+  ["substack-posts"],
+  { revalidate: 3600 }
+);

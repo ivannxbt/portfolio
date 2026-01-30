@@ -206,8 +206,8 @@ export const staggerContainer: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1, // 100ms between items
-      delayChildren: 0.2,   // Wait 200ms before first item
+      staggerChildren: 0.06, // 60ms between items (reduced from 100ms)
+      delayChildren: 0.1,    // Wait 100ms before first item (reduced from 200ms)
     },
   },
 };
@@ -299,13 +299,13 @@ export function getTransition(
  * Viewport configuration for scroll-triggered animations
  *
  * once: Animation only triggers once (doesn't re-trigger on scroll up)
- * margin: Start animation 100px before element enters viewport
- * amount: Percentage of element that must be visible to trigger (0.2 = 20%)
+ * margin: Start animation 50px before element enters viewport (reduced for earlier trigger)
+ * amount: Percentage of element that must be visible to trigger (0.3 = 30%)
  */
 export const scrollViewport = {
   once: true,
-  margin: "-100px",
-  amount: 0.2 as const,
+  margin: "-50px",
+  amount: 0.3 as const,
 };
 
 /**
@@ -402,8 +402,8 @@ export const developerStagger: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05, // Faster stagger
-      delayChildren: 0.1,
+      staggerChildren: 0.03, // Faster stagger (reduced from 0.05)
+      delayChildren: 0.05,   // Reduced from 0.1
     },
   },
 };
@@ -412,8 +412,8 @@ export const developerStagger: Variants = {
 export const developerStaggerItem: Variants = {
   hidden: {
     opacity: 0,
-    y: 30,
-    scale: 0.95,
+    y: 20,      // Cards animate FROM below (slide up into view)
+    scale: 0.98, // Closer to 1 for subtler effect
   },
   visible: {
     opacity: 1,
@@ -421,7 +421,7 @@ export const developerStaggerItem: Variants = {
     scale: 1,
     transition: {
       ...ease.out,
-      duration: 0.5,
+      duration: 0.35, // Faster duration (reduced from 0.5)
     },
   },
 };
