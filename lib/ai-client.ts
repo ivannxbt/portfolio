@@ -8,7 +8,7 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 // Model configurations
 const MODELS = {
-  gemini: "gemini-2.0-flash-exp",
+  gemini: "gemini-2.0-flash",
 } as const;
 
 // Initialize Gemini client (lazy initialization)

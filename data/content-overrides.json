@@ -357,7 +357,9 @@
         ],
         "liveUrl": "https://nexxo-waitlist.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/nexxo",
-        "image": "/projects/nexxo.png"
+        "image": "/projects/nexxo.png",
+        "confidential": false,
+        "projectType": "Web"
       },
       {
         "id": 7,
@@ -372,7 +374,9 @@
         ],
         "liveUrl": "https://caamano-inmuebles.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/caamano-inmuebles",
-        "image": "/projects/caamano-inmuebles.png"
+        "image": "/projects/caamano-inmuebles.png",
+        "confidential": false,
+        "projectType": "Web"
       },
       {
         "id": 1,
@@ -385,7 +389,9 @@
           "LLMs",
           "Automation"
         ],
-        "image": "/projects/pa-document-generator.png"
+        "image": "/projects/pa-document-generator.png",
+        "confidential": true,
+        "projectType": "AI"
       },
       {
         "id": 2,
@@ -398,7 +404,9 @@
           "LangChain",
           "Python"
         ],
-        "image": "/projects/enterprise-rag-chatbot.png"
+        "image": "/projects/enterprise-rag-chatbot.png",
+        "confidential": true,
+        "projectType": "AI"
       },
       {
         "id": 3,
@@ -411,19 +419,23 @@
           "Signal Proc",
           "Python"
         ],
-        "image": "/projects/ml-radar-optimizer.png"
+        "image": "/projects/ml-radar-optimizer.png",
+        "confidential": true,
+        "projectType": "AI"
       },
       {
         "id": 4,
         "icon": "database",
-        "title": "Multi-Source Advertiser Data Deduplication and Quality Analysis",
+        "title": "Multi-Source Advertiser Data Deduplicator",
         "desc": "Developed a data deduplication and analysis toolkit that cleans, normalizes, and matches advertiser data across multiple sources, generates quality and clustering reports, and uses LLMs to validate fiscal IDs, standardize addresses, and infer missing address information.",
         "tags": [
           "Python",
           "Azure",
           "LLM"
         ],
-        "image": "/projects/data-deduplication.png"
+        "image": "/projects/data-deduplication.png",
+        "confidential": true,
+        "projectType": "AI"
       },
       {
         "id": 5,
@@ -435,7 +447,9 @@
           "Azure",
           "LLM"
         ],
-        "image": "/projects/budget-analysis-agent.png"
+        "image": "/projects/budget-analysis-agent.png",
+        "confidential": true,
+        "projectType": "AI"
       }
     ],
     "blog": {
@@ -821,7 +835,9 @@
         ],
         "liveUrl": "https://nexxo-waitlist.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/nexxo",
-        "image": "/projects/nexxo.png"
+        "image": "/projects/nexxo.png",
+        "confidential": false,
+        "projectType": "Web"
       },
       {
         "id": 7,
@@ -836,7 +852,9 @@
         ],
         "liveUrl": "https://caamano-inmuebles.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/caamano-inmuebles",
-        "image": "/projects/caamano-inmuebles.png"
+        "image": "/projects/caamano-inmuebles.png",
+        "confidential": false,
+        "projectType": "Web"
       },
       {
         "id": 1,
@@ -849,7 +867,9 @@
           "LLMs",
           "Automation"
         ],
-        "image": "/projects/pa-document-generator.png"
+        "image": "/projects/pa-document-generator.png",
+        "confidential": true,
+        "projectType": "AI"
       },
       {
         "id": 2,
@@ -862,7 +882,9 @@
           "LangChain",
           "Python"
         ],
-        "image": "/projects/enterprise-rag-chatbot.png"
+        "image": "/projects/enterprise-rag-chatbot.png",
+        "confidential": true,
+        "projectType": "AI"
       },
       {
         "id": 3,
@@ -875,19 +897,23 @@
           "Signal Proc",
           "Python"
         ],
-        "image": "/projects/ml-radar-optimizer.png"
+        "image": "/projects/ml-radar-optimizer.png",
+        "confidential": true,
+        "projectType": "AI"
       },
       {
         "id": 4,
         "icon": "database",
-        "title": "Deduplicación y análisis de datos publicitarios",
+        "title": "Deduplicador de Datos Publicitarios",
         "desc": "Desarrollé un toolkit de deduplicación y análisis que limpia, normaliza y empareja datos de anunciantes de múltiples fuentes, genera informes de calidad y clustering, y usa LLMs para validar NIF fiscales, estandarizar direcciones e inferir información faltante.",
         "tags": [
           "Python",
           "Azure",
           "LLM"
         ],
-        "image": "/projects/data-deduplication.png"
+        "image": "/projects/data-deduplication.png",
+        "confidential": true,
+        "projectType": "AI"
       },
       {
         "id": 5,
@@ -899,7 +925,9 @@
           "Azure",
           "LLM"
         ],
-        "image": "/projects/budget-analysis-agent.png"
+        "image": "/projects/budget-analysis-agent.png",
+        "confidential": true,
+        "projectType": "AI"
       }
     ],
     "blog": {

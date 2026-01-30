@@ -34,6 +34,8 @@ export interface ProjectItem {
   liveUrl?: string;
   githubUrl?: string;
   image?: string;
+  confidential?: boolean;
+  projectType?: "AI" | "Web";
 }
 
 export interface BlogEntry {
