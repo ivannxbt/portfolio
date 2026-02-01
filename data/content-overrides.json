@@ -294,8 +294,6 @@
             "TypeScript",
             "JavaScript",
             "Java",
-            "R",
-            "Scala",
             "Go",
             "Rust",
             "Solidity",
@@ -369,7 +367,7 @@
         "tags": [
           "Next.js",
           "TypeScript",
-          "i18n",
+          "Claude",
           "Real Estate"
         ],
         "liveUrl": "https://caamano-inmuebles.vercel.app",
@@ -416,7 +414,6 @@
         "tags": [
           "PyTorch",
           "TensorFlow",
-          "Signal Proc",
           "Python"
         ],
         "image": "/projects/ml-radar-optimizer.png",
@@ -771,45 +768,42 @@
             "TypeScript",
             "JavaScript",
             "Java",
-            "R",
-            "Scala",
             "Go",
             "Rust",
-            "Solidity"
+            "Solidity",
+            "Next.js",
+            "React"
           ]
         },
         {
           "title": "Software",
-          "description": "Herramientas cloud y de plataforma que uso en DevOps y producto.",
+          "description": "Herramientas cloud y de plataforma desde mi experiencia en DevOps y producto.",
           "icon": "layers",
           "items": [
             "AWS",
             "Azure",
+            "GCP",
             "Docker",
             "Kubernetes",
             "Databricks",
             "Linux",
-            "Git",
-            "Next.js",
-            "Terraform",
-            "CI/CD"
+            "Git"
           ]
         },
         {
           "title": "IA & Datos",
-          "description": "El stack de IA/ML que impulsa mis entregas y analíticas.",
+          "description": "El stack de IA/ML que impulsa mis aplicaciones y entregas.",
           "icon": "brain",
           "items": [
+            "OpenAI",
+            "Claude",
+            "Gemini",
             "PyTorch",
             "TensorFlow",
             "Keras",
             "LangChain",
-            "MLflow",
             "RAG",
-            "Prompt Engineering",
-            "Computer Vision",
-            "Data Engineering",
-            "LLMOps"
+            "MCP"
           ]
         }
       ]
@@ -847,7 +841,7 @@
         "tags": [
           "Next.js",
           "TypeScript",
-          "i18n",
+          "Claude",
           "Inmobiliaria"
         ],
         "liveUrl": "https://caamano-inmuebles.vercel.app",
@@ -894,7 +888,6 @@
         "tags": [
           "PyTorch",
           "TensorFlow",
-          "Signal Proc",
           "Python"
         ],
         "image": "/projects/ml-radar-optimizer.png",

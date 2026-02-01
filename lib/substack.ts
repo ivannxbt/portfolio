@@ -16,7 +16,7 @@ interface SubstackRSSItem {
 
 const parser = new Parser<unknown, SubstackRSSItem>();
 
-const SUBSTACK_USERNAME = process.env.NEXT_PUBLIC_SUBSTACK_USERNAME;
+const SUBSTACK_USERNAME = process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || "ivanxbt";
 
 if (!SUBSTACK_USERNAME) {
   console.warn("NEXT_PUBLIC_SUBSTACK_USERNAME not set in environment variables");
