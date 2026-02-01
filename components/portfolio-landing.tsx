@@ -81,6 +81,19 @@ import {
   pageTransition
 } from "@/lib/animations";
 
+const downwardStaggerItem = {
+  hidden: { opacity: 0, y: -50, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      ease: [0, 0, 0.2, 1],
+      duration: 0.5
+    }
+  }
+};
+
 const socialIconMap: Record<SocialPlatform, LucideIcon> = {
   github: Github,
   linkedin: Linkedin,
@@ -291,37 +304,45 @@ const BlogRow = React.memo(({
   const coverImage = post.image?.trim() || "/blog/default.svg";
   return (
     <article
-      className={`group flex gap-4 rounded-2xl px-3 py-3 transition-colors ${theme === "dark" ? "hover:bg-neutral-900/50" : "hover:bg-white"
-        }`}
+      className={`group flex gap-5 rounded-2xl p-4 border transition-all ${
+        theme === "dark"
+          ? "border-neutral-800/50 hover:border-neutral-700 hover:shadow-lg hover:shadow-teal-500/5"
+          : "border-neutral-200 hover:border-neutral-300 hover:shadow-md"
+      }`}
     >
       <div
-        className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border ${theme === "dark" ? "border-neutral-800 bg-neutral-900/50" : "border-neutral-200 bg-white"
-          }`}
+        className={`relative h-20 w-24 flex-shrink-0 overflow-hidden rounded-xl border ${
+          theme === "dark" ? "border-neutral-800" : "border-neutral-200"
+        }`}
       >
         <Image
           src={coverImage}
           alt={`${post.title} cover`}
           fill
-          sizes="64px"
+          sizes="96px"
           className="object-cover"
         />
       </div>
-      <div className="flex flex-1 flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="text-xs font-mono text-neutral-500">{post.date}</span>
-          <h4
-            className={`text-base font-medium transition-colors ${theme === "dark"
-              ? "text-neutral-300 group-hover:text-teal-400"
+      <div className="flex flex-1 flex-col gap-1.5">
+        <span
+          className={`text-xs font-mono px-2 py-0.5 rounded-md w-fit ${
+            theme === "dark" ? "bg-neutral-800 text-neutral-400" : "bg-neutral-100 text-neutral-500"
+          }`}
+        >
+          {post.date}
+        </span>
+        <h4
+          className={`text-base font-semibold transition-colors ${
+            theme === "dark"
+              ? "text-neutral-200 group-hover:text-teal-400"
               : "text-neutral-800 group-hover:text-teal-600"
-              }`}
-          >
-            {post.title}
-          </h4>
-        </div>
+          }`}
+        >
+          {post.title}
+        </h4>
         <RichText
           text={post.summary}
-          className={`text-sm ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"
-            }`}
+          className={`text-sm ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
           linkClassName={
             theme === "dark"
               ? "text-teal-400 underline underline-offset-4 hover:text-white"
@@ -330,8 +351,9 @@ const BlogRow = React.memo(({
         />
         <a
           href={link}
-          className={`text-xs font-semibold uppercase tracking-[0.25em] ${theme === "dark" ? "text-teal-400" : "text-teal-600"
-            }`}
+          className={`text-xs font-semibold uppercase tracking-[0.25em] mt-1 ${
+            theme === "dark" ? "text-teal-400" : "text-teal-600"
+          }`}
           {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
         >
           {readMoreLabel} &rarr;
@@ -843,68 +865,6 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           </div>
         </motion.section>
 
-        <motion.section
-          id="activity"
-          className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"
-            }`}
-          initial="hidden"
-          whileInView="visible"
-          viewport={scrollViewport}
-          variants={fadeInLeft}
-        >
-          <motion.div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
-                {t.activity.eyebrow}
-              </p>
-              <h2
-                className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-neutral-900"
-                  }`}
-              >
-                {t.activity.title}
-              </h2>
-              <p
-                className={`mt-3 max-w-2xl text-sm ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-                  }`}
-              >
-                {t.activity.description}
-              </p>
-            </div>
-            <a
-              href={`https://github.com/${githubUsername}`}
-              target="_blank"
-              rel="noreferrer"
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${theme === "dark"
-                ? "border-white/10 text-white hover:border-white/40"
-                : "border-neutral-300 text-neutral-800 hover:border-neutral-500"
-                }`}
-            >
-              <Github size={16} />
-              {t.activity.profileLabel}
-            </a>
-          </motion.div>
-
-          <motion.div
-            className="mt-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={scrollViewport}
-            variants={fadeInUp}
-          >
-            <GithubContributions
-              username={githubUsername}
-              theme={theme}
-              copy={{
-                heatmapLabel: t.activity.heatmapLabel,
-                commitsLabel: t.activity.commitsLabel,
-                loadingText: t.activity.loadingText,
-                errorText: t.activity.errorText,
-                tooltipSuffix: t.activity.tooltipSuffix,
-              }}
-            />
-          </motion.div>
-        </motion.section>
-
         <section
           id="experience"
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
@@ -1060,34 +1020,32 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
         >
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-12">
             <div>
+              {t.projects.eyebrow && (
+                <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
+                  {t.projects.eyebrow}
+                </p>
+              )}
               <h2 className={`text-3xl font-bold ${theme === "dark" ? "text-neutral-100" : "text-neutral-900"}`}>
                 {t.projects.title}
               </h2>
+              {t.projects.subtitle && (
+                <p className={`mt-3 max-w-2xl text-sm ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}>
+                  {t.projects.subtitle}
+                </p>
+              )}
             </div>
           </div>
 
-          {t.projects.description && (
-            <RichText
-              text={t.projects.description}
-              className={`text-sm mb-6 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
-              linkClassName={
-                theme === "dark"
-                  ? "text-teal-400 underline underline-offset-4 hover:text-white"
-                  : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
-              }
-            />
-          )}
-
           <motion.div
             key={`projects-grid-${showAllProjects ? 'expanded' : 'collapsed'}`}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 items-end"
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
             initial="hidden"
             whileInView="visible"
             viewport={scrollViewport}
             variants={developerStagger}
           >
             {projectsToRender.map((project, index) => (
-              <motion.div key={project.id} variants={developerStaggerItem}>
+              <motion.div key={project.id} variants={downwardStaggerItem} className="h-full">
                 <ProjectCardBrutal
                   project={project}
                   theme={theme}
@@ -1110,6 +1068,68 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             </div>
           )}
         </section>
+
+        <motion.section
+          id="activity"
+          className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"
+            }`}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+          variants={fadeInLeft}
+        >
+          <motion.div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
+                {t.activity.eyebrow}
+              </p>
+              <h2
+                className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-neutral-900"
+                  }`}
+              >
+                {t.activity.title}
+              </h2>
+              <p
+                className={`mt-3 max-w-2xl text-sm ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                  }`}
+              >
+                {t.activity.description}
+              </p>
+            </div>
+            <a
+              href={`https://github.com/${githubUsername}`}
+              target="_blank"
+              rel="noreferrer"
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${theme === "dark"
+                ? "border-white/10 text-white hover:border-white/40"
+                : "border-neutral-300 text-neutral-800 hover:border-neutral-500"
+                }`}
+            >
+              <Github size={16} />
+              {t.activity.profileLabel}
+            </a>
+          </motion.div>
+
+          <motion.div
+            className="mt-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+            variants={fadeInUp}
+          >
+            <GithubContributions
+              username={githubUsername}
+              theme={theme}
+              copy={{
+                heatmapLabel: t.activity.heatmapLabel,
+                commitsLabel: t.activity.commitsLabel,
+                loadingText: t.activity.loadingText,
+                errorText: t.activity.errorText,
+                tooltipSuffix: t.activity.tooltipSuffix,
+              }}
+            />
+          </motion.div>
+        </motion.section>
 
         <section
           id="blog"
@@ -1144,7 +1164,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
               }
             />
             <motion.div
-              className="flex flex-col"
+              className="flex flex-col gap-4"
               initial="hidden"
               whileInView="visible"
               viewport={scrollViewport}
@@ -1155,7 +1175,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                   <motion.div
                     key={post.id}
                     variants={developerStaggerItem}
-                    whileHover={{ x: 8, backgroundColor: theme === "dark" ? "rgba(10, 10, 10, 0.5)" : "rgba(255, 255, 255, 0.8)" }}
+                    whileHover={{ x: 4 }}
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   >
                     <BlogRow post={post} lang={lang} theme={theme} readMoreLabel={t.blog.readMore} />

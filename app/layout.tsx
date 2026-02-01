@@ -48,11 +48,11 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(SITE_URL),
     title: branding.title,
     description: branding.description,
-    icons: branding.favicon
-      ? {
-        icon: [{ url: branding.favicon }],
-      }
-      : undefined,
+    // icons: branding.favicon
+    //   ? {
+    //       icon: [{ url: branding.favicon }],
+    //     }
+    //   : undefined,
     openGraph: {
       title: branding.title,
       description: branding.description,

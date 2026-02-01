@@ -135,6 +135,8 @@ export interface LandingContent {
     sections: StackSection[];
   };
   projects: {
+    eyebrow?: string;
+    subtitle?: string;
     title: string;
     viewAll: string;
     description: string;
@@ -181,7 +183,7 @@ const englishContent: LandingContent = {
   branding: {
     title: "Iván Caamaño - AI & Software Engineer",
     description: "AI & Software Engineer building production-grade agents, ML systems, and scalable platforms.",
-    favicon: "/icons/ivan-orb.svg",
+    favicon: "/icon.svg",
     logoText: "Iván Caamaño",
   },
   theme: {
@@ -285,7 +287,7 @@ const englishContent: LandingContent = {
         title: "Programming",
         description: "Languages I use across consulting projects and open-source work.",
         icon: "code",
-        items: ["Python", "SQL", "TypeScript", "JavaScript", "Java", "R", "Scala", "Go", "Rust", "Solidity"],
+        items: ["Python", "SQL", "TypeScript", "JavaScript", "Java", "Go", "Rust", "Solidity"],
       },
       {
         title: "Software",
@@ -302,6 +304,8 @@ const englishContent: LandingContent = {
     ],
   },
   projects: {
+    eyebrow: "Projects",
+    subtitle: "Recent work in AI, automation, and engineering.",
     title: "Featured Work",
     viewAll: "View Full CV",
     description: "",
@@ -333,32 +337,32 @@ const englishContent: LandingContent = {
       icon: "database",
       title: "Enterprise RAG Chatbot",
       desc: "Engineered prompting and RAG implementations in Azure, decreasing information retrieval latency by 90% for specialized queries.",
-      tags: ["Azure", "RAG", "LangChain", "Python"],
+      tags: ["Azure", "RAG", "LangChain", "Python", "Claude"],
     },
     {
       id: 3,
       icon: "layers",
       title: "Radar ML Optimization",
       desc: "Developed ML models for AESA radar data processing (Eurofighter), improving efficiency by 30% using TensorFlow and PyTorch.",
-      tags: ["PyTorch", "TensorFlow", "Signal Proc", "Python"],
+      tags: ["PyTorch", "TensorFlow", "Python"],
     },
     {
       id: 4,
       icon: "cloud",
       title: "Nexxo Waitlist",
       desc: "Interactive waitlist landing with AI-powered features, geolocation mapping, and bilingual support. Built with Next.js 16 and Gemini AI integration.",
-      tags: ["Next.js", "TypeScript", "Gemini AI", "i18n"],
+      tags: ["Next.js", "TypeScript", "Gemini AI", "Claude"],
     },
     {
       id: 5,
       icon: "layers",
       title: "Caamaño Inmuebles",
       desc: "Modern multilingual landing page for real estate company in Margarita Island, Venezuela. Features responsive design and WhatsApp integration.",
-      tags: ["Next.js", "TypeScript", "Tailwind", "Real Estate"],
+      tags: ["Next.js", "TypeScript", "Tailwind", "Real Estate", "Python"],
     },
   ],
   blog: {
-    title: "Latest Insights",
+    title: "Blog",
     description: "",
     viewAll: "Read all articles",
     viewMore: "View more insights",
@@ -460,7 +464,7 @@ const spanishContent: LandingContent = {
   branding: {
     title: "Iván Caamaño - IA & Software Engineer",
     description: "Ingeniero en IA y software construyendo agentes, sistemas de ML y plataformas escalables.",
-    favicon: "/icons/ivan-orb.svg",
+    favicon: "/icon.svg",
     logoText: "Iván Caamaño",
   },
   theme: {
@@ -564,7 +568,7 @@ const spanishContent: LandingContent = {
         title: "Programación",
         description: "Lenguajes que utilizo en consultoría y proyectos open-source.",
         icon: "code",
-        items: ["Python", "SQL", "TypeScript", "JavaScript", "Java", "R", "Scala", "Go", "Rust", "Solidity"],
+        items: ["Python", "SQL", "TypeScript", "JavaScript", "Java", "Go", "Rust", "Solidity"],
       },
       {
         title: "Software",
@@ -573,7 +577,7 @@ const spanishContent: LandingContent = {
         items: ["AWS", "Azure", "Docker", "Kubernetes", "Databricks", "Linux", "Git", "Next.js", "Terraform", "CI/CD"],
       },
       {
-        title: "IA & Datos",
+        title: "IA y Datos",
         description: "La pila de IA/ML que impulsa mis entregas RAG, CV y analítica.",
         icon: "brain",
         items: ["PyTorch", "TensorFlow", "Keras", "LangChain", "MLflow", "RAG", "Prompt Engineering", "Computer Vision", "Data Engineering", "LLMOps"],
@@ -581,9 +585,11 @@ const spanishContent: LandingContent = {
     ],
   },
   projects: {
+    eyebrow: "Proyectos",
+    subtitle: "Entregas recientes en IA, automatización e ingeniería.",
     title: "Proyectos destacados",
     viewAll: "Ver CV completo",
-    description: "Entregas recientes en IA, automatización y visión.",
+    description: "",
     viewMore: "Ver más proyectos",
     viewLess: "Ver menos proyectos",
   },
@@ -612,32 +618,32 @@ const spanishContent: LandingContent = {
       icon: "database",
       title: "Chatbot RAG empresarial",
       desc: "Arquitecté prompts y flujos RAG en Azure que reducen la latencia de consultas especializadas en un 90%.",
-      tags: ["Azure", "RAG", "LangChain", "Python"],
+      tags: ["Azure", "RAG", "LangChain", "Python", "Claude"],
     },
     {
       id: 3,
       icon: "layers",
       title: "Optimización ML para radar",
       desc: "Desarrollé modelos ML para procesar datos radar AESA (Eurofighter), mejorando la eficiencia en un 30%.",
-      tags: ["PyTorch", "TensorFlow", "Signal Proc", "Python"],
+      tags: ["PyTorch", "TensorFlow", "Python"],
     },
     {
       id: 4,
       icon: "cloud",
       title: "Nexxo Waitlist",
       desc: "Página de lista de espera interactiva con funciones de IA, mapeo de geolocalización y soporte multilingüe. Construida con Next.js 16 e integración de Gemini AI.",
-      tags: ["Next.js", "TypeScript", "Gemini AI", "i18n"],
+      tags: ["Next.js", "TypeScript", "Gemini AI", "Claude"],
     },
     {
       id: 5,
       icon: "layers",
       title: "Caamaño Inmuebles",
       desc: "Landing page moderna y multilingüe para inmobiliaria en Isla de Margarita, Venezuela. Incluye diseño responsive e integración WhatsApp.",
-      tags: ["Next.js", "TypeScript", "Tailwind", "Inmobiliaria"],
+      tags: ["Next.js", "TypeScript", "Tailwind", "Inmobiliaria", "Python"],
     },
   ],
   blog: {
-    title: "Últimas ideas",
+    title: "Blog",
     description: "Notas sobre orquestación multiagente, evaluación de retrieval y MLOps.",
     viewAll: "Leer todos los artículos",
     viewMore: "Ver más ideas",
