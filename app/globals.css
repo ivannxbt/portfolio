@@ -23,6 +23,16 @@
   --selection-color: #d1d5db;
 }
 
+:root[data-theme="brutal"] {
+  --background: #ffffff;
+  --foreground: #000000;
+  --selection-background: #ffdd00;
+  --selection-color: #000000;
+  --accent-brutal: #ffdd00;
+  --border-brutal: #000000;
+  --border-width-brutal: 3px;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

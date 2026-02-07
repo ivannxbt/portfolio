@@ -299,13 +299,13 @@ export function getTransition(
  * Viewport configuration for scroll-triggered animations
  *
  * once: Animation only triggers once (doesn't re-trigger on scroll up)
- * margin: Start animation 50px before element enters viewport (reduced for earlier trigger)
- * amount: Percentage of element that must be visible to trigger (0.3 = 30%)
+ * margin: Start animation when element enters viewport (0px for immediate trigger)
+ * amount: Percentage of element that must be visible to trigger (0.1 = 10%, mobile-friendly)
  */
 export const scrollViewport = {
   once: true,
-  margin: "-50px",
-  amount: 0.3 as const,
+  margin: "0px",
+  amount: 0.1 as const,
 };
 
 /**
@@ -450,21 +450,18 @@ export const pageTransition: Variants = {
   initial: {
     opacity: 0,
     scale: 0.98,
-    filter: "blur(10px)",
   },
   animate: {
     opacity: 1,
     scale: 1,
-    filter: "blur(0px)",
     transition: {
-      duration: 0.6,
+      duration: 0.4,
       ease: [0.22, 1, 0.36, 1], // Smooth ease-out
     },
   },
   exit: {
     opacity: 0,
     scale: 1.02,
-    filter: "blur(10px)",
     transition: {
       duration: 0.4,
     },

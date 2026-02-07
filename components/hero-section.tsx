@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowUpRight, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -46,7 +45,7 @@ export function HeroSection({ lang, copy, actions }: HeroSectionProps) {
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg">
             <a
-              href="/cv_iacc.pdf"
+              href="/CV.pdf"
               download
               className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
             >
@@ -55,17 +54,17 @@ export function HeroSection({ lang, copy, actions }: HeroSectionProps) {
             </a>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href={`/${lang}/projects`}>{actions.viewProjects}</Link>
+            <a href="#projects">{actions.viewProjects}</a>
           </Button>
         </div>
 
-        <Link
-          href={`/${lang}/contact`}
+        <a
+          href="#contact"
           className="mt-6 inline-flex items-center text-sm font-medium text-slate-300 hover:text-white"
         >
           {actions.contact}
           <ArrowUpRight className="ml-1 h-4 w-4" />
-        </Link>
+        </a>
       </div>
 
       <div

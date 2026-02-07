@@ -1,7 +1,8 @@
 import type { Locale } from "@/lib/i18n";
 
 export type Language = Locale;
-export type Theme = "light" | "dark";
+export type Theme = "light" | "dark" | "brutal";
+export const THEMES = ["light", "dark", "brutal"] as const;
 
 export type Message = {
   id: string;

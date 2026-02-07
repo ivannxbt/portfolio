@@ -17,6 +17,7 @@ import {
 type ClairoProps = {
   lang: Language;
   theme: Theme;
+  systemPrompt?: string; // Optional custom system prompt
 };
 
 // Session storage key for message persistence across re-mounts
@@ -50,7 +51,7 @@ export const clearChatHistory = () => {
   }
 };
 
-export const ClairoChat = React.memo<ClairoProps>(({ lang, theme }) => {
+export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }) => {
   const prefersReducedMotion = useReducedMotion();
 
   // Component state - initialize from sessionStorage to prevent duplicates on re-mount
@@ -109,8 +110,8 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme }) => {
     ]);
     setIsLoading(true);
 
-    // System context for AI
-    const systemContext = `
+    // System context for AI - Use custom prompt if provided, otherwise fallback
+    const systemContext = systemPrompt || `
       You are Clairo, an AI assistant for Iván Caamaño's portfolio website.
       Use the following context to answer questions:
       - Role: Telematics Engineer, AI/ML Specialist.
@@ -139,7 +140,7 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme }) => {
       },
     ]);
     setIsLoading(false);
-  }, [input, hasInteracted, lang]);
+  }, [input, hasInteracted, lang, systemPrompt]);
 
   // Keyboard handlers
   const handleKeyDown = useCallback(
@@ -197,10 +198,12 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme }) => {
         style={{ width: isFocused ? "95%" : "90%" }}
       >
         <div
-          className={`rounded-3xl transition-all duration-300 ${
-            theme === "dark"
-              ? "bg-neutral-950/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-              : "bg-white/90 backdrop-blur-xl border border-neutral-200/60 shadow-[0_8px_32px_rgba(15,23,42,0.12)]"
+          className={`transition-all duration-300 ${
+            theme === "brutal"
+              ? "bg-white border-3 border-black"
+              : theme === "dark"
+                ? "rounded-3xl bg-neutral-950/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+                : "rounded-3xl bg-white/90 backdrop-blur-xl border border-neutral-200/60 shadow-[0_8px_32px_rgba(15,23,42,0.12)]"
           }`}
         >
           <motion.div
@@ -276,7 +279,7 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme }) => {
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
-            className="fixed right-0 top-0 h-full z-30 w-full md:w-[40%] md:min-w-[400px] md:max-w-[600px]"
+            className="fixed right-0 top-0 h-full z-[70] w-full md:w-[40%] md:min-w-[400px] md:max-w-[600px]"
             initial={{ x: "100%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}

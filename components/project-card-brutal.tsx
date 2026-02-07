@@ -3,13 +3,15 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Github, ExternalLink, Lock, Globe, BrainCircuit } from "lucide-react";
+import { ExternalLink, Lock, Globe, BrainCircuit } from "lucide-react";
 import { refinedElevate, tagStagger, tagItem } from "@/lib/animations";
 import type { ProjectItem } from "@/content/site-content";
 
+import type { Theme } from "@/lib/types";
+
 interface ProjectCardBrutalProps {
   project: ProjectItem;
-  theme: "light" | "dark";
+  theme: Theme;
   index: number;
 }
 
@@ -19,10 +21,13 @@ export const ProjectCardBrutal = React.memo(
 
     return (
       <motion.article
-        className={`relative overflow-hidden rounded-xl flex flex-col h-full border ${theme === "dark"
-          ? "bg-[#0a0a0a] border-neutral-800"
-          : "bg-white border-neutral-200"
-          }`}
+        className={`relative overflow-hidden flex flex-col h-full border ${
+          theme === "brutal"
+            ? "bg-white border-black border-[3px] rounded-none"
+            : theme === "dark"
+              ? "bg-[#0a0a0a] border-neutral-800 rounded-xl"
+              : "bg-white border-neutral-200 rounded-xl"
+        }`}
         initial="rest"
         whileHover="hover"
         variants={refinedElevate}
@@ -57,8 +62,13 @@ export const ProjectCardBrutal = React.memo(
 
           {/* Title */}
           <h3
-            className={`text-2xl font-bold tracking-tight mb-4 leading-[1.1] ${theme === "dark" ? "text-white" : "text-neutral-900"
-              }`}
+            className={`text-2xl tracking-tight mb-4 leading-[1.1] ${
+              theme === "brutal"
+                ? "text-black font-black"
+                : theme === "dark"
+                  ? "text-white font-bold"
+                  : "text-neutral-900 font-bold"
+            }`}
             style={{ fontFamily: "var(--font-heading)" }}
           >
             {project.title}
@@ -98,6 +108,9 @@ export const ProjectCardBrutal = React.memo(
             )}
           </div>
 
+          {/* Spacer to push content below to bottom */}
+          <div className="flex-grow" />
+
           {/* Project Image - Floating Island */}
           {project.image && (
             <div className={`relative w-full h-40 my-4 rounded-xl overflow-hidden shadow-lg ${
@@ -113,9 +126,6 @@ export const ProjectCardBrutal = React.memo(
             </div>
           )}
 
-          {/* Spacer to push footer down */}
-          <div className="flex-grow" />
-
           {/* Footer: Year + Links */}
           <div
             className={`flex items-center justify-between pt-4 border-t ${theme === "dark" ? "border-neutral-800" : "border-neutral-200"
@@ -127,48 +137,21 @@ export const ProjectCardBrutal = React.memo(
             >
               2024-2025
             </span>
-            <div className="flex gap-3">
+            {project.liveUrl && (
               <motion.a
-                href={project.githubUrl ?? `https://github.com/ivannxbt/${project.title.toLowerCase().replace(/\s+/g, "-")}`}
+                href={project.liveUrl}
                 target="_blank"
                 rel="noreferrer"
                 className={`${theme === "dark"
                   ? "text-neutral-500 hover:text-white"
                   : "text-neutral-400 hover:text-neutral-900"
                   }`}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                aria-label="View on GitHub"
+                whileHover={{ scale: 1.1, rotate: -15 }}
+                aria-label="View live site"
               >
-                <Github size={16} />
+                <ExternalLink size={16} />
               </motion.a>
-              {project.liveUrl ? (
-                <motion.a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`${theme === "dark"
-                    ? "text-neutral-500 hover:text-white"
-                    : "text-neutral-400 hover:text-neutral-900"
-                    }`}
-                  whileHover={{ scale: 1.1, rotate: -15 }}
-                  aria-label="View demo"
-                >
-                  <ExternalLink size={16} />
-                </motion.a>
-              ) : (
-                <motion.span
-                  className={`${theme === "dark"
-                    ? "text-neutral-500 hover:text-white"
-                    : "text-neutral-400 hover:text-neutral-900"
-                    }`}
-                  whileHover={{ scale: 1.1, rotate: -15 }}
-                  aria-label="View demo"
-                >
-                  <ExternalLink size={16} />
-                </motion.span>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </motion.article>

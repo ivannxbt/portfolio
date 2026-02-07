@@ -119,7 +119,7 @@
         {
           "platform": "resume",
           "label": "Resume",
-          "url": "/cv_iacc.pdf",
+          "url": "/CV.pdf",
           "preview": {
             "title": "Resume",
             "subtitle": "Iván Caamaño · 2025 Edition",
@@ -224,17 +224,18 @@
       "cta": "Download CV",
       "roles": [
         {
-          "role": "AI & Data Analyst",
+          "role": "AI & Software Engineer",
           "company": "Avvale",
           "companyLogo": "/icons/avvale.png",
           "companyLogoAlt": "Avvale logo",
-          "period": "March 2025 - Current",
+          "period": "April 2025 - Present",
           "location": "Madrid, Spain",
           "summary": "Lead automation initiatives that blend AI agents, RAG systems, and computer vision for consulting engagements.",
+          "tech": ["Python", "AWS", "Azure", "GCP", "LangChain", "GenAI", "ETL", "RAG", "MCP", "NLP", "LLM"],
           "bullets": [
-            "Designed and deployed an AWS document-generation agent automating four dynamic document types, reducing manual effort 95%.",
-            "Engineered prompting and RAG flows for an Azure chatbot, cutting information retrieval latency 90%.",
-            "Built an end-to-end deep learning pipeline to segment and analyze beef loin imagery, improving classification consistency 80%."
+            "Designed and deployed AI-powered document-generation agent systems using Amazon Bedrock, Lambda functions and Claude Sonnet, reducing production time from 8h to 24min per document (95% reduction).",
+            "Engineered RAG implementations for the development of chatbots using Azure Cognitive Search, ML and AI Foundry, using vectors and embeddings to decrease information retrieval latency by 90%.",
+            "Developed AI-based solutions for the segmentation and analysis of images using GCP and Vertex AI, designing the end-to-end pipeline and cutting workload in classification by 80%."
           ]
         },
         {
@@ -245,23 +246,24 @@
           "period": "January 2025 - March 2025",
           "location": "Madrid, Spain",
           "summary": "Supported BBVA's Risk team delivering the Internal Model Method (IMM) platform with production-ready tooling.",
+          "tech": ["Python", "Java", "AWS", "Docker", "Kubernetes", "CI/CD", "ETL"],
           "bullets": [
-            "Embedded inside BBVA's IMM development squad within the Risk organization.",
-            "Analyzed, designed, and implemented software for four IMM processes using Python, Java, and Unix while coordinating with two cross-functional teams.",
-            "Integrated and automated IMM batch executions, minimizing manual intervention and processing time via iterative improvements."
+            "Designed and implemented ETL pipelines for 4 IMM risk calculation processes, processing 2M+ credit exposure records daily using Python (Pandas, PySpark) and Java batch jobs on Unix environments.",
+            "Deployed microservices architecture using Docker and Kubernetes for parallel processing of EAD calculations, reducing batch execution time by 10%."
           ]
         },
         {
           "role": "Member of the Organizing Committee",
-          "company": "Satelec",
+          "company": "Satelec - UPM Employment and Technology Forum",
           "companyLogo": "/icons/satelec.png",
           "companyLogoAlt": "Satelec logo",
           "period": "September 2022 - July 2024",
           "location": "Madrid, Spain",
           "summary": "Coordinated with a team of 19 students for the realization of the Employment and Technology Forum of the University, with +100 participants and +20 collaborating companies.",
+          "tech": ["Javascript", "React", "Notion", "Leadership", "Collaboration", "Problem-solving"],
           "bullets": [
-            "Communicated with +20 companies to manage their participation. Organized and monitored +100 conferences, workshops, and activities arranged in the months leading up to the forum.",
-            "Developed new features (front-end & back-end) and improved the UI/UX of Satelec's website, increasing general web interaction by 60% and CV submissions by 40%."
+            "Coordinated +100 participants each year, including companies like Apple, Amazon and BBVA, and organized +80 conferences, workshops, and activities arranged in the months leading up to the forum.",
+            "Developed features and improved the UI/UX of Satelec's website, increasing general web interaction by 60% and CV submissions by 40%."
           ]
         },
         {
@@ -272,10 +274,10 @@
           "period": "September 2021 - July 2022",
           "location": "Madrid, Spain",
           "summary": "Contributed ML and data-processing capabilities to modernize AESA radar programs tied to Eurofighter platforms.",
+          "tech": ["Python", "PyTorch", "TensorFlow", "scikit-learn", "ML", "Deep Learning"],
           "bullets": [
-            "Coordinated with a 10+ person team digitizing AESA radars for the Eurofighter initiative.",
-            "Developed and tuned two ML models for radar data processing using TensorFlow and PyTorch, boosting efficiency 30%.",
-            "Assisted integration of real-time radar data solutions that improved system performance 20%."
+            "Developed CNN-based model for radar signal classification using PyTorch, training on 50K+ simulated AESA radar returns to detect and classify aerial targets improving pattern detection efficiency by 30%.",
+            "Implemented noise reduction pipeline using TensorFlow, applying wavelet transforms and autoencoder architecture to filter Doppler radar data, enhancing signal-to-noise ratio from 12dB to 18dB."
           ]
         }
       ],
@@ -294,16 +296,31 @@
             "TypeScript",
             "JavaScript",
             "Java",
+            "Bash",
+            "Git",
             "Go",
             "Rust",
-            "Solidity",
-            "Next.js",
-            "React"
+            "Solidity"
           ]
         },
         {
-          "title": "Software",
-          "description": "Cloud and platform tooling from my DevOps and product experience.",
+          "title": "AI/ML",
+          "description": "AI and ML frameworks for building intelligent systems.",
+          "icon": "brain",
+          "items": [
+            "OpenAI",
+            "Claude",
+            "Gemini",
+            "LangChain",
+            "PyTorch",
+            "TensorFlow",
+            "MLflow",
+            "Vector DBs"
+          ]
+        },
+        {
+          "title": "Cloud and DevOps",
+          "description": "Cloud platforms and DevOps tools for scalable infrastructure.",
           "icon": "layers",
           "items": [
             "AWS",
@@ -312,24 +329,7 @@
             "Docker",
             "Kubernetes",
             "Databricks",
-            "Linux",
-            "Git"
-          ]
-        },
-        {
-          "title": "AI & Data",
-          "description": "The AI/ML stack powering my applications and deliveries.",
-          "icon": "brain",
-          "items": [
-            "OpenAI",
-            "Claude",
-            "Gemini",
-            "PyTorch",
-            "TensorFlow",
-            "Keras",
-            "LangChain",
-            "RAG",
-            "MCP"
+            "GitHub Actions"
           ]
         }
       ]
@@ -384,7 +384,7 @@
         "tags": [
           "AWS",
           "Python",
-          "LLMs",
+          "LangChain",
           "Automation"
         ],
         "image": "/projects/pa-document-generator.png",
@@ -398,7 +398,7 @@
         "desc": "Engineered prompting and RAG implementations in Azure, decreasing information retrieval latency by 90% for specialized queries.",
         "tags": [
           "Azure",
-          "RAG",
+          "OpenAI",
           "LangChain",
           "Python"
         ],
@@ -428,7 +428,7 @@
         "tags": [
           "Python",
           "Azure",
-          "LLM"
+          "LangChain"
         ],
         "image": "/projects/data-deduplication.png",
         "confidential": true,
@@ -442,7 +442,7 @@
         "tags": [
           "Python",
           "Azure",
-          "LLM"
+          "LangChain"
         ],
         "image": "/projects/budget-analysis-agent.png",
         "confidential": true,
@@ -593,7 +593,7 @@
         {
           "platform": "resume",
           "label": "Currículum",
-          "url": "/cv_iacc.pdf",
+          "url": "/CV.pdf",
           "preview": {
             "title": "Currículum",
             "subtitle": "Iván Caamaño · Edición 2025",
@@ -699,17 +699,18 @@
       "rolesLabel": "Cargos",
       "roles": [
         {
-          "role": "AI & Data Analyst",
+          "role": "AI & Software Engineer",
           "company": "Avvale",
           "companyLogo": "/icons/avvale.png",
           "companyLogoAlt": "Avvale logo",
-          "period": "Marzo 2025 - Actualidad",
+          "period": "Abril 2025 - Actualidad",
           "location": "Madrid, España",
           "summary": "Actualmente lidero iniciativas de automatización que combinan agentes de IA, sistemas RAG y visión artificial para consultorías.",
+          "tech": ["Python", "AWS", "Azure", "GCP", "LangChain", "GenAI", "ETL", "RAG", "MCP", "NLP", "LLM"],
           "bullets": [
-            "Diseñé y desplegué un agente generador de documentos en AWS que automatiza cuatro tipos dinámicos, reduciendo el esfuerzo manual en 95%.",
-            "Diseñé prompts y flujos RAG para un chatbot en Azure, disminuyendo la latencia en 90%.",
-            "Construí un pipeline completo de deep learning para segmentar y analizar imágenes de lomo, mejorando la consistencia en 80%."
+            "Diseñé y desplegué sistemas de agentes de generación de documentos con IA usando Amazon Bedrock, funciones Lambda y Claude Sonnet, reduciendo el tiempo de producción de 8h a 24min por documento (reducción del 95%).",
+            "Diseñé implementaciones RAG para el desarrollo de chatbots usando Azure Cognitive Search, ML y AI Foundry, usando vectores y embeddings para disminuir la latencia de recuperación de información en un 90%.",
+            "Desarrollé soluciones basadas en IA para la segmentación y análisis de imágenes usando GCP y Vertex AI, diseñando el pipeline de extremo a extremo y reduciendo la carga de trabajo en clasificación en un 80%."
           ]
         },
         {
@@ -720,23 +721,24 @@
           "period": "Enero 2025 - Marzo 2025",
           "location": "Madrid, España",
           "summary": "Apoyé al equipo de riesgo de BBVA entregando la plataforma IMM con herramientas listas para producción.",
+          "tech": ["Python", "Java", "AWS", "Docker", "Kubernetes", "CI/CD", "ETL"],
           "bullets": [
-            "Trabajé dentro del squad IMM de BBVA en la organización de Riesgo.",
-            "Analicé, diseñé e implementé software para cuatro procesos IMM usando Python, Java y Unix, coordinando dos equipos multidisciplinares.",
-            "Integré y automatizé ejecuciones batch de IMM, minimizando la intervención manual y los tiempos de procesamiento."
+            "Diseñé e implementé pipelines ETL para 4 procesos de cálculo de riesgo IMM, procesando más de 2M de registros de exposición crediticia diariamente usando Python (Pandas, PySpark) y trabajos batch de Java en entornos Unix.",
+            "Desplegué arquitectura de microservicios usando Docker y Kubernetes para el procesamiento paralelo de cálculos EAD, reduciendo el tiempo de ejecución batch en un 10%."
           ]
         },
         {
           "role": "Miembro del Comité Organizador",
-          "company": "Satelec",
+          "company": "Satelec - UPM Employment and Technology Forum",
           "companyLogo": "/icons/satelec.png",
           "companyLogoAlt": "Satelec logo",
           "period": "Septiembre 2022 - Julio 2024",
           "location": "Madrid, España",
           "summary": "Coordiné con un equipo de 19 estudiantes la realización del Foro de Empleo y Tecnología de la Universidad, con +100 participantes y +20 empresas colaboradoras.",
+          "tech": ["Javascript", "React", "Notion", "Leadership", "Collaboration", "Problem-solving"],
           "bullets": [
-            "Comuniqué con +20 empresas para gestionar su participación. Organicé y supervisé +100 conferencias, talleres y actividades en los meses previos al foro.",
-            "Desarrollé nuevas funcionalidades (front-end y back-end) y mejoré la UI/UX de la web de Satelec, aumentando la interacción web en un 60% y las entregas de CV en un 40%."
+            "Coordiné +100 participantes cada año, incluyendo empresas como Apple, Amazon y BBVA, y organicé +80 conferencias, talleres y actividades en los meses previos al foro.",
+            "Desarrollé funcionalidades y mejoré la UI/UX del sitio web de Satelec, aumentando la interacción web general en un 60% y las entregas de CV en un 40%."
           ]
         },
         {
@@ -747,10 +749,10 @@
           "period": "Septiembre 2021 - Julio 2022",
           "location": "Madrid, España",
           "summary": "Contribuí con ML y procesamiento de datos para modernizar programas de radar AESA.",
+          "tech": ["Python", "PyTorch", "TensorFlow", "scikit-learn", "ML", "Deep Learning"],
           "bullets": [
-            "Coordiné con un equipo de más de 10 personas digitalizando radares AESA para Eurofighter.",
-            "Desarrollé y afiné dos modelos ML para procesar datos radar con TensorFlow y PyTorch, elevando la eficiencia en 30%.",
-            "Apoyé la integración de soluciones en tiempo real que mejoraron el rendimiento del sistema en 20%."
+            "Desarrollé modelo basado en CNN para clasificación de señales de radar usando PyTorch, entrenando con más de 50K retornos de radar AESA simulados para detectar y clasificar objetivos aéreos mejorando la eficiencia de detección de patrones en un 30%.",
+            "Implementé pipeline de reducción de ruido usando TensorFlow, aplicando transformadas wavelet y arquitectura autoencoder para filtrar datos radar Doppler, mejorando la relación señal-ruido de 12dB a 18dB."
           ]
         }
       ]
@@ -768,16 +770,31 @@
             "TypeScript",
             "JavaScript",
             "Java",
+            "Bash",
+            "Git",
             "Go",
             "Rust",
-            "Solidity",
-            "Next.js",
-            "React"
+            "Solidity"
           ]
         },
         {
-          "title": "Software",
-          "description": "Herramientas cloud y de plataforma desde mi experiencia en DevOps y producto.",
+          "title": "IA/ML",
+          "description": "Frameworks de IA y ML para construir sistemas inteligentes.",
+          "icon": "brain",
+          "items": [
+            "OpenAI",
+            "Claude",
+            "Gemini",
+            "LangChain",
+            "PyTorch",
+            "TensorFlow",
+            "MLflow",
+            "Vector DBs"
+          ]
+        },
+        {
+          "title": "Cloud y DevOps",
+          "description": "Plataformas cloud y herramientas DevOps para infraestructura escalable.",
           "icon": "layers",
           "items": [
             "AWS",
@@ -786,24 +803,7 @@
             "Docker",
             "Kubernetes",
             "Databricks",
-            "Linux",
-            "Git"
-          ]
-        },
-        {
-          "title": "IA & Datos",
-          "description": "El stack de IA/ML que impulsa mis aplicaciones y entregas.",
-          "icon": "brain",
-          "items": [
-            "OpenAI",
-            "Claude",
-            "Gemini",
-            "PyTorch",
-            "TensorFlow",
-            "Keras",
-            "LangChain",
-            "RAG",
-            "MCP"
+            "GitHub Actions"
           ]
         }
       ]
@@ -858,7 +858,7 @@
         "tags": [
           "AWS",
           "Python",
-          "LLMs",
+          "LangChain",
           "Automation"
         ],
         "image": "/projects/pa-document-generator.png",
@@ -872,7 +872,7 @@
         "desc": "Arquitecté prompts y flujos RAG en Azure que reducen la latencia de consultas especializadas en un 90%.",
         "tags": [
           "Azure",
-          "RAG",
+          "OpenAI",
           "LangChain",
           "Python"
         ],
@@ -902,7 +902,7 @@
         "tags": [
           "Python",
           "Azure",
-          "LLM"
+          "LangChain"
         ],
         "image": "/projects/data-deduplication.png",
         "confidential": true,
@@ -916,7 +916,7 @@
         "tags": [
           "Python",
           "Azure",
-          "LLM"
+          "LangChain"
         ],
         "image": "/projects/budget-analysis-agent.png",
         "confidential": true,
