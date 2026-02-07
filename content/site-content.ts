@@ -56,6 +56,7 @@ export interface ExperienceItem {
   location: string;
   summary: string;
   bullets: string[];
+  tech?: string[];
 }
 
 export type StackIcon = "code" | "layers" | "brain";
@@ -114,6 +115,16 @@ export interface LandingContent {
      */
     languagesTitle: string;
     languages: string[];
+    /**
+     * NOTE: Favorite album section is also maintained via direct file editing
+     * and is not exposed in the AdminClient.
+     */
+    favoriteAlbumTitle?: string;
+    favoriteAlbum?: {
+      name: string;
+      artist: string;
+      spotifyId: string;
+    };
   };
   experience: {
     title: string;
@@ -156,6 +167,7 @@ export interface LandingContent {
   };
   projectItems: ProjectItem[];
   blog: {
+    eyebrow: string;
     title: string;
     description: string;
     viewAll: string;
@@ -200,18 +212,18 @@ const englishContent: LandingContent = {
     contact: "Contact",
   },
   hero: {
-    role: "Telematics Engineer | AI & Data",
+    role: "Software & AI Engineer | AI & Data",
     greeting: "Hi, I'm",
     headline: "Turning technology into impactful results.",
     subheadline:
-      "Telematics Engineer with deep expertise in AI/ML, DevOps, and Data Engineering. Focused on building scalable intelligent systems using Python, Cloud architectures, and Generative AI.",
+      "Software & AI Engineer with deep expertise in AI/ML, DevOps, and Data Engineering. Focused on building scalable intelligent systems using Python, Cloud architectures, and Generative AI.",
     cta: "View Case Studies",
     contact: "Get in touch",
   },
   about: {
     title: "About Me",
     summary:
-      "I am a dedicated professional driven by the goal of transforming technology into real-world impact. With a strong foundation in Telematics and continuous learning in emerging AI technologies, I specialize in bridging the gap between complex data models and production-ready software solutions.",
+      "I'm a dedicated professional driven by the goal of transforming technology into real-world impact. With a strong foundation in Software Engineering and AI, and continuous learning in emerging technologies, I specialize in bridging the gap between complex data models and production-ready software solutions.",
     educationTitle: "Education",
     education1: "M.Eng. Network and Telematic Services (UPM)",
     education2: "B.Eng. Telecommunications Technologies (UPM)",
@@ -362,8 +374,9 @@ const englishContent: LandingContent = {
     },
   ],
   blog: {
+    eyebrow: "Blog",
     title: "Blog",
-    description: "",
+    description: "Notes on multi-agent orchestration, retrieval evaluation, and MLOps.",
     viewAll: "Read all articles",
     viewMore: "View more insights",
     viewLess: "View fewer insights",
@@ -481,18 +494,18 @@ const spanishContent: LandingContent = {
     contact: "Contacto",
   },
   hero: {
-    role: "Ingeniero telemático | IA y datos",
+    role: "Ingeniero de software e IA | IA y datos",
     greeting: "Hola, soy",
     headline: "Convierto la tecnología en resultados concretos.",
     subheadline:
-      "Ingeniero telemático con trayectoria en IA/ML, DevOps e ingeniería de datos, enfocado en crear sistemas inteligentes escalables con Python, arquitecturas cloud y Generative AI.",
+      "Ingeniero de software e IA con trayectoria en IA/ML, DevOps e ingeniería de datos, enfocado en crear sistemas inteligentes escalables con Python, arquitecturas cloud y Generative AI.",
     cta: "Ver casos de estudio",
     contact: "Hablemos",
   },
   about: {
     title: "Sobre mí",
     summary:
-      "Soy un profesional comprometido con transformar la tecnología en impacto real. Con una base sólida en Telemática y aprendizaje continuo en tecnologías emergentes de IA, me especializo en cerrar la brecha entre modelos de datos complejos y soluciones de software listas para producción.",
+      "Soy un profesional comprometido con transformar la tecnología en impacto real. Con una base sólida en Ingeniería de Software e IA, y aprendizaje continuo en tecnologías emergentes, me especializo en cerrar la brecha entre modelos de datos complejos y soluciones de software listas para producción.",
     educationTitle: "Educación",
     education1: "M.Eng. en Servicios de Red y Telemática (UPM)",
     education2: "B.Eng. en Tecnologías de Telecomunicación (UPM)",
@@ -643,6 +656,7 @@ const spanishContent: LandingContent = {
     },
   ],
   blog: {
+    eyebrow: "Blog",
     title: "Blog",
     description: "Notas sobre orquestación multiagente, evaluación de retrieval y MLOps.",
     viewAll: "Leer todos los artículos",

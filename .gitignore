@@ -44,8 +44,12 @@ data/secret-config.json
 next-env.d.ts
 .env*.local
 
-# claude code local settings
+# agent/AI code local settings
+.agent/
+.agents/
 .claude/
-
+.codex/
+.cursor/
 .gemini/
+.opencode/
 gha-creds-*.json

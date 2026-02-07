@@ -35,9 +35,11 @@ type GithubContributionsCopy = {
   tooltipSuffix: string;
 };
 
+type Theme = "dark" | "light" | "brutal";
+
 interface GithubContributionsProps {
   username: string;
-  theme: "dark" | "light";
+  theme: Theme;
   copy: GithubContributionsCopy;
 }
 
@@ -49,7 +51,7 @@ const CELL_SIZE = 14;  // h-3.5 w-3.5 = 14px
 const GAP = 4;         // gap-1 = 4px
 
 // SVG colors (replacing Tailwind classes)
-const SVG_COLORS: Record<"dark" | "light", Record<number, string>> = {
+const SVG_COLORS: Record<Theme, Record<number, string>> = {
   dark: {
     0: "#1f1f1f",
     1: "rgba(20, 83, 45, 0.3)",   // teal-900/30
@@ -63,6 +65,13 @@ const SVG_COLORS: Record<"dark" | "light", Record<number, string>> = {
     2: "#5eead4",    // teal-300
     3: "#2dd4bf",    // teal-400
     4: "#14b8a6",    // teal-500
+  },
+  brutal: {
+    0: "#e5e5e5",    // neutral-200
+    1: "#ffdd00",    // yellow accent
+    2: "#fbbf24",    // amber-400
+    3: "#f59e0b",    // amber-500
+    4: "#000000",    // black
   },
 };
 
@@ -252,10 +261,12 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
   return (
     <div
       ref={containerRef}
-      className={`overflow-hidden rounded-3xl border ${
-        theme === "dark"
-          ? "border-white/5 bg-[#0c0c0c]"
-          : "border-neutral-200 bg-white"
+      className={`overflow-hidden border ${
+        theme === "brutal"
+          ? "border-black border-[3px] bg-white"
+          : theme === "dark"
+            ? "rounded-3xl border-white/5 bg-[#0c0c0c]"
+            : "rounded-3xl border-neutral-200 bg-white"
       }`}
     >
       <div

@@ -3,35 +3,35 @@ import type { Language, FallbackProfile } from "@/lib/types";
 export const fallbackChatProfile: Record<Language, FallbackProfile> = {
   en: {
     intro:
-      "I'm Iván Caamaño, a telematics engineer focused on AI, data, and software systems in Madrid.",
+      "I'm Iván, a Software and AI Engineer specializing in AI/ML, data engineering, and scalable software systems based in Madrid.",
     skills:
-      "Daily toolbox: Python, TypeScript, SQL, LangChain, PyTorch, TensorFlow, AWS, Azure, Databricks, Docker, Terraform, and CI/CD.",
+      "Core stack: Python, TypeScript, PyTorch, TensorFlow, LangChain, AWS, Azure, Databricks, Docker, Terraform, and modern DevOps practices.",
     experience:
-      "Recent deliveries include document-generation agents and RAG copilots at Avvale, IMM risk tooling for BBVA at NFQ, and ML optimization for Indra's defense division.",
+      "Currently at Avvale leading AI automation initiatives. Recent work includes AWS-based document generation agents, Azure RAG chatbots, computer vision for beef loin analysis, IMM risk calculation systems for BBVA via NFQ, and ML optimization for Indra's radar division.",
     education:
-      "I earned both a Master's in Network & Telematic Services and a Bachelor's in Telecommunications Engineering from Universidad Politécnica de Madrid.",
-    location: "Based in Madrid, Spain, collaborating remotely when needed.",
+      "Master's degree in Network & Telematic Services and Bachelor's in Telecommunications Engineering, both from Universidad Politécnica de Madrid (UPM).",
+    location: "Based in Madrid, Spain. Open to remote collaboration on impactful projects.",
     contact:
-      "Best contact: ivanncaamano@gmail.com. You can also reach me as @ivannxbt on GitHub and @_ivvann on X/LinkedIn.",
+      "Best reach me at ivanncaamano@gmail.com. Also on GitHub (@ivannxbt), X (@_ivvann), and LinkedIn.",
     availability:
-      "Currently at Avvale leading AI programs while open to consulting or advisory projects with tangible impact.",
-    defaultMessage: "Feel free to ask about my skills, education, experience, or availability.",
+      "Currently leading AI programs at Avvale while open to consulting or advisory opportunities on projects with real-world impact.",
+    defaultMessage: "Feel free to ask about my technical skills, experience, projects, or availability.",
   },
   es: {
     intro:
-      "Soy Iván Caamaño, ingeniero en telemática especializado en IA, datos y software con base en Madrid.",
+      "Soy Iván, Ingeniero de Software e IA especializado en IA/ML, ingeniería de datos y sistemas de software escalables, con base en Madrid.",
     skills:
-      "Mi caja de herramientas diaria incluye Python, TypeScript, SQL, LangChain, PyTorch, TensorFlow, AWS, Azure, Databricks, Docker y Terraform.",
+      "Stack principal: Python, TypeScript, PyTorch, TensorFlow, LangChain, AWS, Azure, Databricks, Docker, Terraform y prácticas modernas de DevOps.",
     experience:
-      "He liderado agentes de generación documental y copilotos RAG en Avvale, construido software de riesgo IMM para BBVA desde NFQ y optimizado modelos ML en la división de defensa de Indra.",
+      "Actualmente en Avvale liderando iniciativas de automatización con IA. Trabajo reciente incluye agentes de generación documental en AWS, chatbots RAG en Azure, visión computacional para análisis de lomos de res, sistemas de cálculo de riesgo IMM para BBVA vía NFQ, y optimización ML para la división de radares de Indra.",
     education:
-      "Completé el Máster en Servicios de Red y Telemática y el Grado en Ingeniería de Telecomunicación en la Universidad Politécnica de Madrid.",
-    location: "Resido en Madrid, España, y colaboro con equipos distribuidos.",
+      "Máster en Servicios de Red y Telemática y Grado en Ingeniería de Telecomunicación, ambos por la Universidad Politécnica de Madrid (UPM).",
+    location: "Resido en Madrid, España. Abierto a colaboración remota en proyectos con impacto.",
     contact:
-      "Puedes escribirme a ivanncaamano@gmail.com o encontrarme como @ivannxbt en GitHub y @_ivvann en X/LinkedIn.",
+      "Mejor contacto: ivanncaamano@gmail.com. También en GitHub (@ivannxbt), X (@_ivvann) y LinkedIn.",
     availability:
-      "Actualmente trabajo en Avvale liderando iniciativas de IA y estoy abierto a colaboraciones o consultorías con buen encaje.",
-    defaultMessage: "Pregunta lo que necesites sobre mis habilidades, formación, experiencia o disponibilidad.",
+      "Actualmente liderando programas de IA en Avvale, abierto a consultorías o colaboraciones en proyectos con impacto real.",
+    defaultMessage: "Pregúntame sobre mis habilidades técnicas, experiencia, proyectos o disponibilidad.",
   },
 };
 
@@ -174,8 +174,22 @@ export const callAIAssistant = async ({
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error("Chat API error:", response.status, errorData);
-      throw new Error(errorData.error || "Chat API error");
+      console.error("Chat API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+      });
+
+      // Provide more specific error messages
+      const errorMessage =
+        errorData.error ||
+        (response.status === 500
+          ? "The AI service is temporarily unavailable. Using fallback response."
+          : response.status === 429
+            ? "Too many requests. Please wait a moment."
+            : "Chat service error");
+
+      throw new Error(errorMessage);
     }
 
     const data = (await response.json()) as { reply?: string; error?: string; warning?: string };

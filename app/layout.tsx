@@ -4,26 +4,27 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SessionProviders } from "@/components/session-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import { getLandingContent } from "@/lib/content-store";
 import type { Locale } from "@/lib/i18n";
 
 const inter = Inter({
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   variable: "--font-body",
   weight: ["400", "500", "600", "700"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   variable: "--font-heading",
   weight: ["400", "500", "600", "700"],
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   variable: "--font-mono",
   weight: ["400", "500", "600"],
 });
@@ -77,9 +78,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable} ${ibmPlexMono.variable}`} style={{ colorScheme: "dark" }}>
-      <body className="antialiased bg-slate-950 text-slate-50 font-sans">
-        <SessionProviders>{children}</SessionProviders>
+    <html
+      lang="en"
+      className={`${inter.variable} ${jetbrainsMono.variable} ${ibmPlexMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="antialiased font-sans">
+        <ThemeProvider>
+          <SessionProviders>{children}</SessionProviders>
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>
