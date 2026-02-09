@@ -7,7 +7,7 @@
   --selection-color: #0f172a;
   --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-heading: "JetBrains Mono", ui-monospace, monospace;
-  --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Developer-vibe color accents */
   --terminal-green: #00ff41;
@@ -17,7 +17,7 @@
 }
 
 :root[data-theme="dark"] {
-  --background: #1a1a1a;
+  --background: #1e1e1e;
   --foreground: #e5e7eb;
   --selection-background: rgba(16, 185, 129, 0.25);
   --selection-color: #d1d5db;
@@ -128,13 +128,19 @@ html {
 /* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
 
+  .animate-fade-in,
   .animate-fade-in-up,
+  .animate-fade-in-down,
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .scroll-animate,
   .transition-all,
   .transition-colors,
   .transition-opacity,
   .transition-transform {
     animation: none !important;
     transition: none !important;
+    opacity: 1 !important;
   }
 
   html {
@@ -143,6 +149,93 @@ html {
 }
 
 /* Developer-vibe animations */
+
+/* Performance-optimized scroll animations (replacing Framer Motion) */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animation utility classes */
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 0.6s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.7s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.7s ease-out forwards;
+}
+
+/* Stagger delay utilities for sequential animations */
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-400 { animation-delay: 400ms; }
+.animate-delay-500 { animation-delay: 500ms; }
+
+/* Initial state for scroll-triggered animations */
+.scroll-animate {
+  opacity: 0;
+}
 
 /* Subtle scanlines effect */
 @keyframes scanlines {
@@ -237,6 +330,43 @@ html {
       0 0 30px rgba(0, 255, 65, 0.1);
   }
 }
+
+/* View Transitions API - Smooth page transitions */
+@view-transition {
+  navigation: auto;
+}
+
+/* Default crossfade for all elements */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); /* Matches existing pageTransition ease */
+}
+
+/* Crossfade animation */
+::view-transition-old(root) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-in;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.01s !important;
+  }
+}
+
+/* Keyframes for view transitions */
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* fade-in already exists earlier in the file, reused for view-transition-new */
 
 /* Utility classes for developer effects */
 .terminal-border {

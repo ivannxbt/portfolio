@@ -42,14 +42,14 @@
                 "value": "90+"
               }
             ],
-            "avatar": "/profile.jpeg",
+            "avatar": "/profile.webp",
             "badge": "Active this week",
             "brandIcons": [
               "/icons/avvale.png",
               "/icons/nfq.png",
               "/icons/indra.png"
             ],
-            "previewImage": "/github.png"
+            "previewImage": "/github.webp"
           }
         },
         {
@@ -74,14 +74,14 @@
                 "value": "5"
               }
             ],
-            "avatar": "/profile.jpeg",
+            "avatar": "/profile.webp",
             "badge": "Available for chat",
             "brandIcons": [
               "/icons/avvale.png",
               "/icons/nfq.png",
               "/icons/indra.png"
             ],
-            "previewImage": "/linkedin.png"
+            "previewImage": "/linkedin.webp"
           }
         },
         {
@@ -106,14 +106,14 @@
                 "value": "4k"
               }
             ],
-            "avatar": "/profile.jpeg",
+            "avatar": "/profile.webp",
             "badge": "Posting now",
             "brandIcons": [
               "/icons/avvale.png",
               "/icons/nfq.png",
               "/icons/indra.png"
             ],
-            "previewImage": "/x.png"
+            "previewImage": "/x.webp"
           }
         },
         {
@@ -145,7 +145,7 @@
               "/icons/nfq.png",
               "/icons/indra.png"
             ],
-            "previewImage": "/cv_iacc.png"
+            "previewImage": "/cv_iacc.webp"
           }
         }
       ]
@@ -451,7 +451,7 @@
     ],
     "blog": {
       "title": "Latest Insights",
-      "description": "",
+      "description": "Thoughts on AI, data engineering, and lessons learned building real-world solutions.",
       "viewAll": "Read all articles",
       "viewMore": "",
       "viewLess": "View fewer insights",
@@ -516,14 +516,14 @@
                 "value": "90+"
               }
             ],
-            "avatar": "/profile.jpeg",
+            "avatar": "/profile.webp",
             "badge": "Activo esta semana",
             "brandIcons": [
               "/icons/avvale.png",
               "/icons/nfq.png",
               "/icons/indra.png"
             ],
-            "previewImage": "/github.png"
+            "previewImage": "/github.webp"
           }
         },
         {
@@ -548,14 +548,14 @@
                 "value": "5"
               }
             ],
-            "avatar": "/profile.jpeg",
+            "avatar": "/profile.webp",
             "badge": "Disponible para conversar",
             "brandIcons": [
               "/icons/avvale.png",
               "/icons/nfq.png",
               "/icons/indra.png"
             ],
-            "previewImage": "/linkedin.png"
+            "previewImage": "/linkedin.webp"
           }
         },
         {
@@ -580,14 +580,14 @@
                 "value": "4k"
               }
             ],
-            "avatar": "/profile.jpeg",
+            "avatar": "/profile.webp",
             "badge": "Publicando ahora",
             "brandIcons": [
               "/icons/avvale.png",
               "/icons/nfq.png",
               "/icons/indra.png"
             ],
-            "previewImage": "/x.png"
+            "previewImage": "/x.webp"
           }
         },
         {
@@ -619,7 +619,7 @@
               "/icons/nfq.png",
               "/icons/indra.png"
             ],
-            "previewImage": "/cv_iacc.png"
+            "previewImage": "/cv_iacc.webp"
           }
         }
       ]

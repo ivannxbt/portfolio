@@ -4,6 +4,7 @@
 'use client';
 
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -31,6 +32,8 @@ import {
 import { ThemeSelector } from "@/components/theme-selector";
 import type { Theme, Language } from "@/lib/types";
 import { CursorSpotlight } from "./cursor-spotlight";
+import { ScrollReveal } from "./scroll-reveal";
+import { GithubContributionsSkeleton } from "./ui/skeleton";
 import {
   defaultContent,
   type LandingContent,
@@ -49,7 +52,7 @@ const GithubContributions = dynamic(
   () => import("@/components/github-contributions").then(mod => mod.GithubContributions),
   {
     ssr: true,
-    loading: () => <div className="h-32 rounded-2xl bg-white/5 animate-pulse" />
+    loading: () => <GithubContributionsSkeleton />
   }
 );
 
@@ -295,6 +298,7 @@ const BlogRow = React.memo(({
   post,
   lang,
   theme,
+  readMoreLabel,
 }: {
   post: BlogEntry;
   lang: Language;
@@ -304,58 +308,67 @@ const BlogRow = React.memo(({
   const link = post.url?.trim() ? post.url : `/${lang}/blog`;
   const external = Boolean(post.url && /^https?:/i.test(post.url));
   const coverImage = post.image?.trim() || "/blog/default.svg";
+
+  const cardClasses =
+    theme === "brutal"
+      ? "bg-white border-[3px] border-black rounded-none"
+      : theme === "dark"
+        ? "bg-neutral-900/40 border border-neutral-800 hover:border-neutral-700 rounded-xl"
+        : "bg-white border border-neutral-200 hover:border-neutral-300 hover:shadow-lg rounded-xl";
+
   return (
     <a
       href={link}
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-      className={`group block rounded-xl px-3 py-4 transition-all ${
-        theme === "dark"
-          ? "hover:bg-neutral-900/60 hover:-translate-y-0.5"
-          : "hover:bg-neutral-50 hover:-translate-y-0.5"
-      }`}
+      className={`group block overflow-hidden transition-all duration-200 hover:-translate-y-1 ${cardClasses}`}
     >
-      <article className="flex gap-5">
-        <div
-          className={`relative h-20 w-32 flex-shrink-0 overflow-hidden rounded-lg ${
-            theme === "dark" ? "bg-neutral-800" : "bg-neutral-100"
+      <div
+        className={`relative aspect-[16/9] w-full overflow-hidden ${
+          theme === "dark" ? "bg-neutral-800" : "bg-neutral-100"
+        }`}
+      >
+        <Image
+          src={coverImage}
+          alt={`${post.title} cover`}
+          fill
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      </div>
+      <div className="p-5 flex flex-col gap-2">
+        <span
+          className={`text-xs font-mono uppercase tracking-wide ${
+            theme === "dark" ? "text-teal-400" : "text-teal-600"
           }`}
         >
-          <Image
-            src={coverImage}
-            alt={`${post.title} cover`}
-            fill
-            sizes="128px"
-            className="object-cover transition-transform group-hover:scale-105"
-          />
-        </div>
-        <div className="flex flex-1 flex-col gap-1.5">
-          <h4
-            className={`text-lg font-semibold transition-colors ${
-              theme === "dark"
-                ? "text-neutral-100 group-hover:text-teal-400"
-                : "text-neutral-900 group-hover:text-teal-600"
-            }`}
-          >
-            {post.title}
-          </h4>
-          <span
-            className={`text-xs font-mono ${
-              theme === "dark" ? "text-neutral-600" : "text-neutral-400"
-            }`}
-          >
-            {post.date}
-          </span>
-          <RichText
-            text={post.summary}
-            className={`text-sm line-clamp-2 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
-            linkClassName={
-              theme === "dark"
-                ? "text-teal-400 underline underline-offset-4 hover:text-white"
-                : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
-            }
-          />
-        </div>
-      </article>
+          {post.date}
+        </span>
+        <h3
+          className={`text-lg font-bold transition-colors ${
+            theme === "dark"
+              ? "text-neutral-100 group-hover:text-teal-400"
+              : "text-neutral-900 group-hover:text-teal-600"
+          }`}
+        >
+          {post.title}
+        </h3>
+        <RichText
+          text={post.summary}
+          className={`text-sm line-clamp-3 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
+          linkClassName={
+            theme === "dark"
+              ? "text-teal-400 underline underline-offset-4 hover:text-white"
+              : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
+          }
+        />
+        <span
+          className={`text-sm font-medium mt-1 ${
+            theme === "dark" ? "text-teal-400" : "text-teal-600"
+          }`}
+        >
+          {readMoreLabel} &rarr;
+        </span>
+      </div>
     </a>
   );
 });
@@ -394,7 +407,6 @@ const ExperienceCard = React.memo(({
                 width={48}
                 height={48}
                 className="h-full w-full object-contain"
-                unoptimized
               />
             </div>
           )}
@@ -470,6 +482,14 @@ interface PortfolioLandingProps {
    */
   initialContent?: LandingContent;
   /**
+   * Pre-fetched English content (eliminates client-side fetch delay on language switch)
+   */
+  enContent?: LandingContent;
+  /**
+   * Pre-fetched Spanish content (eliminates client-side fetch delay on language switch)
+   */
+  esContent?: LandingContent;
+  /**
    * Pre-fetched Substack blog posts to display in the blog section.
    * These replace any hardcoded blog posts in the content.
    */
@@ -482,25 +502,39 @@ const fallbackThemeSettings = {
   monoFont: '"IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace',
 };
 
-export function PortfolioLanding({ initialLang = "es", initialContent, substackPosts }: PortfolioLandingProps) {
+export function PortfolioLanding({
+  initialLang = "es",
+  initialContent,
+  enContent,
+  esContent,
+  substackPosts
+}: PortfolioLandingProps) {
   const [lang, setLang] = useState<Language>(initialLang);
   const { theme: currentTheme } = useTheme();
-  const theme = (currentTheme as Theme) || "dark";
+  const theme = (currentTheme as Theme) || "light";
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  // Initialize with server-loaded content if available, otherwise use defaults
+
+  // Initialize with pre-fetched server content for BOTH languages (instant language switching!)
   const [contentMap, setContentMap] = useState<Record<Language, LandingContent>>(() => {
-    if (initialContent) {
-      return { ...defaultContent, [initialLang]: initialContent };
-    }
-    return defaultContent;
+    const map: Record<string, LandingContent> = { ...defaultContent };
+    if (enContent) map.en = enContent;
+    if (esContent) map.es = esContent;
+    return map;
   });
+
   const [contentLoading, setContentLoading] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
-  // Track which languages we've already loaded from the server
+
+  // Both languages are now pre-loaded from server
   const loadedLanguagesRef = useRef<Set<Language>>(
-    new Set(initialContent ? [initialLang] : [])
+    new Set(
+      [
+        enContent ? 'en' : null,
+        esContent ? 'es' : null,
+      ].filter(Boolean) as Language[]
+    )
   );
   const t = contentMap[lang];
   const stackSections = t.stack.sections ?? [];
@@ -539,47 +573,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
     root.style.setProperty("--font-mono", nextTheme.monoFont);
   }, [t.theme]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadContent = async () => {
-      // Skip loading if we already loaded this language from the server
-      if (loadedLanguagesRef.current.has(lang)) {
-        return;
-      }
-
-      setContentLoading(true);
-      setContentError(null);
-      try {
-        const response = await fetch(`/api/content?lang=${lang}`, {
-          cache: "no-store",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch content.");
-        }
-        const payload = (await response.json()) as { data: LandingContent };
-        if (!cancelled && payload.data) {
-          setContentMap((prev) => ({ ...prev, [lang]: payload.data }));
-          loadedLanguagesRef.current.add(lang);
-        }
-      } catch (error) {
-        console.error("Failed to fetch content:", error);
-        if (!cancelled) {
-          setContentError("Using default content (unable to load latest data).");
-        }
-      } finally {
-        if (!cancelled) {
-          setContentLoading(false);
-        }
-      }
-    };
-
-    loadContent();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [lang]);
+  // Client-side fetch removed - both languages now pre-loaded from server!
+  // This eliminates the 1-3s delay on language switching.
 
   useEffect(() => {
     let ticking = false;
@@ -675,7 +670,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
             <div className="flex items-center gap-3 ml-4 border-l pl-4 border-neutral-800/50">
               <ThemeSelector />
 
-              <a
+              <Link
                 href={lang === "en" ? "/es" : "/en"}
                 className={`px-2 py-1 text-xs font-mono border rounded transition-all ${theme === "dark"
                   ? "border-neutral-800 text-neutral-500 hover:border-neutral-600 hover:text-white"
@@ -685,7 +680,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                   }`}
               >
                 {lang === "en" ? "ES" : "EN"}
-              </a>
+              </Link>
             </div>
           </nav>
 
@@ -720,12 +715,12 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
               </a>
             ))}
             <div className="flex items-center gap-4 mt-4">
-              <a
+              <Link
                 href={lang === "en" ? "/es" : "/en"}
                 className="text-teal-500 text-base"
               >
                 {lang === "en" ? "Switch to Spanish" : "Cambiar a Inglés"}
-              </a>
+              </Link>
               <ThemeSelector />
             </div>
           </nav>
@@ -808,16 +803,12 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           <ClairoChat lang={lang} theme={theme} systemPrompt={chatSystemPrompt} />
         </section>
 
-        <motion.section
+        <section
           id="about"
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
-          initial="hidden"
-          whileInView="visible"
-          viewport={scrollViewport}
-          variants={staggerContainer}
         >
           <div className="grid md:grid-cols-[1fr_2fr] gap-12">
-            <motion.div className="flex flex-col gap-6" variants={staggerItem}>
+            <ScrollReveal animation="animate-fade-in-up" className="flex flex-col gap-6">
               <div
                 className={`self-center md:self-start rounded-full p-[3px] shadow-xl ${theme === "dark"
                   ? "bg-gradient-to-tr from-teal-600 via-purple-600 to-blue-500"
@@ -826,7 +817,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
               >
                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-neutral-900">
                   <Image
-                    src="/profile.jpeg"
+                    src="/profile.webp"
                     alt="Portrait of Iván Caamaño"
                     fill
                     className="object-cover"
@@ -868,6 +859,7 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                     </p>
                     <div className="mt-3">
                       <iframe
+                        loading="lazy"
                         src={`https://open.spotify.com/embed/album/${t.about.favoriteAlbum.spotifyId}`}
                         width="100%"
                         height="152"
@@ -881,8 +873,8 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                   </div>
                 )}
               </div>
-            </motion.div>
-            <motion.div variants={staggerItem}>
+            </ScrollReveal>
+            <ScrollReveal animation="animate-fade-in-up" delay={100}>
               <RichText
                 text={t.about.summary}
                 className={`text-xl mb-8 ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}
@@ -892,9 +884,9 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
                     : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
                 }
               />
-            </motion.div>
+            </ScrollReveal>
           </div>
-        </motion.section>
+        </section>
 
         <section
           id="experience"
@@ -1166,69 +1158,64 @@ export function PortfolioLanding({ initialLang = "es", initialContent, substackP
           id="blog"
           className={`py-24 border-t ${theme === "dark" ? "border-neutral-900/50" : "border-neutral-200"}`}
         >
-          <div className="max-w-3xl">
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
+          <div className="max-w-4xl">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-teal-400">
+                  {t.blog.eyebrow}
+                </p>
                 <h2
-                  className={`text-2xl font-bold ${
-                    theme === "dark" ? "text-teal-400" : "text-teal-600"
+                  className={`text-3xl font-bold ${
+                    theme === "dark" ? "text-white" : "text-neutral-900"
                   }`}
                 >
-                  {t.blog.eyebrow}
+                  {t.blog.title}
                 </h2>
-                {substackPosts && substackPosts.length > 0 && (
-                  <a
-                    href={`https://${process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || ''}.substack.com`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`transition-colors ${
-                      theme === "dark"
-                        ? "text-neutral-500 hover:text-teal-400"
-                        : "text-neutral-400 hover:text-teal-600"
-                    }`}
-                    title="View on Substack"
-                  >
-                    <Rss className="h-5 w-5" />
-                  </a>
-                )}
+                <p
+                  className={`mt-3 max-w-2xl text-sm ${
+                    theme === "dark" ? "text-neutral-400" : "text-neutral-600"
+                  }`}
+                >
+                  {t.blog.description}
+                </p>
               </div>
+              {substackPosts && substackPosts.length > 0 && (
+                <a
+                  href={`https://${process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || ''}.substack.com`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${
+                    theme === "dark"
+                      ? "border-white/10 text-white hover:border-white/40"
+                      : "border-neutral-300 text-neutral-800 hover:border-neutral-500"
+                  }`}
+                  title="View on Substack"
+                >
+                  <Rss size={16} />
+                  Substack
+                </a>
+              )}
             </div>
-            <RichText
-              text={t.blog.description}
-              className={`text-sm mb-6 ${theme === "dark" ? "text-neutral-500" : "text-neutral-600"}`}
-              linkClassName={
-                theme === "dark"
-                  ? "text-teal-400 underline underline-offset-4 hover:text-white"
-                  : "text-teal-600 underline underline-offset-4 hover:text-neutral-900"
-              }
-            />
-            <motion.div
-              className="flex flex-col gap-4"
-              initial="hidden"
-              whileInView="visible"
-              viewport={scrollViewport}
-              variants={developerStagger}
-            >
+
+            <ScrollReveal animation="animate-fade-in-up" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {blogPostsToRender.length ? (
-                blogPostsToRender.map((post) => (
-                  <motion.div
+                blogPostsToRender.map((post, idx) => (
+                  <div
                     key={post.id}
-                    variants={developerStaggerItem}
-                    whileHover={{ x: 4 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className={`animate-fade-in-up animate-delay-${idx * 100}`}
                   >
                     <BlogRow post={post} lang={lang} theme={theme} readMoreLabel={t.blog.readMore} />
-                  </motion.div>
+                  </div>
                 ))
               ) : (
                 <p className={`text-sm ${theme === "dark" ? "text-neutral-600" : "text-neutral-500"}`}>{t.blog.empty}</p>
               )}
-            </motion.div>
+            </ScrollReveal>
             <a
               href={`https://${process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || ''}.substack.com`}
               target="_blank"
               rel="noreferrer"
-              className={`inline-block mt-8 text-sm transition-colors ${theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
+              className={`inline-block mt-10 text-sm font-medium transition-colors ${theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"
                 }`}
             >
               {t.blog.viewAll} &rarr;

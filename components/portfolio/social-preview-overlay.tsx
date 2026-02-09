@@ -3,9 +3,9 @@ import Image from "next/image";
 import type { SocialPlatform, SocialPreview } from "@/content/site-content";
 
 const socialPreviewImageMap: Record<SocialPlatform, string | undefined> = {
-  github: "/github.png",
-  linkedin: "/linkedin.png",
-  twitter: "/x.png",
+  github: "/github.webp",
+  linkedin: "/linkedin.webp",
+  twitter: "/x.webp",
   resume: undefined,
 };
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, IBM_Plex_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -12,26 +12,19 @@ const inter = Inter({
   subsets: ["latin"],
   display: "optional",
   variable: "--font-body",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: "optional",
   variable: "--font-heading",
-  weight: ["400", "500", "600", "700"],
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  display: "optional",
-  variable: "--font-mono",
-  weight: ["400", "500", "600"],
+  weight: ["400", "600"],
 });
 
 const DEFAULT_META_LOCALE: Locale = "en";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ivan-caamano.me";
-const OG_IMAGE_PATH = "/profile.jpeg";
+const OG_IMAGE_PATH = "/profile.webp";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getLandingContent(DEFAULT_META_LOCALE);
@@ -80,7 +73,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} ${ibmPlexMono.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased font-sans">
