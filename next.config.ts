@@ -28,6 +28,9 @@ const nextConfig: NextConfig = {
       '.json',
     ],
   },
+  experimental: {
+    viewTransition: true,
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);

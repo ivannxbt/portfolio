@@ -451,7 +451,7 @@
     ],
     "blog": {
       "title": "Latest Insights",
-      "description": "",
+      "description": "Thoughts on AI, data engineering, and lessons learned building real-world solutions.",
       "viewAll": "Read all articles",
       "viewMore": "",
       "viewLess": "View fewer insights",

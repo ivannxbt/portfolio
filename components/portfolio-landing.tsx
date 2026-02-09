@@ -4,6 +4,7 @@
 'use client';
 
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -32,6 +33,7 @@ import { ThemeSelector } from "@/components/theme-selector";
 import type { Theme, Language } from "@/lib/types";
 import { CursorSpotlight } from "./cursor-spotlight";
 import { ScrollReveal } from "./scroll-reveal";
+import { GithubContributionsSkeleton } from "./ui/skeleton";
 import {
   defaultContent,
   type LandingContent,
@@ -50,7 +52,7 @@ const GithubContributions = dynamic(
   () => import("@/components/github-contributions").then(mod => mod.GithubContributions),
   {
     ssr: true,
-    loading: () => <div className="h-32 rounded-2xl bg-white/5 animate-pulse" />
+    loading: () => <GithubContributionsSkeleton />
   }
 );
 
@@ -668,7 +670,7 @@ export function PortfolioLanding({
             <div className="flex items-center gap-3 ml-4 border-l pl-4 border-neutral-800/50">
               <ThemeSelector />
 
-              <a
+              <Link
                 href={lang === "en" ? "/es" : "/en"}
                 className={`px-2 py-1 text-xs font-mono border rounded transition-all ${theme === "dark"
                   ? "border-neutral-800 text-neutral-500 hover:border-neutral-600 hover:text-white"
@@ -678,7 +680,7 @@ export function PortfolioLanding({
                   }`}
               >
                 {lang === "en" ? "ES" : "EN"}
-              </a>
+              </Link>
             </div>
           </nav>
 
@@ -713,12 +715,12 @@ export function PortfolioLanding({
               </a>
             ))}
             <div className="flex items-center gap-4 mt-4">
-              <a
+              <Link
                 href={lang === "en" ? "/es" : "/en"}
                 className="text-teal-500 text-base"
               >
                 {lang === "en" ? "Switch to Spanish" : "Cambiar a Inglés"}
-              </a>
+              </Link>
               <ThemeSelector />
             </div>
           </nav>

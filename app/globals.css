@@ -331,6 +331,43 @@ html {
   }
 }
 
+/* View Transitions API - Smooth page transitions */
+@view-transition {
+  navigation: auto;
+}
+
+/* Default crossfade for all elements */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); /* Matches existing pageTransition ease */
+}
+
+/* Crossfade animation */
+::view-transition-old(root) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-in;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.01s !important;
+  }
+}
+
+/* Keyframes for view transitions */
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* fade-in already exists earlier in the file, reused for view-transition-new */
+
 /* Utility classes for developer effects */
 .terminal-border {
   border: 1px solid rgba(0, 255, 65, 0.2);

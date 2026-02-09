@@ -238,7 +238,7 @@ const englishContent: LandingContent = {
     cta: "Download CV",
     rolesLabel: "Roles",
     stats: [
-      { label: "2+ Years of Total Experience", value: "2+" },
+      { label: "4+ Years of Total Experience", value: "4+" },
       { label: "5+ Freelance Projects", value: "5+" },
       { label: "4+ Company (Confidential) Projects", value: "4+" },
       { label: "4000+ Hours of Coding (From March 15, 2024 to Present)", value: "4000+" },
@@ -520,7 +520,7 @@ const spanishContent: LandingContent = {
     cta: "Descargar CV",
     rolesLabel: "Cargos",
     stats: [
-      { label: "2+ Años de Experiencia Total", value: "2+" },
+      { label: "4+ Años de Experiencia Total", value: "4+" },
       { label: "5+ Proyectos Freelance", value: "5+" },
       { label: "4+ Proyectos Empresariales (Confidenciales)", value: "4+" },
       { label: "4000+ Horas de Código (Desde el 15 de marzo de 2024 hasta el presente)", value: "4000+" },
