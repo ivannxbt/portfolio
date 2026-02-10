@@ -202,7 +202,7 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }
             theme === "brutal"
               ? "bg-white border-3 border-black"
               : theme === "dark"
-                ? "rounded-3xl bg-neutral-950/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+                ? "rounded-3xl bg-[#1a1a1a]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
                 : "rounded-3xl bg-white/90 backdrop-blur-xl border border-neutral-200/60 shadow-[0_8px_32px_rgba(15,23,42,0.12)]"
           }`}
         >
@@ -293,7 +293,7 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }
             <div
               className={`h-full ${
                 theme === "dark"
-                  ? "bg-neutral-900/90 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_90px_rgba(0,0,0,0.6)]"
+                  ? "bg-[#242424]/90 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_90px_rgba(0,0,0,0.6)]"
                   : "bg-white/95 backdrop-blur-2xl border-l border-neutral-200/80 shadow-[0_0_80px_rgba(15,23,42,0.15)]"
               }`}
             >
@@ -519,7 +519,7 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }
                   placeholder={lang === "en" ? "Ask anything..." : "Pregunta lo que quieras..."}
                   className={`flex-1 rounded-full px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/30 transition-all border backdrop-blur-sm ${
                     theme === "dark"
-                      ? "bg-neutral-950/90 border-neutral-800 text-white placeholder:text-neutral-500/70 focus:border-teal-500/50"
+                      ? "bg-[#1a1a1a]/90 border-neutral-800 text-white placeholder:text-neutral-500/70 focus:border-teal-500/50"
                       : "bg-white/95 border-neutral-200 text-neutral-900 placeholder:text-neutral-400/80 focus:border-teal-500/50"
                   }`}
                   aria-label={lang === "en" ? "Type a message" : "Escribe un mensaje"}

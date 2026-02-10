@@ -25,7 +25,7 @@ export const ProjectCardBrutal = React.memo(
           theme === "brutal"
             ? "bg-white border-black border-[3px] rounded-none"
             : theme === "dark"
-              ? "bg-[#0a0a0a] border-neutral-800 rounded-xl"
+              ? "bg-[#242424] border-neutral-800 rounded-xl"
               : "bg-white border-neutral-200 rounded-xl"
         }`}
         initial="rest"

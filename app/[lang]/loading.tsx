@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-[#1a1a1a]">
       {/* Header skeleton */}
       <div className="h-20 border-b border-neutral-900" />
 

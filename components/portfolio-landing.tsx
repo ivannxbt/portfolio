@@ -238,7 +238,7 @@ const ProjectCard = React.memo(({ project, theme }: { project: ProjectItem; them
   return (
     <motion.div
       className={`group relative border rounded-xl p-6 flex flex-col h-full overflow-hidden ${theme === "dark"
-        ? "bg-[#0a0a0a] border-neutral-900"
+        ? "bg-[#242424] border-neutral-900"
         : "bg-white border-neutral-200"
         }`}
       initial="rest"
@@ -391,7 +391,7 @@ const ExperienceCard = React.memo(({
 
   return (
     <div
-      className={`border rounded-2xl p-6 transition-colors ${theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+      className={`border rounded-2xl p-6 transition-colors ${theme === "dark" ? "bg-[#242424] border-neutral-900" : "bg-white border-neutral-200"
         }`}
     >
       <div className="flex items-start justify-between gap-4">
@@ -510,8 +510,9 @@ export function PortfolioLanding({
   substackPosts
 }: PortfolioLandingProps) {
   const [lang, setLang] = useState<Language>(initialLang);
+  const [mounted, setMounted] = useState(false);
   const { theme: currentTheme } = useTheme();
-  const theme = (currentTheme as Theme) || "light";
+  const theme = (mounted ? currentTheme : "light") as Theme || "light";
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
 
@@ -551,6 +552,11 @@ export function PortfolioLanding({
   const chatSystemPrompt = useMemo(() => {
     return generateSystemPrompt(t, lang);
   }, [t, lang]);
+
+  // Fix hydration mismatch by only using theme after client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setLang(initialLang);
@@ -606,7 +612,7 @@ export function PortfolioLanding({
       case "light":
         return "bg-gray-50 text-neutral-800 selection:bg-teal-100 selection:text-teal-900";
       default:
-        return "bg-[#050505] text-neutral-200 selection:bg-teal-900/30 selection:text-teal-50";
+        return "bg-[#1a1a1a] text-neutral-200 selection:bg-teal-900/30 selection:text-teal-50";
     }
   };
 
@@ -617,6 +623,7 @@ export function PortfolioLanding({
       exit="exit"
       variants={pageTransition}
       className={`min-h-screen font-sans transition-colors duration-300 ${getThemeClasses()}`}
+      suppressHydrationWarning
     >
       {theme !== "brutal" && (
         <div
@@ -633,7 +640,7 @@ export function PortfolioLanding({
           ? `${theme === "brutal"
               ? "bg-white border-black border-b-3"
               : theme === "dark"
-                ? "bg-[#050505]/80 border-neutral-900"
+                ? "bg-[#1a1a1a]/80 border-neutral-900"
                 : "bg-white/80 border-gray-200"
           } backdrop-blur-md border-b py-3`
           : "py-6 bg-transparent"
@@ -697,7 +704,7 @@ export function PortfolioLanding({
       {mobileMenu && (
         <div
           className={`fixed inset-0 z-40 pt-24 px-6 md:hidden ${
-            theme === "brutal" ? "bg-white" : theme === "dark" ? "bg-[#050505]" : "bg-white"
+            theme === "brutal" ? "bg-white" : theme === "dark" ? "bg-[#1a1a1a]" : "bg-white"
           }`}
         >
           <nav
@@ -972,7 +979,7 @@ export function PortfolioLanding({
                   return (
                     <motion.div
                       key={section.title}
-                      className={`rounded-2xl border p-5 ${theme === "dark" ? "bg-[#0a0a0a] border-neutral-900" : "bg-white border-neutral-200"
+                      className={`rounded-2xl border p-5 ${theme === "dark" ? "bg-[#242424] border-neutral-900" : "bg-white border-neutral-200"
                         }`}
                       variants={developerStaggerItem}
                       whileHover={{ y: -4, boxShadow: "0 10px 25px rgba(0, 229, 255, 0.1)" }}

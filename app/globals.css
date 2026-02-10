@@ -17,7 +17,7 @@
 }
 
 :root[data-theme="dark"] {
-  --background: #1e1e1e;
+  --background: #1a1a1a;
   --foreground: #e5e7eb;
   --selection-background: rgba(16, 185, 129, 0.25);
   --selection-color: #d1d5db;
