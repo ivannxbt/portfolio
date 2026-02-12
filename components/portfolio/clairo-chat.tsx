@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Send, X, Trash2, Sparkles } from "lucide-react";
 import Image from "next/image";
-import { spring, fade, fadeInUp } from "@/lib/animations";
+import { spring } from "@/lib/animations";
 import { Portal } from "@/components/portal";
 import { AnimatedBorderContainer } from "@/components/portfolio/animated-border-container";
 import type { Language, Theme, Message } from "@/lib/types";
 import {
-  fallbackChatProfile,
   getFallbackResponse,
   callAIAssistant,
 } from "@/lib/chat-fallbacks";
@@ -17,7 +16,6 @@ import {
 type ClairoProps = {
   lang: Language;
   theme: Theme;
-  systemPrompt?: string; // Optional custom system prompt
 };
 
 // Session storage key for message persistence across re-mounts
@@ -51,22 +49,19 @@ export const clearChatHistory = () => {
   }
 };
 
-export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }) => {
-  const prefersReducedMotion = useReducedMotion();
+export const ClairoChat = React.memo<ClairoProps>(({ lang, theme }) => {
 
   // Component state - initialize from sessionStorage to prevent duplicates on re-mount
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(loadMessages);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
 
   // New state for behavior
   const [hasInteracted, setHasInteracted] = useState(false);
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = useCallback(() => {
@@ -110,22 +105,10 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }
     ]);
     setIsLoading(true);
 
-    // System context for AI - Use custom prompt if provided, otherwise fallback
-    const systemContext = systemPrompt || `
-      You are Clairo, an AI assistant for Iván Caamaño's portfolio website.
-      Use the following context to answer questions:
-      - Role: Telematics Engineer, AI/ML Specialist.
-      - Education: Master in Network Services (UPM), Bachelor in Telecom (UPM).
-      - Key Skills: Python, PyTorch, AWS, Azure, RAG, Generative AI.
-      - Projects: AI Doc Generation (AWS), RAG Chatbot (Azure), Radar ML Optimization (Indra).
-      - Tone: Professional, enthusiastic, concise.
-      - Language: Respond in ${lang === "en" ? "English" : "Spanish"}.
-    `;
-
-    // Call API
+    // Call API with language parameter
     const reply = await callAIAssistant({
       prompt: userMsg,
-      systemInstruction: systemContext,
+      language: lang,
       fallback: () => getFallbackResponse(userMsg, lang),
     });
 
@@ -140,199 +123,156 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }
       },
     ]);
     setIsLoading(false);
-  }, [input, hasInteracted, lang, systemPrompt]);
+  }, [input, lang, hasInteracted]);
 
-  // Keyboard handlers
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        handleSend();
-      }
-      if (event.key === "Escape" && sidebarOpen) {
-        setSidebarOpen(false);
-      }
-    },
-    [handleSend, sidebarOpen]
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
-  const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+    setHasInteracted(false);
+    clearChatHistory();
   }, []);
 
-  // Close sidebar
   const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
   }, []);
 
-  // Clear all messages
-  const clearMessages = useCallback(() => {
-    setMessages([]);
-    clearChatHistory();
-  }, []);
-
-  // Focus input when sidebar opens (Strict Mode safe - no DOM mutation)
-  useEffect(() => {
-    if (sidebarOpen && inputRef.current) {
-      // Use requestAnimationFrame to ensure DOM is ready
-      const rafId = requestAnimationFrame(() => {
-        inputRef.current?.focus();
-      });
-      return () => cancelAnimationFrame(rafId);
-    }
-  }, [sidebarOpen]);
-
-  // Cleanup on unmount - clear any pending state
-  useEffect(() => {
-    return () => {
-      // Component unmounting - save final state
-      saveMessages(messages);
-    };
-  }, [messages]);
+  // If no interaction yet, show the floating pill
+  const showFloatingPill = !hasInteracted && !sidebarOpen;
 
   return (
     <Portal>
-      {/* Minimalist Input Bar - Always visible at bottom center */}
-      <div
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] max-w-2xl"
-        style={{ width: isFocused ? "95%" : "90%" }}
-      >
-        <div
-          className={`transition-all duration-300 ${
-            theme === "brutal"
-              ? "bg-white border-3 border-black"
-              : theme === "dark"
-                ? "rounded-3xl bg-[#1a1a1a]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-                : "rounded-3xl bg-white/90 backdrop-blur-xl border border-neutral-200/60 shadow-[0_8px_32px_rgba(15,23,42,0.12)]"
-          }`}
-        >
+      {/* 1. Floating Pill (Initial State) */}
+      <AnimatePresence>
+        {showFloatingPill && (
           <motion.div
-            animate={{
-              scale: isFocused ? 1.02 : 1,
-            }}
-            transition={spring.responsive}
-            className="relative flex items-center gap-3 rounded-full px-6 py-4 transition-all duration-300"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-2xl group"
           >
-          {/* Logo */}
-          <motion.div
-            className="flex-shrink-0 cursor-pointer"
-            whileHover={{ rotate: 360, scale: 1.1 }}
-            transition={spring.responsive}
-            onClick={() => inputRef.current?.focus()}
-          >
-            <Image
-              src="/icons/ivan-orb.svg"
-              alt="Clairo"
-              width={24}
-              height={24}
-              className={theme === "dark" ? "opacity-90" : "opacity-80"}
-            />
+            <AnimatedBorderContainer
+              className="rounded-3xl shadow-2xl overflow-hidden"
+              borderWidth={1}
+            >
+              <div
+                className={`relative flex items-center gap-3 px-6 py-4 transition-colors duration-300 ${
+                  theme === "dark"
+                    ? "bg-[#0a0a0a]/90 hover:bg-[#0a0a0a]/95"
+                    : "bg-white/90 hover:bg-white/95"
+                } backdrop-blur-xl`}
+              >
+                {/* Icon */}
+                <div className="relative flex-shrink-0">
+                  <div className={`absolute inset-0 rounded-full blur-md opacity-40 ${
+                    theme === "dark" ? "bg-teal-500" : "bg-teal-400"
+                  }`} />
+                  <div className={`relative w-10 h-10 rounded-full flex items-center justify-center border ${
+                    theme === "dark"
+                      ? "bg-neutral-900 border-neutral-700 text-teal-400"
+                      : "bg-white border-neutral-200 text-teal-600"
+                  }`}>
+                    <Sparkles size={18} strokeWidth={2.5} />
+                  </div>
+                </div>
+
+                {/* Input Area */}
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder={
+                      lang === "en"
+                        ? "Ask Clairo anything about my work..."
+                        : "Pregúntale a Clairo sobre mi trabajo..."
+                    }
+                    className={`w-full bg-transparent border-none outline-none text-base font-medium placeholder:font-normal transition-colors ${
+                      theme === "dark"
+                        ? "text-white placeholder:text-neutral-500"
+                        : "text-neutral-900 placeholder:text-neutral-400"
+                    }`}
+                  />
+                </div>
+
+                {/* Send Button */}
+                <button
+                  onClick={handleSend}
+                  disabled={!input.trim()}
+                  className={`p-2 rounded-full transition-all duration-300 transform ${
+                    input.trim()
+                      ? theme === "dark"
+                        ? "bg-teal-500 text-neutral-900 shadow-lg shadow-teal-500/20 hover:scale-105 active:scale-95"
+                        : "bg-neutral-900 text-white shadow-lg hover:scale-105 active:scale-95"
+                      : "bg-transparent text-neutral-400 cursor-not-allowed opacity-50"
+                  }`}
+                >
+                  <Send size={18} strokeWidth={2.5} />
+                </button>
+              </div>
+            </AnimatedBorderContainer>
           </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Input */}
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            placeholder={lang === "en" ? "> Ask me anything..." : "> Pregúntame lo que sea..."}
-            className={`flex-1 bg-transparent text-sm font-mono focus:ring-0 focus:outline-none placeholder:font-mono ${
-              theme === "dark"
-                ? "text-white placeholder:text-neutral-500/70"
-                : "text-neutral-900 placeholder:text-neutral-400/80"
-            }`}
-            aria-label={lang === "en" ? "Chat with Clairo" : "Chatea con Clairo"}
-          />
-
-          {/* Send Button */}
-          <motion.button
-            onClick={handleSend}
-            disabled={isLoading || !input.trim()}
-            aria-label={lang === "en" ? "Send message" : "Enviar mensaje"}
-            whileHover={!isLoading && input.trim() ? { scale: 1.1 } : {}}
-            whileTap={!isLoading && input.trim() ? { scale: 0.95 } : {}}
-            transition={spring.responsive}
-            className={`flex items-center justify-center rounded-full p-2.5 transition-all duration-300 ${
-              theme === "dark"
-                ? isLoading || !input.trim()
-                  ? "text-neutral-600 cursor-not-allowed"
-                  : "text-teal-400 hover:text-teal-300"
-                : isLoading || !input.trim()
-                  ? "text-neutral-400 cursor-not-allowed"
-                  : "text-neutral-700 hover:text-neutral-900"
-            }`}
-          >
-            {isLoading ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              <Send size={18} strokeWidth={2.5} />
-            )}
-          </motion.button>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Sidebar */}
+      {/* 2. Chat Sidebar (Expanded State) */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
-            className="fixed right-0 top-0 h-full z-[70] w-full md:w-[40%] md:min-w-[400px] md:max-w-[600px]"
             initial={{ x: "100%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-              opacity: { duration: 0.2 },
-            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className={`fixed inset-y-0 right-0 z-[70] w-full md:w-[450px] shadow-2xl border-l backdrop-blur-xl ${
+              theme === "dark"
+                ? "bg-[#0a0a0a]/95 border-neutral-800"
+                : "bg-white/95 border-neutral-200"
+            }`}
           >
-            <div
-              className={`h-full ${
-                theme === "dark"
-                  ? "bg-[#242424]/90 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_90px_rgba(0,0,0,0.6)]"
-                  : "bg-white/95 backdrop-blur-2xl border-l border-neutral-200/80 shadow-[0_0_80px_rgba(15,23,42,0.15)]"
-              }`}
-            >
+            <div className="flex flex-col h-full">
+              {/* Header */}
               <div
-                className={`h-full flex flex-col ${
-                  theme === "dark"
-                    ? "bg-gradient-to-b from-neutral-950/50 to-transparent text-neutral-100"
-                    : "bg-gradient-to-b from-white/50 to-transparent text-neutral-900"
+                className={`flex items-center justify-between px-6 py-4 border-b ${
+                  theme === "dark" ? "border-neutral-800" : "border-neutral-200"
                 }`}
               >
-            {/* Header */}
-            <div
-              className={`p-6 border-b flex justify-between items-center backdrop-blur-xl transition-all duration-300 ${
-                theme === "dark"
-                  ? "bg-neutral-900/50 border-neutral-800/40"
-                  : "bg-white/50 border-neutral-200/60"
-              } ${isLoading ? "opacity-90 animate-pulse" : ""}`}
-            >
-              <div className="flex items-center gap-3.5">
-                <motion.div whileHover={{ rotate: 360 }} transition={spring.responsive}>
-                  <Image
-                    src="/icons/ivan-orb.svg"
-                    alt="Clairo"
-                    width={28}
-                    height={28}
-                    className={theme === "dark" ? "opacity-90" : "opacity-80"}
-                  />
-                </motion.div>
-                <div className="flex flex-col gap-0.5">
-                  <span
-                    className={`font-bold text-base ${
-                      theme === "dark" ? "text-neutral-50" : "text-neutral-950"
-                    }`}
-                  >
-                    Clairo
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className={`absolute inset-0 rounded-full blur-sm opacity-50 ${
+                      theme === "dark" ? "bg-teal-500" : "bg-teal-400"
+                    }`} />
+                    <Image
+                      src="/icons/ivan-orb.svg"
+                      alt="Clairo"
+                      width={32}
+                      height={32}
+                      className="relative rounded-full"
+                    />
+                  </div>
+                  <div>
+                    <h3 className={`font-bold text-base ${
+                      theme === "dark" ? "text-white" : "text-neutral-900"
+                    }`}>
+                      Clairo AI
+                    </h3>
+                    <p className="text-xs text-teal-500 font-medium">
+                      {lang === "en" ? "Online" : "En línea"}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
+
+                <div className="flex items-center gap-2">
                 {/* Clear Chat Button */}
                 {messages.length > 0 && (
                   <motion.button
@@ -546,7 +486,6 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }
                 </button>
               </div>
             </div>
-              </div>
             </div>
           </motion.div>
         )}

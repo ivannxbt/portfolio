@@ -153,11 +153,11 @@ export const getFallbackResponse = (prompt: string, lang: Language): string => {
 
 export const callAIAssistant = async ({
   prompt,
-  systemInstruction,
+  language = "en",
   fallback,
 }: {
   prompt: string;
-  systemInstruction?: string;
+  language?: Language;
   fallback?: () => string;
 }): Promise<string> => {
   try {
@@ -168,7 +168,7 @@ export const callAIAssistant = async ({
       },
       body: JSON.stringify({
         message: prompt,
-        ...(systemInstruction ? { systemInstruction } : {}),
+        language,
       }),
     });
 
