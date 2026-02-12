@@ -57,6 +57,49 @@ export async function streamAIResponse(
 }
 
 /**
+ * Generate a complete AI response (non-streaming)
+ */
+export async function generateAIResponse(
+  config: StreamConfig
+): Promise<string> {
+  const systemInstruction = config.systemInstruction || "";
+  const maxTokens = config.maxTokens || 1024;
+
+  const client = getGeminiClient();
+  const model = client.getGenerativeModel({
+    model: MODELS.gemini,
+    systemInstruction: systemInstruction || undefined,
+    generationConfig: {
+      maxOutputTokens: maxTokens,
+    },
+  });
+
+  try {
+    const result = await withTimeout(
+      model.generateContent(config.message),
+      30000,
+      "Gemini API request timed out after 30 seconds"
+    );
+
+    const response = await result.response;
+    const text = response.text();
+
+    if (!text) {
+      throw new Error("Gemini returned an empty response");
+    }
+
+    return text;
+  } catch (error: unknown) {
+    console.error("Gemini generation error:", {
+      error,
+      message: error instanceof Error ? error.message : String(error),
+      config: { model: MODELS.gemini, messageLength: config.message.length },
+    });
+    throw error;
+  }
+}
+
+/**
  * Promise timeout helper
  */
 function withTimeout<T>(
