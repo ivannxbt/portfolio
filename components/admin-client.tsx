@@ -59,44 +59,58 @@ const fallbackTheme = defaultContent.en.theme ?? {
 const cloneContent = (data: LandingContent): LandingContent =>
   JSON.parse(JSON.stringify(data)) as LandingContent;
 
-const createBlogEntry = (): BlogEntry => ({
-  id: Date.now(),
-  title: "",
-  date: new Date().getFullYear().toString(),
-  summary: "",
-  url: "",
-  image: "/blog/default.svg",
-});
+const createEntity = <T extends object>(defaults: Partial<T>, hasId = false): T => ({
+  ...(hasId ? { id: Date.now() } : {}),
+  ...defaults,
+} as T);
 
-const createProject = (): ProjectItem => ({
-  id: Date.now(),
-  icon: "cloud",
-  title: "",
-  desc: "",
-  tags: [],
-});
+const createBlogEntry = (): BlogEntry =>
+  createEntity<BlogEntry>(
+    {
+      title: "",
+      date: new Date().getFullYear().toString(),
+      summary: "",
+      url: "",
+      image: "/blog/default.svg",
+    },
+    true
+  );
 
-const createExperienceRole = (): ExperienceItem => ({
-  role: "",
-  company: "",
-  period: "",
-  location: "",
-  summary: "",
-  bullets: [""],
-});
+const createProject = (): ProjectItem =>
+  createEntity<ProjectItem>(
+    {
+      icon: "cloud",
+      title: "",
+      desc: "",
+      tags: [],
+    },
+    true
+  );
 
-const createSocialLink = (): SocialLink => ({
-  label: "",
-  url: "",
-  platform: "github",
-});
+const createExperienceRole = (): ExperienceItem =>
+  createEntity<ExperienceItem>({
+    role: "",
+    company: "",
+    period: "",
+    location: "",
+    summary: "",
+    bullets: [""],
+  });
 
-const createStackSection = (): StackSection => ({
-  title: "",
-  description: "",
-  icon: "code",
-  items: [],
-});
+const createSocialLink = (): SocialLink =>
+  createEntity<SocialLink>({
+    label: "",
+    url: "",
+    platform: "github",
+  });
+
+const createStackSection = (): StackSection =>
+  createEntity<StackSection>({
+    title: "",
+    description: "",
+    icon: "code",
+    items: [],
+  });
 
 const parseStackItems = (input: string) => input.split(/\r?\n/).map((item) => item.trim());
 
@@ -324,6 +338,25 @@ export function AdminClient({ initialContent }: AdminClientProps) {
       ...prev,
       [sectionId]: !prev[sectionId],
     }));
+  };
+
+  const addItem = <T,>(list: T[] | undefined, newItem: T) => [...(list ?? []), newItem];
+
+  const removeItem = <T,>(list: T[] | undefined, index: number, fallback?: () => T) => {
+    const next = (list ?? []).filter((_, i) => i !== index);
+    return next.length === 0 && fallback ? [fallback()] : next;
+  };
+
+  const updateItem = <T,>(list: T[] | undefined, index: number, updates: Partial<T>) => {
+    const next = [...(list ?? [])];
+    next[index] = { ...next[index], ...updates };
+    return next;
+  };
+
+  const updateItemValue = <T,>(list: T[] | undefined, index: number, newValue: T) => {
+    const next = [...(list ?? [])];
+    next[index] = newValue;
+    return next;
   };
 
   useEffect(() => {
@@ -1009,14 +1042,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       <button
                         type="button"
                         onClick={() =>
-                          updateContent((prev) => {
-                            const sections = [...(prev.stack.sections ?? [])];
-                            sections.splice(sectionIndex, 1);
-                            return {
-                              ...prev,
-                              stack: { ...prev.stack, sections },
-                            };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            stack: {
+                              ...prev.stack,
+                              sections: removeItem(prev.stack.sections, sectionIndex),
+                            },
+                          }))
                         }
                         className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
                         disabled={loading}
@@ -1031,14 +1063,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       type="text"
                       value={section.title}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const sections = [...(prev.stack.sections ?? [])];
-                          sections[sectionIndex] = {
-                            ...sections[sectionIndex],
-                            title: event.target.value,
-                          };
-                          return { ...prev, stack: { ...prev.stack, sections } };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          stack: {
+                            ...prev.stack,
+                            sections: updateItem(prev.stack.sections, sectionIndex, {
+                              title: event.target.value,
+                            }),
+                          },
+                        }))
                       }
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                       disabled={loading}
@@ -1049,14 +1082,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     <textarea
                       value={section.description}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const sections = [...(prev.stack.sections ?? [])];
-                          sections[sectionIndex] = {
-                            ...sections[sectionIndex],
-                            description: event.target.value,
-                          };
-                          return { ...prev, stack: { ...prev.stack, sections } };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          stack: {
+                            ...prev.stack,
+                            sections: updateItem(prev.stack.sections, sectionIndex, {
+                              description: event.target.value,
+                            }),
+                          },
+                        }))
                       }
                       rows={2}
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
@@ -1068,14 +1102,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     <select
                       value={section.icon}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const sections = [...(prev.stack.sections ?? [])];
-                          sections[sectionIndex] = {
-                            ...sections[sectionIndex],
-                            icon: event.target.value as StackIcon,
-                          };
-                          return { ...prev, stack: { ...prev.stack, sections } };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          stack: {
+                            ...prev.stack,
+                            sections: updateItem(prev.stack.sections, sectionIndex, {
+                              icon: event.target.value as StackIcon,
+                            }),
+                          },
+                        }))
                       }
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                       disabled={loading}
@@ -1092,14 +1127,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     <textarea
                       value={section.items.join("\n")}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const sections = [...(prev.stack.sections ?? [])];
-                          sections[sectionIndex] = {
-                            ...sections[sectionIndex],
-                            items: parseStackItems(event.target.value),
-                          };
-                          return { ...prev, stack: { ...prev.stack, sections } };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          stack: {
+                            ...prev.stack,
+                            sections: updateItem(prev.stack.sections, sectionIndex, {
+                              items: parseStackItems(event.target.value),
+                            }),
+                          },
+                        }))
                       }
                       rows={3}
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
@@ -1115,7 +1151,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     ...prev,
                     stack: {
                       ...prev.stack,
-                      sections: [...(prev.stack.sections ?? []), createStackSection()],
+                      sections: addItem(prev.stack.sections, createStackSection()),
                     },
                   }))
                 }
@@ -1149,14 +1185,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       <button
                         type="button"
                         onClick={() =>
-                          updateContent((prev) => {
-                            const roles = prev.experience.roles.slice();
-                            roles.splice(index, 1);
-                            return {
-                              ...prev,
-                              experience: { ...prev.experience, roles: roles.length ? roles : [createExperienceRole()] },
-                            };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            experience: {
+                              ...prev.experience,
+                              roles: removeItem(prev.experience.roles, index, createExperienceRole),
+                            },
+                          }))
                         }
                         className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
                         disabled={loading}
@@ -1172,11 +1207,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={role.role}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], role: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            experience: {
+                              ...prev.experience,
+                              roles: updateItem(prev.experience.roles, index, { role: event.target.value }),
+                            },
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1188,11 +1225,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={role.company ?? ""}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], company: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            experience: {
+                              ...prev.experience,
+                              roles: updateItem(prev.experience.roles, index, { company: event.target.value }),
+                            },
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1206,11 +1245,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={role.companyLogo ?? ""}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], companyLogo: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            experience: {
+                              ...prev.experience,
+                              roles: updateItem(prev.experience.roles, index, { companyLogo: event.target.value }),
+                            },
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1222,11 +1263,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={role.companyLogoAlt ?? ""}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], companyLogoAlt: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            experience: {
+                              ...prev.experience,
+                              roles: updateItem(prev.experience.roles, index, { companyLogoAlt: event.target.value }),
+                            },
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1240,11 +1283,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={role.period}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], period: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            experience: {
+                              ...prev.experience,
+                              roles: updateItem(prev.experience.roles, index, { period: event.target.value }),
+                            },
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1256,11 +1301,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={role.location}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], location: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            experience: {
+                              ...prev.experience,
+                              roles: updateItem(prev.experience.roles, index, { location: event.target.value }),
+                            },
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1272,11 +1319,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     <textarea
                       value={role.summary}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const roles = prev.experience.roles.slice();
-                          roles[index] = { ...roles[index], summary: event.target.value };
-                          return { ...prev, experience: { ...prev.experience, roles } };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          experience: {
+                            ...prev.experience,
+                            roles: updateItem(prev.experience.roles, index, { summary: event.target.value }),
+                          },
+                        }))
                       }
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                       rows={3}
@@ -1291,13 +1340,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                           type="text"
                           value={bullet}
                           onChange={(event) =>
-                            updateContent((prev) => {
-                              const roles = prev.experience.roles.slice();
-                              const bullets = roles[index].bullets.slice();
-                              bullets[bulletIndex] = event.target.value;
-                              roles[index] = { ...roles[index], bullets };
-                              return { ...prev, experience: { ...prev.experience, roles } };
-                            })
+                            updateContent((prev) => ({
+                              ...prev,
+                              experience: {
+                                ...prev.experience,
+                                roles: updateItem(prev.experience.roles, index, {
+                                  bullets: updateItemValue(role.bullets, bulletIndex, event.target.value),
+                                }),
+                              },
+                            }))
                           }
                           className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                           disabled={loading}
@@ -1306,13 +1357,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                           <button
                             type="button"
                             onClick={() =>
-                              updateContent((prev) => {
-                                const roles = prev.experience.roles.slice();
-                                const bullets = roles[index].bullets.slice();
-                                bullets.splice(bulletIndex, 1);
-                                roles[index] = { ...roles[index], bullets: bullets.length ? bullets : [""] };
-                                return { ...prev, experience: { ...prev.experience, roles } };
-                              })
+                              updateContent((prev) => ({
+                                ...prev,
+                                experience: {
+                                  ...prev.experience,
+                                  roles: updateItem(prev.experience.roles, index, {
+                                    bullets: removeItem(role.bullets, bulletIndex, () => ""),
+                                  }),
+                                },
+                              }))
                             }
                             className="rounded-lg border border-gray-300 px-3 text-sm text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                             disabled={loading}
@@ -1325,11 +1378,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     <button
                       type="button"
                       onClick={() =>
-                        updateContent((prev) => {
-                          const roles = prev.experience.roles.slice();
-                          roles[index] = { ...roles[index], bullets: [...roles[index].bullets, ""] };
-                          return { ...prev, experience: { ...prev.experience, roles } };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          experience: {
+                            ...prev.experience,
+                            roles: updateItem(prev.experience.roles, index, {
+                              bullets: addItem(role.bullets, ""),
+                            }),
+                          },
+                        }))
                       }
                       className="w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                       disabled={loading}
@@ -1345,7 +1402,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               onClick={() =>
                 updateContent((prev) => ({
                   ...prev,
-                  experience: { ...prev.experience, roles: [...prev.experience.roles, createExperienceRole()] },
+                  experience: {
+                    ...prev.experience,
+                    roles: addItem(prev.experience.roles, createExperienceRole()),
+                  },
                 }))
               }
               className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
@@ -1433,11 +1493,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       <button
                         type="button"
                         onClick={() =>
-                          updateContent((prev) => {
-                            const projectItems = prev.projectItems.slice();
-                            projectItems.splice(index, 1);
-                            return { ...prev, projectItems: projectItems.length ? projectItems : [createProject()] };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            projectItems: removeItem(prev.projectItems, index, createProject),
+                          }))
                         }
                         className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
                         disabled={loading}
@@ -1453,11 +1512,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="number"
                         value={project.id}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const projectItems = prev.projectItems.slice();
-                            projectItems[index] = { ...projectItems[index], id: Number(event.target.value) };
-                            return { ...prev, projectItems };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            projectItems: updateItem(prev.projectItems, index, {
+                              id: Number(event.target.value),
+                            }),
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1469,11 +1529,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={project.title}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const projectItems = prev.projectItems.slice();
-                            projectItems[index] = { ...projectItems[index], title: event.target.value };
-                            return { ...prev, projectItems };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            projectItems: updateItem(prev.projectItems, index, {
+                              title: event.target.value,
+                            }),
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1485,11 +1546,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     helperText="Markdown enabled—select text and click the buttons to format."
                     value={project.desc}
                     onChange={(text) =>
-                      updateContent((prev) => {
-                        const projectItems = prev.projectItems.slice();
-                        projectItems[index] = { ...projectItems[index], desc: text };
-                        return { ...prev, projectItems };
-                      })
+                      updateContent((prev) => ({
+                        ...prev,
+                        projectItems: updateItem(prev.projectItems, index, { desc: text }),
+                      }))
                     }
                     rows={3}
                     disabled={loading}
@@ -1500,11 +1560,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       <select
                         value={project.icon}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const projectItems = prev.projectItems.slice();
-                            projectItems[index] = { ...projectItems[index], icon: event.target.value as ProjectIcon };
-                            return { ...prev, projectItems };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            projectItems: updateItem(prev.projectItems, index, {
+                              icon: event.target.value as ProjectIcon,
+                            }),
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1523,14 +1584,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         key={`project-tags-${project.id}-${project.tags.join(",")}`}
                         defaultValue={project.tags.join(", ")}
                         onBlur={(event) =>
-                          updateContent((prev) => {
-                            const projectItems = prev.projectItems.slice();
-                            projectItems[index] = {
-                              ...projectItems[index],
+                          updateContent((prev) => ({
+                            ...prev,
+                            projectItems: updateItem(prev.projectItems, index, {
                               tags: parseTagString(event.target.value),
-                            };
-                            return { ...prev, projectItems };
-                          })
+                            }),
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1546,7 +1605,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               onClick={() =>
                 updateContent((prev) => ({
                   ...prev,
-                  projectItems: [...prev.projectItems, createProject()],
+                  projectItems: addItem(prev.projectItems, createProject()),
                 }))
               }
               className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
@@ -1677,11 +1736,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       <button
                         type="button"
                         onClick={() =>
-                          updateContent((prev) => {
-                            const blogPosts = (prev.blogPosts || []).slice();
-                            blogPosts.splice(index, 1);
-                            return { ...prev, blogPosts: blogPosts.length ? blogPosts : [createBlogEntry()] };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            blogPosts: removeItem(prev.blogPosts, index, createBlogEntry),
+                          }))
                         }
                         className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
                         disabled={loading}
@@ -1697,11 +1755,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="number"
                         value={post.id}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const blogPosts = (prev.blogPosts || []).slice();
-                            blogPosts[index] = { ...blogPosts[index], id: Number(event.target.value) };
-                            return { ...prev, blogPosts };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            blogPosts: updateItem(prev.blogPosts, index, {
+                              id: Number(event.target.value),
+                            }),
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1713,11 +1772,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={post.date}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const blogPosts = (prev.blogPosts || []).slice();
-                            blogPosts[index] = { ...blogPosts[index], date: event.target.value };
-                            return { ...prev, blogPosts };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            blogPosts: updateItem(prev.blogPosts, index, {
+                              date: event.target.value,
+                            }),
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1730,11 +1790,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       type="text"
                       value={post.title}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const blogPosts = (prev.blogPosts || []).slice();
-                          blogPosts[index] = { ...blogPosts[index], title: event.target.value };
-                          return { ...prev, blogPosts };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          blogPosts: updateItem(prev.blogPosts, index, {
+                            title: event.target.value,
+                          }),
+                        }))
                       }
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                       disabled={loading}
@@ -1745,11 +1806,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     helperText="Markdown enabled—select text and click the buttons to format."
                     value={post.summary}
                     onChange={(text) =>
-                      updateContent((prev) => {
-                        const blogPosts = (prev.blogPosts || []).slice();
-                        blogPosts[index] = { ...blogPosts[index], summary: text };
-                        return { ...prev, blogPosts };
-                      })
+                      updateContent((prev) => ({
+                        ...prev,
+                        blogPosts: updateItem(prev.blogPosts, index, { summary: text }),
+                      }))
                     }
                     rows={3}
                     disabled={loading}
@@ -1760,11 +1820,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       type="text"
                       value={post.image ?? ""}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const blogPosts = (prev.blogPosts || []).slice();
-                          blogPosts[index] = { ...blogPosts[index], image: event.target.value };
-                          return { ...prev, blogPosts };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          blogPosts: updateItem(prev.blogPosts, index, {
+                            image: event.target.value,
+                          }),
+                        }))
                       }
                       placeholder="/blog/default.svg"
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
@@ -1777,11 +1838,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       type="text"
                       value={post.url ?? ""}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const blogPosts = (prev.blogPosts || []).slice();
-                          blogPosts[index] = { ...blogPosts[index], url: event.target.value };
-                          return { ...prev, blogPosts };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          blogPosts: updateItem(prev.blogPosts, index, {
+                            url: event.target.value,
+                          }),
+                        }))
                       }
                       placeholder="https://example.com/article"
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
@@ -1797,7 +1859,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               onClick={() =>
                 updateContent((prev) => ({
                   ...prev,
-                  blogPosts: [...(prev.blogPosts || []), createBlogEntry()],
+                  blogPosts: addItem(prev.blogPosts, createBlogEntry()),
                 }))
               }
               className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
@@ -1866,14 +1928,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       <button
                         type="button"
                         onClick={() =>
-                          updateContent((prev) => {
-                            const socials = prev.contact.socials.slice();
-                            socials.splice(index, 1);
-                            return {
-                              ...prev,
-                              contact: { ...prev.contact, socials: socials.length ? socials : [createSocialLink()] },
-                            };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            contact: {
+                              ...prev.contact,
+                              socials: removeItem(prev.contact.socials, index, createSocialLink),
+                            },
+                          }))
                         }
                         className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
                         disabled={loading}
@@ -1889,11 +1950,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         type="text"
                         value={social.label}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const socials = prev.contact.socials.slice();
-                            socials[index] = { ...socials[index], label: event.target.value };
-                            return { ...prev, contact: { ...prev.contact, socials } };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            contact: {
+                              ...prev.contact,
+                              socials: updateItem(prev.contact.socials, index, { label: event.target.value }),
+                            },
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1904,11 +1967,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       <select
                         value={social.platform}
                         onChange={(event) =>
-                          updateContent((prev) => {
-                            const socials = prev.contact.socials.slice();
-                            socials[index] = { ...socials[index], platform: event.target.value as SocialPlatform };
-                            return { ...prev, contact: { ...prev.contact, socials } };
-                          })
+                          updateContent((prev) => ({
+                            ...prev,
+                            contact: {
+                              ...prev.contact,
+                              socials: updateItem(prev.contact.socials, index, {
+                                platform: event.target.value as SocialPlatform,
+                              }),
+                            },
+                          }))
                         }
                         className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                         disabled={loading}
@@ -1927,11 +1994,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       type="text"
                       value={social.url}
                       onChange={(event) =>
-                        updateContent((prev) => {
-                          const socials = prev.contact.socials.slice();
-                          socials[index] = { ...socials[index], url: event.target.value };
-                          return { ...prev, contact: { ...prev.contact, socials } };
-                        })
+                        updateContent((prev) => ({
+                          ...prev,
+                          contact: {
+                            ...prev.contact,
+                            socials: updateItem(prev.contact.socials, index, { url: event.target.value }),
+                          },
+                        }))
                       }
                       className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                       disabled={loading}
@@ -1946,7 +2015,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               onClick={() =>
                 updateContent((prev) => ({
                   ...prev,
-                  contact: { ...prev.contact, socials: [...prev.contact.socials, createSocialLink()] },
+                  contact: {
+                    ...prev.contact,
+                    socials: addItem(prev.contact.socials, createSocialLink()),
+                  },
                 }))
               }
               className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
