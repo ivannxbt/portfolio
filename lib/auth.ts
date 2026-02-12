@@ -4,12 +4,12 @@ import bcrypt from "bcryptjs";
 
 import { secretConfig } from "@/lib/secret-config";
 
-const adminEmail = (secretConfig.adminEmail ?? process.env.ADMIN_EMAIL ?? "").toLowerCase();
-const adminPasswordHash = secretConfig.adminPasswordHash ?? process.env.ADMIN_PASSWORD_HASH;
-const nextAuthSecret = secretConfig.nextAuthSecret ?? process.env.NEXTAUTH_SECRET;
+const adminEmail = (secretConfig.adminEmail ?? "").toLowerCase();
+const adminPasswordHash = secretConfig.adminPasswordHash;
+const nextAuthSecret = secretConfig.nextAuthSecret;
 
 export const NEXTAUTH_SECRET_ERROR =
-  "NextAuth requires a secret. Provide `nextAuthSecret` in data/secret-config.json or set the `NEXTAUTH_SECRET` environment variable.";
+  "NextAuth requires a secret. Provide the `NEXTAUTH_SECRET` environment variable.";
 
 function createCredentialsProvider() {
   return CredentialsProvider({

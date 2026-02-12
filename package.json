@@ -6,7 +6,6 @@
     "dev": "NODE_OPTIONS='--max-old-space-size=8192' next dev",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' next build",
     "start": "next start",
-    "secrets:init": "node scripts/manage-secret-config.mjs",
     "lint": "eslint",
     "test": "vitest",
     "test:ui": "vitest --ui",
