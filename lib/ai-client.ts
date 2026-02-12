@@ -4,7 +4,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export type AIProvider = "gemini";
 
 const AI_PROVIDER = "gemini" as const;
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_API_KEY =
+  process.env.GOOGLE_API_KEY ||
+  process.env.GEMINI_API_KEY ||
+  process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
 // Model configurations
 const MODELS = {
