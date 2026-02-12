@@ -6,6 +6,9 @@ import {
   getModelName,
   validateGoogleAPIKey,
 } from "@/lib/ai-client";
+import { defaultContent } from "@/content/site-content";
+import { generateSystemPrompt } from "@/lib/chat-context";
+import { Language } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   // Check if AI provider is configured
@@ -20,7 +23,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { message, systemInstruction } = body;
+    const { message, language = "en" } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -29,11 +32,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate language
+    const lang: Language = language === "es" ? "es" : "en";
+
+    // Generate secure system instruction on the server
+    const systemInstruction = generateSystemPrompt(defaultContent[lang], lang);
+
     // Get the stream from the provider
     const stream = await streamAIResponse({
       message,
-      systemInstruction:
-        typeof systemInstruction === "string" ? systemInstruction : undefined,
+      systemInstruction,
     });
 
     // Buffer the stream to return a single JSON response
@@ -86,7 +94,7 @@ export async function GET() {
       method: "POST",
       body: {
         message: "Your conversational message",
-        systemInstruction: "Optional assistant context",
+        language: "en | es (optional, defaults to en)",
       },
     },
   });

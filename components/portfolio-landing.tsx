@@ -44,7 +44,6 @@ import {
   type StackIcon,
 } from "@/content/site-content";
 import { ProjectCardBrutal } from "@/components/project-card-brutal";
-import { generateSystemPrompt } from "@/lib/chat-context";
 
 import { RichText } from "@/components/portfolio/rich-text";
 
@@ -549,9 +548,6 @@ export function PortfolioLanding({
     t.projects.viewLess ?? (lang === "en" ? "View fewer projects" : "Ver menos proyectos");
 
   // Generate dynamic system prompt for chatbot based on current content
-  const chatSystemPrompt = useMemo(() => {
-    return generateSystemPrompt(t, lang);
-  }, [t, lang]);
 
   // Fix hydration mismatch by only using theme after client mount
   useEffect(() => {
@@ -807,7 +803,7 @@ export function PortfolioLanding({
           </motion.div>
 
           {/* Chat widget - renders in portal to document.body */}
-          <ClairoChat lang={lang} theme={theme} systemPrompt={chatSystemPrompt} />
+          <ClairoChat lang={lang} theme={theme} />
         </section>
 
         <section

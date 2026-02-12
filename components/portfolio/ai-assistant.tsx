@@ -1,26 +1,18 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
-import { Send, Sparkles, Loader2, X } from "lucide-react";
-import type { Locale } from "@/lib/i18n";
-
-type Message = {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-  timestamp: number;
-};
+import { Loader2, Send, Sparkles, X } from "lucide-react";
+import type { Language, Theme, Message } from "@/lib/types";
 
 type AIAssistantProps = {
-  lang: Locale;
-  theme?: "light" | "dark";
+  lang?: Language;
+  theme?: Theme;
   placeholder?: string;
-  systemPrompt?: string;
 };
 
 const DEFAULT_PROMPTS = {
   en: {
-    placeholder: "Ask me anything about my work, skills, or experience...",
+    placeholder: "Ask me about my work, skills, or experience...",
     thinking: "Thinking...",
     send: "Send",
     error: "Unable to process your request. Please try again.",
@@ -33,20 +25,9 @@ const DEFAULT_PROMPTS = {
   },
 };
 
-const DEFAULT_SYSTEM_PROMPT = {
-  en: `You are an AI assistant for a professional portfolio website.
-Answer questions about the person's background, skills, experience, and projects.
-Be concise (2-4 sentences), professional, and enthusiastic.
-If asked about unrelated topics, politely decline and suggest relevant questions.`,
-  es: `Eres un asistente de IA para un portafolio profesional.
-Responde preguntas sobre la experiencia, habilidades y proyectos de la persona.
-Sé conciso (2-4 oraciones), profesional y entusiasta.
-Si te preguntan sobre temas no relacionados, declina educadamente y sugiere preguntas relevantes.`,
-};
-
 async function streamChat(params: {
   message: string;
-  systemInstruction: string;
+  language: Language;
   onChunk: (text: string) => void;
   onComplete: () => void;
   onError: (error: string) => void;
@@ -57,7 +38,7 @@ async function streamChat(params: {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: params.message,
-        systemInstruction: params.systemInstruction,
+        language: params.language,
       }),
     });
 
@@ -93,7 +74,6 @@ export function AIAssistant({
   lang = "en",
   theme = "dark",
   placeholder,
-  systemPrompt,
 }: AIAssistantProps) {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -102,7 +82,6 @@ export function AIAssistant({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const texts = DEFAULT_PROMPTS[lang];
-  const systemInstruction = systemPrompt || DEFAULT_SYSTEM_PROMPT[lang];
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -130,7 +109,7 @@ export function AIAssistant({
       ...prev,
       {
         id: assistantMessageId,
-        role: "assistant",
+        role: "model",
         text: "",
         timestamp: Date.now(),
       },
@@ -138,7 +117,7 @@ export function AIAssistant({
 
     await streamChat({
       message: userMessage.text,
-      systemInstruction,
+      language: lang,
       onChunk: (chunk) => {
         assistantText += chunk;
         setMessages((prev) =>
@@ -154,7 +133,7 @@ export function AIAssistant({
         setIsLoading(false);
         scrollToBottom();
       },
-      onError: (error) => {
+      onError: () => {
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === assistantMessageId
@@ -165,7 +144,7 @@ export function AIAssistant({
         setIsLoading(false);
       },
     });
-  }, [input, isLoading, systemInstruction, texts.error, scrollToBottom]);
+  }, [input, isLoading, lang, texts.error, scrollToBottom]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
