@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 
 interface CursorSpotlightProps {
   color?: string;
@@ -50,7 +50,7 @@ export function CursorSpotlight({
   return (
     <div
       className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-      style={{ '--cursor-intensity': intensity } as React.CSSProperties}
+      style={{ '--cursor-intensity': intensity } as CSSProperties}
     >
 
       {/* Orb 1 - Top Left */}
