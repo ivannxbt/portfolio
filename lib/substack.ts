@@ -1,18 +1,7 @@
 import Parser from "rss-parser";
 import { unstable_cache } from "next/cache";
 import type { BlogEntry } from "@/content/site-content";
-
-interface SubstackRSSItem {
-  title?: string;
-  link?: string;
-  pubDate?: string;
-  contentSnippet?: string;
-  content?: string;
-  enclosure?: {
-    url: string;
-    type?: string;
-  };
-}
+import { transformRSSItemToBlogEntry, type SubstackRSSItem } from "./substack-utils";
 
 const parser = new Parser<unknown, SubstackRSSItem>();
 
@@ -23,32 +12,6 @@ if (!SUBSTACK_USERNAME) {
 }
 
 const RSS_FEED_URL = `https://${SUBSTACK_USERNAME}.substack.com/feed`;
-
-function stripHtmlTags(html: string): string {
-  return html.replace(/<[^>]*>/g, "").trim();
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
-
-export function transformRSSItemToBlogEntry(
-  item: SubstackRSSItem,
-  index: number
-): BlogEntry {
-  const summary = item.contentSnippet || item.content || "";
-  const cleanSummary = stripHtmlTags(summary).slice(0, 200);
-
-  return {
-    id: index + 1,
-    date: item.pubDate ? formatDate(item.pubDate) : "Unknown",
-    title: item.title || "Untitled",
-    summary: cleanSummary || "No summary available.",
-    url: item.link,
-    image: item.enclosure?.url || "/blog/default.svg",
-  };
-}
 
 const fetchSubstackPosts = async (limit?: number): Promise<BlogEntry[]> => {
   if (!SUBSTACK_USERNAME) {
@@ -62,7 +25,7 @@ const fetchSubstackPosts = async (limit?: number): Promise<BlogEntry[]> => {
 
     const posts = items
       .slice(0, limit)
-      .map((item, index) => transformRSSItemToBlogEntry(item, index));
+      .map((item, index) => transformRSSItemToBlogEntry(item as SubstackRSSItem, index));
 
     return posts;
   } catch (error) {
