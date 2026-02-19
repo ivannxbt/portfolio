@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
 import { compileMDX } from "next-mdx-remote/rsc";
@@ -68,12 +68,17 @@ const toArray = (value: unknown): string[] => {
 const resolvePath = (type: ContentType, slug: string, lang: Locale) =>
   path.join(contentDirectory, type, `${slug}.${lang}.mdx`);
 
-const readDirectory = (type: ContentType, lang: Locale) => {
+const readDirectory = async (type: ContentType, lang: Locale) => {
   const dir = path.join(contentDirectory, type);
-  if (!fs.existsSync(dir)) return [];
 
-  return fs
-    .readdirSync(dir)
+  try {
+    await fs.access(dir);
+  } catch {
+    return [];
+  }
+
+  const files = await fs.readdir(dir);
+  return files
     .filter((file) => file.endsWith(`.${lang}.mdx`))
     .map((file) => ({
       file,
@@ -82,10 +87,12 @@ const readDirectory = (type: ContentType, lang: Locale) => {
     }));
 };
 
-export function getProjects(lang: Locale): ProjectEntry[] {
-  return readDirectory("projects", lang)
-    .map(({ slug, fullPath }) => {
-      const rawFile = fs.readFileSync(fullPath, "utf8");
+export async function getProjects(lang: Locale): Promise<ProjectEntry[]> {
+  const directoryEntries = await readDirectory("projects", lang);
+
+  const projects = await Promise.all(
+    directoryEntries.map(async ({ slug, fullPath }) => {
+      const rawFile = await fs.readFile(fullPath, "utf8");
       const { data, content } = matter(rawFile);
 
       const frontmatter: ProjectFrontmatter = {
@@ -106,17 +113,21 @@ export function getProjects(lang: Locale): ProjectEntry[] {
         content,
       };
     })
-    .sort(
-      (a, b) =>
-        new Date(b.frontmatter.date).getTime() -
-        new Date(a.frontmatter.date).getTime()
-    );
+  );
+
+  return projects.sort(
+    (a, b) =>
+      new Date(b.frontmatter.date).getTime() -
+      new Date(a.frontmatter.date).getTime()
+  );
 }
 
-export function getBlogPosts(lang: Locale): BlogEntry[] {
-  return readDirectory("blog", lang)
-    .map(({ slug, fullPath }) => {
-      const rawFile = fs.readFileSync(fullPath, "utf8");
+export async function getBlogPosts(lang: Locale): Promise<BlogEntry[]> {
+  const directoryEntries = await readDirectory("blog", lang);
+
+  const posts = await Promise.all(
+    directoryEntries.map(async ({ slug, fullPath }) => {
+      const rawFile = await fs.readFile(fullPath, "utf8");
       const { data, content } = matter(rawFile);
 
       const frontmatter: BlogFrontmatter = {
@@ -134,11 +145,13 @@ export function getBlogPosts(lang: Locale): BlogEntry[] {
         content,
       };
     })
-    .sort(
-      (a, b) =>
-        new Date(b.frontmatter.date).getTime() -
-        new Date(a.frontmatter.date).getTime()
-    );
+  );
+
+  return posts.sort(
+    (a, b) =>
+      new Date(b.frontmatter.date).getTime() -
+      new Date(a.frontmatter.date).getTime()
+  );
 }
 
 export async function getCompiledBlogPost(
@@ -146,11 +159,14 @@ export async function getCompiledBlogPost(
   lang: Locale
 ): Promise<CompiledBlogPost | null> {
   const filePath = resolvePath("blog", slug, lang);
-  if (!fs.existsSync(filePath)) {
+
+  try {
+    await fs.access(filePath);
+  } catch {
     return null;
   }
 
-  const source = fs.readFileSync(filePath, "utf8");
+  const source = await fs.readFile(filePath, "utf8");
   const compiled = await compileMDX<BlogFrontmatter>({
     source,
     options: {
@@ -169,13 +185,16 @@ export async function getCompiledBlogPost(
   };
 }
 
-export function getAllSlugs(type: ContentType): string[] {
+export async function getAllSlugs(type: ContentType): Promise<string[]> {
   const dir = path.join(contentDirectory, type);
-  if (!fs.existsSync(dir)) {
+
+  try {
+    await fs.access(dir);
+  } catch {
     return [];
   }
 
-  const files = fs.readdirSync(dir);
+  const files = await fs.readdir(dir);
   const slugs = new Set<string>();
 
   files.forEach((file) => {
