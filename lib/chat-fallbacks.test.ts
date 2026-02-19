@@ -14,10 +14,7 @@ describe('getFallbackResponse', () => {
   });
 
   it('should return experience when matching "tell me about your experience"', () => {
-    // Note: "about your" contains "about you", which matches the first topic.
-    // We use a more specific prompt or rely on the first match if intended.
-    // For this test, we want to ensure experience is returned when it matches.
-    const response = getFallbackResponse('what is your experience', 'en');
+    const response = getFallbackResponse('tell me about your experience', 'en');
     expect(response).toBe(fallbackChatProfile.en.experience);
   });
 

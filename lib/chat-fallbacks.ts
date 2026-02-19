@@ -140,8 +140,16 @@ export const fallbackTopicMatchers: Array<{
 export const getFallbackResponse = (prompt: string, lang: Language): string => {
   const profile = fallbackChatProfile[lang] ?? fallbackChatProfile.en;
   const normalized = prompt.toLowerCase();
+
+  // Use a more robust matching that respects word boundaries to avoid false positives
+  // like "about your" matching "about you".
   const match = fallbackTopicMatchers.find(({ keywords }) =>
-    keywords.some((keyword) => normalized.includes(keyword))
+    keywords.some((keyword) => {
+      // Escape special characters and check for word boundaries
+      const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'i');
+      return regex.test(normalized);
+    })
   );
 
   if (match) {
