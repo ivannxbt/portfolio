@@ -29,6 +29,8 @@ export async function GET(
       headers: {
         "Content-Type": MIME_TYPES[ext] ?? "application/octet-stream",
         "Cache-Control": "public, max-age=31536000, immutable",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Security-Policy": "default-src 'none'; sandbox",
       },
     });
   } catch {

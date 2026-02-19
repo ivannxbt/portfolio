@@ -44,13 +44,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Only PNG, JPEG, WebP, and GIF files are allowed." }, { status: 400 });
   }
 
-  const buffer = Buffer.from(await uploadFile.arrayBuffer());
-  if (buffer.length > MAX_FILE_SIZE) {
+  if (uploadFile.size > MAX_FILE_SIZE) {
     return NextResponse.json({ error: "File exceeds the 5 MB upload limit." }, { status: 413 });
   }
 
+  const buffer = Buffer.from(await uploadFile.arrayBuffer());
+
   const id = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const extension = path.extname(uploadFile.name || "").toLowerCase() || MIME_EXTENSIONS[uploadFile.type] || ".png";
+  const extension = MIME_EXTENSIONS[uploadFile.type] || ".png";
   const filename = `${id}${extension}`;
   const destination = path.join(UPLOAD_DIR, filename);
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 
 interface CursorSpotlightProps {
   color?: string;
@@ -47,179 +48,11 @@ export function CursorSpotlight({
   // Don't render on mobile/touch devices or if reduced motion is preferred
   if (!shouldRender || prefersReducedMotion) return null;
 
-  // Use intensity directly - the parent already provides a subtle value
-  const baseIntensity = intensity;
-
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      <style>{`
-        @keyframes float-1 {
-          0%, 100% {
-            transform: translate(0, 0) rotate(0deg) scale(1);
-            opacity: ${baseIntensity};
-          }
-          25% {
-            transform: translate(80px, 60px) rotate(5deg) scale(1.08);
-            opacity: ${baseIntensity * 1.15};
-          }
-          50% {
-            transform: translate(120px, 120px) rotate(-3deg) scale(1.02);
-            opacity: ${baseIntensity * 0.9};
-          }
-          75% {
-            transform: translate(40px, 80px) rotate(2deg) scale(1.06);
-            opacity: ${baseIntensity * 1.1};
-          }
-        }
-
-        @keyframes float-2 {
-          0%, 100% {
-            transform: translate(0, 0) rotate(0deg) scale(1);
-            opacity: ${baseIntensity * 0.9};
-          }
-          25% {
-            transform: translate(-90px, 70px) rotate(-4deg) scale(0.95);
-            opacity: ${baseIntensity * 1.1};
-          }
-          50% {
-            transform: translate(-60px, 130px) rotate(2deg) scale(1.05);
-            opacity: ${baseIntensity * 0.85};
-          }
-          75% {
-            transform: translate(-100px, 50px) rotate(-2deg) scale(0.98);
-            opacity: ${baseIntensity};
-          }
-        }
-
-        @keyframes float-3 {
-          0%, 100% {
-            transform: translate(0, 0) rotate(0deg) scale(0.95);
-            opacity: ${baseIntensity * 0.8};
-          }
-          25% {
-            transform: translate(100px, -30px) rotate(3deg) scale(1.05);
-            opacity: ${baseIntensity * 0.95};
-          }
-          50% {
-            transform: translate(70px, 60px) rotate(-2deg) scale(0.98);
-            opacity: ${baseIntensity * 0.75};
-          }
-          75% {
-            transform: translate(120px, 20px) rotate(1deg) scale(1.02);
-            opacity: ${baseIntensity * 0.9};
-          }
-        }
-
-        @keyframes float-4 {
-          0%, 100% {
-            transform: translate(0, 0) rotate(0deg) scale(1.02);
-            opacity: ${baseIntensity * 0.75};
-          }
-          25% {
-            transform: translate(-70px, 50px) rotate(-3deg) scale(0.96);
-            opacity: ${baseIntensity * 0.9};
-          }
-          50% {
-            transform: translate(-110px, -20px) rotate(4deg) scale(1.04);
-            opacity: ${baseIntensity * 0.7};
-          }
-          75% {
-            transform: translate(-40px, 70px) rotate(-1deg) scale(0.99);
-            opacity: ${baseIntensity * 0.85};
-          }
-        }
-
-        @keyframes float-5 {
-          0%, 100% {
-            transform: translate(0, 0) rotate(0deg) scale(0.98);
-            opacity: ${baseIntensity * 0.7};
-          }
-          25% {
-            transform: translate(90px, -60px) rotate(2deg) scale(1.04);
-            opacity: ${baseIntensity * 0.85};
-          }
-          50% {
-            transform: translate(60px, 30px) rotate(-3deg) scale(0.96);
-            opacity: ${baseIntensity * 0.65};
-          }
-          75% {
-            transform: translate(110px, -40px) rotate(1deg) scale(1.02);
-            opacity: ${baseIntensity * 0.8};
-          }
-        }
-
-        @keyframes float-6 {
-          0%, 100% {
-            transform: translate(0, 0) rotate(0deg) scale(1);
-            opacity: ${baseIntensity * 0.8};
-          }
-          25% {
-            transform: translate(-70px, 40px) rotate(-2deg) scale(0.94);
-            opacity: ${baseIntensity * 0.95};
-          }
-          50% {
-            transform: translate(30px, -50px) rotate(3deg) scale(1.06);
-            opacity: ${baseIntensity * 0.75};
-          }
-          75% {
-            transform: translate(-50px, 60px) rotate(-1deg) scale(0.98);
-            opacity: ${baseIntensity * 0.9};
-          }
-        }
-
-        @keyframes float-7 {
-          0%, 100% {
-            transform: translate(0, 0) rotate(0deg) scale(0.92);
-            opacity: ${baseIntensity * 0.6};
-          }
-          25% {
-            transform: translate(30px, 20px) rotate(2deg) scale(1.08);
-            opacity: ${baseIntensity * 0.8};
-          }
-          50% {
-            transform: translate(-20px, -20px) rotate(-1deg) scale(0.95);
-            opacity: ${baseIntensity * 0.55};
-          }
-          75% {
-            transform: translate(40px, -30px) rotate(1deg) scale(1.04);
-            opacity: ${baseIntensity * 0.75};
-          }
-        }
-
-        @keyframes float-8 {
-          0%, 100% {
-            transform: translate(0, 0) rotate(0deg) scale(1);
-            opacity: ${baseIntensity * 0.5};
-          }
-          25% {
-            transform: translate(-25px, 35px) rotate(1deg) scale(1.04);
-            opacity: ${baseIntensity * 0.65};
-          }
-          50% {
-            transform: translate(20px, 15px) rotate(-1deg) scale(0.96);
-            opacity: ${baseIntensity * 0.45};
-          }
-          75% {
-            transform: translate(-15px, 40px) rotate(0.5deg) scale(1.02);
-            opacity: ${baseIntensity * 0.6};
-          }
-        }
-
-        .spotlight-orb {
-          will-change: transform, opacity;
-          backface-visibility: hidden;
-        }
-
-        .orb-1 { animation: float-1 23s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
-        .orb-2 { animation: float-2 29s cubic-bezier(0.33, 0.1, 0.67, 1) infinite; }
-        .orb-3 { animation: float-3 41s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
-        .orb-4 { animation: float-4 37s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        .orb-5 { animation: float-5 43s cubic-bezier(0.33, 0.1, 0.67, 1) infinite; }
-        .orb-6 { animation: float-6 31s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
-        .orb-7 { animation: float-7 59s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        .orb-8 { animation: float-8 67s cubic-bezier(0.33, 0.1, 0.67, 1) infinite; }
-      `}</style>
-
+    <div
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+      style={{ '--cursor-intensity': intensity } as CSSProperties}
+    >
       {/* Orb 1 - Top Left */}
       <div
         className="absolute spotlight-orb orb-1"

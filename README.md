@@ -23,9 +23,17 @@ A modern, dark-themed bilingual portfolio built with Next.js 15, Tailwind CSS, a
 
 ## Getting Started
 
-1. Set up authentication credentials in `data/secret-config.json`:
+1. Set up your environment variables. You can use a `.env.local` file for local development:
 ```bash
-npm run secrets:init -- --admin-email=you@example.com --password=your_password --database-url="postgresql://user:pass@host/db" --nextauth-secret="secure-random-string"
+ADMIN_EMAIL=you@example.com
+ADMIN_PASSWORD_HASH=your_hashed_password
+DATABASE_URL="postgresql://user:pass@host/db"
+NEXTAUTH_SECRET="secure-random-string"
+```
+
+To generate a password hash, you can use:
+```bash
+node generate-hash.mjs
 ```
 
 2. Install dependencies and run:
@@ -76,7 +84,11 @@ tags: ["Tag1", "Tag2"]
 
 ## Deployment
 
-Deploy to Vercel, Netlify, or any platform that supports Next.js. Set admin credentials via `data/secret-config.json`.
+Deploy to Vercel, Netlify, or any platform that supports Next.js. Set admin credentials using environment variables:
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD_HASH`
+- `DATABASE_URL`
+- `NEXTAUTH_SECRET`
 
 ## License
 
