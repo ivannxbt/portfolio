@@ -22,14 +22,12 @@ import {
   Layers,
   Linkedin,
   MapPin,
-  Menu,
   Rss,
   Send,
   Twitter,
-  X,
   type LucideIcon
 } from "lucide-react";
-import { ThemeSelector } from "@/components/theme-selector";
+import { Header } from "@/components/header";
 import type { Theme, Language } from "@/lib/types";
 import { CursorSpotlight } from "./cursor-spotlight";
 import { ScrollReveal } from "./scroll-reveal";
@@ -44,8 +42,6 @@ import {
   type StackIcon,
 } from "@/content/site-content";
 import { ProjectCardBrutal } from "@/components/project-card-brutal";
-import { generateSystemPrompt } from "@/lib/chat-context";
-
 import { RichText } from "@/components/portfolio/rich-text";
 
 const GithubContributions = dynamic(
@@ -513,8 +509,6 @@ export function PortfolioLanding({
   const [mounted, setMounted] = useState(false);
   const { theme: currentTheme } = useTheme();
   const theme = (mounted ? currentTheme : "light") as Theme || "light";
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenu, setMobileMenu] = useState(false);
 
   // Initialize with pre-fetched server content for BOTH languages (instant language switching!)
   const [contentMap, setContentMap] = useState<Record<Language, LandingContent>>(() => {
@@ -549,9 +543,6 @@ export function PortfolioLanding({
     t.projects.viewLess ?? (lang === "en" ? "View fewer projects" : "Ver menos proyectos");
 
   // Generate dynamic system prompt for chatbot based on current content
-  const chatSystemPrompt = useMemo(() => {
-    return generateSystemPrompt(t, lang);
-  }, [t, lang]);
 
   // Fix hydration mismatch by only using theme after client mount
   useEffect(() => {
@@ -581,29 +572,6 @@ export function PortfolioLanding({
 
   // Client-side fetch removed - both languages now pre-loaded from server!
   // This eliminates the 1-3s delay on language switching.
-
-  useEffect(() => {
-    let ticking = false;
-    let lastScrolled = scrolled;
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const newScrolled = window.scrollY > 50;
-          // Only update state if the value actually changed
-          if (newScrolled !== lastScrolled) {
-            lastScrolled = newScrolled;
-            setScrolled(newScrolled);
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [scrolled]);
 
   const getThemeClasses = () => {
     switch (theme) {
@@ -635,104 +603,7 @@ export function PortfolioLanding({
         />
       )}
 
-      <header
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
-          ? `${theme === "brutal"
-              ? "bg-white border-black border-b-3"
-              : theme === "dark"
-                ? "bg-[#1a1a1a]/80 border-neutral-900"
-                : "bg-white/80 border-gray-200"
-          } backdrop-blur-md border-b py-3`
-          : "py-6 bg-transparent"
-          }`}
-      >
-        <div className="max-w-5xl mx-auto px-6 flex items-center justify-between">
-          <div
-            className={`font-bold text-lg tracking-tight flex items-center gap-2 ${
-              theme === "brutal" ? "text-black font-black" : theme === "dark" ? "text-neutral-100" : "text-neutral-900"
-            }`}
-          >
-            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/10 bg-white/5">
-              <Image
-                src={t.branding.favicon || "/icons/ivan-orb.svg"}
-                alt={t.branding.logoText || "Portfolio logo"}
-                fill
-                className="object-cover"
-                sizes="32px"
-              />
-            </div>
-            <span>{t.branding.logoText || "Portfolio"}</span>
-          </div>
-
-          <nav
-            className={`hidden md:flex items-center gap-8 text-sm font-medium ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-              }`}
-          >
-            {Object.entries(t.nav).map(([key, value]) => (
-              <a key={key} href={`#${key}`} className="hover:text-teal-500 transition-colors capitalize">
-                {value}
-              </a>
-            ))}
-
-            <div className="flex items-center gap-3 ml-4 border-l pl-4 border-neutral-800/50">
-              <ThemeSelector />
-
-              <Link
-                href={lang === "en" ? "/es" : "/en"}
-                className={`px-2 py-1 text-xs font-mono border rounded transition-all ${theme === "dark"
-                  ? "border-neutral-800 text-neutral-500 hover:border-neutral-600 hover:text-white"
-                  : theme === "brutal"
-                  ? "border-black text-black hover:bg-[#ffdd00]"
-                  : "border-gray-200 text-neutral-500 hover:border-gray-300 hover:text-black"
-                  }`}
-              >
-                {lang === "en" ? "ES" : "EN"}
-              </Link>
-            </div>
-          </nav>
-
-          <button
-            className={`md:hidden ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"}`}
-            onClick={() => setMobileMenu((prev) => !prev)}
-            aria-label={mobileMenu ? "Close menu" : "Open menu"}
-          >
-            {mobileMenu ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-      </header>
-
-      {mobileMenu && (
-        <div
-          className={`fixed inset-0 z-40 pt-24 px-6 md:hidden ${
-            theme === "brutal" ? "bg-white" : theme === "dark" ? "bg-[#1a1a1a]" : "bg-white"
-          }`}
-        >
-          <nav
-            className={`flex flex-col gap-6 text-xl font-medium ${theme === "dark" ? "text-neutral-400" : "text-neutral-600"
-              }`}
-          >
-            {Object.entries(t.nav).map(([key, value]) => (
-              <a
-                key={key}
-                href={`#${key}`}
-                onClick={() => setMobileMenu(false)}
-                className="hover:text-teal-500"
-              >
-                {value}
-              </a>
-            ))}
-            <div className="flex items-center gap-4 mt-4">
-              <Link
-                href={lang === "en" ? "/es" : "/en"}
-                className="text-teal-500 text-base"
-              >
-                {lang === "en" ? "Switch to Spanish" : "Cambiar a Inglés"}
-              </Link>
-              <ThemeSelector />
-            </div>
-          </nav>
-        </div>
-      )}
+      <Header t={t} lang={lang} theme={theme} />
 
       <main className="relative z-10 max-w-5xl mx-auto px-6">
         {(contentLoading || contentError) && (
@@ -807,7 +678,7 @@ export function PortfolioLanding({
           </motion.div>
 
           {/* Chat widget - renders in portal to document.body */}
-          <ClairoChat lang={lang} theme={theme} systemPrompt={chatSystemPrompt} />
+          <ClairoChat lang={lang} theme={theme} />
         </section>
 
         <section

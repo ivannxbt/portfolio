@@ -17,7 +17,6 @@ import {
 type ClairoProps = {
   lang: Language;
   theme: Theme;
-  systemPrompt?: string; // Optional custom system prompt
 };
 
 // Session storage key for message persistence across re-mounts
@@ -51,7 +50,7 @@ export const clearChatHistory = () => {
   }
 };
 
-export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }) => {
+export const ClairoChat = React.memo<ClairoProps>(({ lang, theme }) => {
   const prefersReducedMotion = useReducedMotion();
 
   // Component state - initialize from sessionStorage to prevent duplicates on re-mount
@@ -110,22 +109,10 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }
     ]);
     setIsLoading(true);
 
-    // System context for AI - Use custom prompt if provided, otherwise fallback
-    const systemContext = systemPrompt || `
-      You are Clairo, an AI assistant for Iván Caamaño's portfolio website.
-      Use the following context to answer questions:
-      - Role: Telematics Engineer, AI/ML Specialist.
-      - Education: Master in Network Services (UPM), Bachelor in Telecom (UPM).
-      - Key Skills: Python, PyTorch, AWS, Azure, RAG, Generative AI.
-      - Projects: AI Doc Generation (AWS), RAG Chatbot (Azure), Radar ML Optimization (Indra).
-      - Tone: Professional, enthusiastic, concise.
-      - Language: Respond in ${lang === "en" ? "English" : "Spanish"}.
-    `;
-
-    // Call API
+    // Call API with language parameter
     const reply = await callAIAssistant({
       prompt: userMsg,
-      systemInstruction: systemContext,
+      language: lang,
       fallback: () => getFallbackResponse(userMsg, lang),
     });
 
@@ -140,7 +127,7 @@ export const ClairoChat = React.memo<ClairoProps>(({ lang, theme, systemPrompt }
       },
     ]);
     setIsLoading(false);
-  }, [input, hasInteracted, lang, systemPrompt]);
+  }, [input, hasInteracted, lang]);
 
   // Keyboard handlers
   const handleKeyDown = useCallback(
