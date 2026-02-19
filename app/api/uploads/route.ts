@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
   }
 
   const id = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const extension = path.extname(uploadFile.name || "").toLowerCase() || MIME_EXTENSIONS[uploadFile.type] || ".png";
+  const extension = MIME_EXTENSIONS[uploadFile.type] || ".png";
   const filename = `${id}${extension}`;
   const destination = path.join(UPLOAD_DIR, filename);
 
