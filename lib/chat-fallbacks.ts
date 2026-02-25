@@ -1,4 +1,5 @@
 import type { Language, FallbackProfile } from "@/lib/types";
+import { apiClient, ApiClientError } from "@/lib/api-client";
 
 export const fallbackChatProfile: Record<Language, FallbackProfile> = {
   en: {
@@ -161,56 +162,28 @@ export const callAIAssistant = async ({
   fallback?: () => string;
 }): Promise<string> => {
   try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: prompt,
-        language,
-      }),
+    const data = await apiClient.chat({
+      message: prompt,
+      language,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("Chat API error:", {
-        status: response.status,
-        statusText: response.statusText,
-        errorData,
-      });
-
-      // Provide more specific error messages
-      const errorMessage =
-        errorData.error ||
-        (response.status === 500
-          ? "The AI service is temporarily unavailable. Using fallback response."
-          : response.status === 429
-            ? "Too many requests. Please wait a moment."
-            : "Chat service error");
-
-      throw new Error(errorMessage);
-    }
-
-    const data = (await response.json()) as { reply?: string; error?: string; warning?: string };
-
-    if (data.error) {
-      console.error("API returned error:", data.error);
-      return fallback?.() ?? "Unable to generate a response.";
-    }
 
     const reply = data.reply?.trim();
 
     if (!reply || reply === "No response generated.") {
-      if (data.warning) {
-        console.warn("API warning:", data.warning);
-      }
       return fallback?.() ?? "Unable to generate a response.";
     }
 
     return reply;
   } catch (error: unknown) {
     console.error("Chat API error:", error);
+    if (error instanceof ApiClientError) {
+      if (error.status === 429) {
+        return "Too many requests. Please wait a moment.";
+      }
+      if (error.status === 500) {
+        return fallback?.() ?? "The AI service is temporarily unavailable. Using fallback response.";
+      }
+    }
     return fallback?.() ?? "Unable to reach the chat service.";
   }
 };

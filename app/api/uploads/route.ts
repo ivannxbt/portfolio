@@ -5,10 +5,10 @@ import crypto from "crypto";
 
 import { getServerSession } from "next-auth";
 import { getAuthOptions, NEXTAUTH_SECRET_ERROR } from "@/lib/auth";
+import { apiError } from "@/lib/api-response";
+import { UploadConstraints, UploadResponseSchema } from "@/shared/contracts";
 
 const UPLOAD_DIR = path.join(process.cwd(), "data", "uploads");
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const MIME_EXTENSIONS: Record<string, string> = {
   "image/png": ".png",
   "image/jpeg": ".jpg",
@@ -24,28 +24,28 @@ export async function POST(request: NextRequest) {
   const authOptions = getAuthOptions();
   if (!authOptions) {
     console.error("Uploads API blocked:", NEXTAUTH_SECRET_ERROR);
-    return NextResponse.json({ error: NEXTAUTH_SECRET_ERROR }, { status: 500 });
+    return apiError(500, NEXTAUTH_SECRET_ERROR, "AUTH_NOT_CONFIGURED");
   }
   const session = await getServerSession(authOptions);
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError(401, "Unauthorized", "UNAUTHORIZED");
   }
 
   const formData = await request.formData();
   const file = formData.get("file");
 
   if (!file || typeof (file as File).arrayBuffer !== "function") {
-    return NextResponse.json({ error: "A file is required." }, { status: 400 });
+    return apiError(400, "A file is required.", "MISSING_FILE");
   }
 
   const uploadFile = file as File;
 
-  if (!ALLOWED_TYPES.includes(uploadFile.type)) {
-    return NextResponse.json({ error: "Only PNG, JPEG, WebP, and GIF files are allowed." }, { status: 400 });
+  if (!UploadConstraints.allowedMimeTypes.includes(uploadFile.type as (typeof UploadConstraints.allowedMimeTypes)[number])) {
+    return apiError(400, "Only PNG, JPEG, WebP, and GIF files are allowed.", "INVALID_FILE_TYPE");
   }
 
-  if (uploadFile.size > MAX_FILE_SIZE) {
-    return NextResponse.json({ error: "File exceeds the 5 MB upload limit." }, { status: 413 });
+  if (uploadFile.size > UploadConstraints.maxFileSize) {
+    return apiError(413, "File exceeds the 5 MB upload limit.", "FILE_TOO_LARGE");
   }
 
   const buffer = Buffer.from(await uploadFile.arrayBuffer());
@@ -58,5 +58,5 @@ export async function POST(request: NextRequest) {
   await ensureUploadDir();
   await writeFile(destination, buffer);
 
-  return NextResponse.json({ url: `/api/uploads/${filename}` });
+  return NextResponse.json(UploadResponseSchema.parse({ url: `/api/uploads/${filename}` }));
 }

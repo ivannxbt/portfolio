@@ -10,6 +10,8 @@ import { defaultContent } from "@/content/site-content";
 import { generateSystemPrompt } from "@/lib/chat-context";
 import { Language } from "@/lib/types";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-response";
+import { ChatRequestSchema, ChatResponseSchema } from "@/shared/contracts";
 
 export async function POST(request: NextRequest) {
   const ip =
@@ -20,7 +22,7 @@ export async function POST(request: NextRequest) {
   const rl = checkRateLimit(ip, { limit: 10, windowMs: 60_000 });
   if (!rl.ok) {
     return NextResponse.json(
-      { error: "Too many requests. Please wait before sending another message." },
+      { error: "Too many requests. Please wait before sending another message.", code: "RATE_LIMITED" },
       { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
     );
   }
@@ -29,22 +31,16 @@ export async function POST(request: NextRequest) {
   if (!isAIConfigured()) {
     const validation = validateGoogleAPIKey();
     console.error("AI configuration error:", validation.message);
-    return NextResponse.json(
-      { error: `AI service is unavailable: ${validation.message}` },
-      { status: 500 }
-    );
+    return apiError(500, `AI service is unavailable: ${validation.message}`, "AI_NOT_CONFIGURED");
   }
 
   try {
-    const body = await request.json();
-    const { message, language = "en" } = body;
-
-    if (!message || typeof message !== "string") {
-      return NextResponse.json(
-        { error: "Message is required and must be a string." },
-        { status: 400 }
-      );
+    const body = await request.json().catch(() => null);
+    const parsedBody = ChatRequestSchema.safeParse(body);
+    if (!parsedBody.success) {
+      return apiError(400, "Invalid request payload.", "INVALID_PAYLOAD");
     }
+    const { message, language = "en" } = parsedBody.data;
 
     // Validate language
     const lang: Language = language === "es" ? "es" : "en";
@@ -72,7 +68,8 @@ export async function POST(request: NextRequest) {
     // Flush any remaining text
     reply += decoder.decode();
 
-    return NextResponse.json({ reply });
+    const payload = ChatResponseSchema.parse({ reply });
+    return NextResponse.json(payload);
   } catch (error: unknown) {
     console.error("Chat API error:", error);
     console.error("Error details:", {
@@ -81,10 +78,7 @@ export async function POST(request: NextRequest) {
       cause: error instanceof Error ? error.cause : undefined,
     });
     // Don't expose internal error details to the client
-    return NextResponse.json(
-      { error: "Unable to process your request. Please try again later." },
-      { status: 500 }
-    );
+    return apiError(500, "Unable to process your request. Please try again later.", "INTERNAL_ERROR");
   }
 }
 

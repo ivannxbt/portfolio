@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
+import { apiError } from "@/lib/api-response";
 
 const UPLOAD_DIR = path.join(process.cwd(), "data", "uploads");
 const MIME_TYPES: Record<string, string> = {
@@ -18,7 +19,7 @@ export async function GET(
 ) {
   const { filename } = await params;
   if (!filename || !FILENAME_PATTERN.test(filename)) {
-    return NextResponse.json({ error: "Invalid filename." }, { status: 400 });
+    return apiError(400, "Invalid filename.", "INVALID_FILENAME");
   }
 
   const filePath = path.join(UPLOAD_DIR, filename);
@@ -34,6 +35,6 @@ export async function GET(
       },
     });
   } catch {
-    return NextResponse.json({ error: "File not found." }, { status: 404 });
+    return apiError(404, "File not found.", "FILE_NOT_FOUND");
   }
 }

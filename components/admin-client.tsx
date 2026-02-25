@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { apiClient, ApiClientError } from "@/lib/api-client";
 import {
   defaultContent,
   type LandingContent,
@@ -345,14 +346,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
       setError(null);
       setMessage(null);
       try {
-        const response = await fetch(`/api/content?lang=${lang}`, {
-          signal: controller.signal,
-          next: { revalidate: 60 }, // Cache for 1 minute
-        });
-        if (!response.ok) {
-          throw new Error("Failed to load content.");
-        }
-        const payload = (await response.json()) as { data: LandingContent };
+        const payload = (await apiClient.getContent(lang, { signal: controller.signal })) as { data: LandingContent };
         const data = payload.data ?? defaultContent[lang];
         setContent(cloneContent(data));
         dirtyRef.current = false;
@@ -362,7 +356,8 @@ export function AdminClient({ initialContent }: AdminClientProps) {
           return;
         }
         console.error("Admin load error", err);
-        setError("Unable to load content. Showing defaults.");
+        const message = err instanceof ApiClientError ? err.message : "Unable to load content.";
+        setError(`${message} Showing defaults.`);
         setContent(cloneContent(defaultContent[lang]));
         dirtyRef.current = false;
         setIsDirty(false);
@@ -409,15 +404,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     setError(null);
     setMessage(null);
     try {
-      const response = await fetch("/api/content", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lang, content: sanitizedContent }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to save content.");
-      }
-      const payload = (await response.json()) as { data: LandingContent };
+      const payload = (await apiClient.updateContent({
+        lang,
+        content: sanitizedContent,
+      })) as { data: LandingContent };
       if (payload.data) {
         setContent(cloneContent(payload.data));
       }
@@ -428,7 +418,8 @@ export function AdminClient({ initialContent }: AdminClientProps) {
       setTimeout(() => setMessage(null), 5000);
     } catch (err) {
       console.error("Admin save error", err);
-      setError("Saving failed. Please try again.");
+      const message = err instanceof ApiClientError ? err.message : "Saving failed.";
+      setError(`${message} Please try again.`);
       // Clear error after 5 seconds
       setTimeout(() => setError(null), 5000);
     } finally {

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { Send, Sparkles, Loader2, X } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
+import { apiClient, ApiClientError } from "@/lib/api-client";
 
 type Message = {
   id: string;
@@ -44,50 +45,7 @@ Sé conciso (2-4 oraciones), profesional y entusiasta.
 Si te preguntan sobre temas no relacionados, declina educadamente y sugiere preguntas relevantes.`,
 };
 
-async function streamChat(params: {
-  message: string;
-  systemInstruction: string;
-  onChunk: (text: string) => void;
-  onComplete: () => void;
-  onError: (error: string) => void;
-}) {
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: params.message,
-        systemInstruction: params.systemInstruction,
-      }),
-    });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-
-    if (!reader) {
-      throw new Error("No response stream");
-    }
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      params.onChunk(chunk);
-    }
-
-    params.onComplete();
-  } catch (error) {
-    console.error("Chat error:", error);
-    params.onError(
-      error instanceof Error ? error.message : "Unknown error"
-    );
-  }
-}
 
 export function AIAssistant({
   lang = "en",
@@ -136,36 +94,35 @@ export function AIAssistant({
       },
     ]);
 
-    await streamChat({
-      message: userMessage.text,
-      systemInstruction,
-      onChunk: (chunk) => {
-        assistantText += chunk;
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMessageId
-              ? { ...msg, text: assistantText }
-              : msg
-          )
-        );
-        scrollToBottom();
-      },
-      onComplete: () => {
-        setIsLoading(false);
-        scrollToBottom();
-      },
-      onError: (error) => {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMessageId
-              ? { ...msg, text: texts.error }
-              : msg
-          )
-        );
-        setIsLoading(false);
-      },
-    });
-  }, [input, isLoading, systemInstruction, texts.error, scrollToBottom]);
+    try {
+      const response = await apiClient.chat({
+        message: userMessage.text,
+        systemInstruction,
+        language: lang,
+      });
+      assistantText = response.reply;
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId
+            ? { ...msg, text: assistantText }
+            : msg
+        )
+      );
+      scrollToBottom();
+    } catch (error) {
+      console.error("Chat error:", error);
+      const message = error instanceof ApiClientError ? error.message : texts.error;
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId
+            ? { ...msg, text: message || texts.error }
+            : msg
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [input, isLoading, lang, systemInstruction, texts.error, scrollToBottom]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
