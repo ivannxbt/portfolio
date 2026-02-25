@@ -125,14 +125,17 @@ export function deepMerge<T>(target: T, source: unknown, depth = 0): T {
   }
 
   if (isPlainObject(source)) {
-    const plainTarget = isPlainObject(target) ? target : undefined;
-    const base = plainTarget ? { ...plainTarget } : {};
-    for (const key of Object.keys(source)) {
+    const plainTarget: Record<string, unknown> | undefined = isPlainObject(target)
+      ? target
+      : undefined;
+    const base: Record<string, unknown> = plainTarget ? { ...plainTarget } : {};
+    const sourceRecord = source as Record<string, unknown>;
+    for (const key of Object.keys(sourceRecord)) {
       if (DENYLISTED_KEYS.has(key)) {
         continue;
       }
 
-      const nextSource = source[key];
+      const nextSource = sourceRecord[key];
       const nextTarget = plainTarget ? plainTarget[key] : undefined;
       base[key] = deepMerge(nextTarget, nextSource, depth + 1);
     }

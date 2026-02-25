@@ -18,6 +18,7 @@ interface ProjectCardBrutalProps {
 export const ProjectCardBrutal = React.memo(
   ({ project, theme, index }: ProjectCardBrutalProps) => {
     const projectNumber = String(index + 1).padStart(2, "0");
+    const projectImage = project.image?.trim() || "/blog/default.svg";
 
     return (
       <motion.article
@@ -112,12 +113,12 @@ export const ProjectCardBrutal = React.memo(
           <div className="flex-grow" />
 
           {/* Project Image - Floating Island */}
-          {project.image && (
+          {projectImage && (
             <div className={`relative w-full h-40 my-4 rounded-xl overflow-hidden shadow-lg ${
               theme === "dark" ? "ring-1 ring-white/10" : "ring-1 ring-black/5"
             }`}>
               <Image
-                src={project.image}
+                src={projectImage}
                 alt={`${project.title} preview`}
                 fill
                 className="object-cover object-center"

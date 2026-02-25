@@ -355,7 +355,7 @@
         ],
         "liveUrl": "https://nexxo-waitlist.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/nexxo",
-        "image": "/projects/nexxo.png",
+        "image": "/projects/nexxo.webp",
         "confidential": false,
         "projectType": "Web"
       },
@@ -372,7 +372,7 @@
         ],
         "liveUrl": "https://caamano-inmuebles.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/caamano-inmuebles",
-        "image": "/projects/caamano-inmuebles.png",
+        "image": "/projects/caamano-inmuebles.webp",
         "confidential": false,
         "projectType": "Web"
       },
@@ -387,7 +387,7 @@
           "LangChain",
           "Automation"
         ],
-        "image": "/projects/pa-document-generator.png",
+        "image": "/projects/pa-document-generator.webp",
         "confidential": true,
         "projectType": "AI"
       },
@@ -402,7 +402,7 @@
           "LangChain",
           "Python"
         ],
-        "image": "/projects/enterprise-rag-chatbot.png",
+        "image": "/projects/enterprise-rag-chatbot.webp",
         "confidential": true,
         "projectType": "AI"
       },
@@ -416,7 +416,7 @@
           "TensorFlow",
           "Python"
         ],
-        "image": "/projects/ml-radar-optimizer.png",
+        "image": "/projects/ml-radar-optimizer.webp",
         "confidential": true,
         "projectType": "AI"
       },
@@ -430,7 +430,7 @@
           "Azure",
           "LangChain"
         ],
-        "image": "/projects/data-deduplication.png",
+        "image": "/projects/data-deduplication.webp",
         "confidential": true,
         "projectType": "AI"
       },
@@ -444,7 +444,7 @@
           "Azure",
           "LangChain"
         ],
-        "image": "/projects/budget-analysis-agent.png",
+        "image": "/projects/budget-analysis-agent.webp",
         "confidential": true,
         "projectType": "AI"
       }
@@ -829,7 +829,7 @@
         ],
         "liveUrl": "https://nexxo-waitlist.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/nexxo",
-        "image": "/projects/nexxo.png",
+        "image": "/projects/nexxo.webp",
         "confidential": false,
         "projectType": "Web"
       },
@@ -846,7 +846,7 @@
         ],
         "liveUrl": "https://caamano-inmuebles.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/caamano-inmuebles",
-        "image": "/projects/caamano-inmuebles.png",
+        "image": "/projects/caamano-inmuebles.webp",
         "confidential": false,
         "projectType": "Web"
       },
@@ -861,7 +861,7 @@
           "LangChain",
           "Automation"
         ],
-        "image": "/projects/pa-document-generator.png",
+        "image": "/projects/pa-document-generator.webp",
         "confidential": true,
         "projectType": "AI"
       },
@@ -876,7 +876,7 @@
           "LangChain",
           "Python"
         ],
-        "image": "/projects/enterprise-rag-chatbot.png",
+        "image": "/projects/enterprise-rag-chatbot.webp",
         "confidential": true,
         "projectType": "AI"
       },
@@ -890,7 +890,7 @@
           "TensorFlow",
           "Python"
         ],
-        "image": "/projects/ml-radar-optimizer.png",
+        "image": "/projects/ml-radar-optimizer.webp",
         "confidential": true,
         "projectType": "AI"
       },
@@ -904,7 +904,7 @@
           "Azure",
           "LangChain"
         ],
-        "image": "/projects/data-deduplication.png",
+        "image": "/projects/data-deduplication.webp",
         "confidential": true,
         "projectType": "AI"
       },
@@ -918,7 +918,7 @@
           "Azure",
           "LangChain"
         ],
-        "image": "/projects/budget-analysis-agent.png",
+        "image": "/projects/budget-analysis-agent.webp",
         "confidential": true,
         "projectType": "AI"
       }

@@ -9,47 +9,78 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    
-    - name: Validate YAML files
-      run: |
-        echo "🔍 Validating YAML files..."
-        find . -name "*.yml" -o -name "*.yaml" | while read file; do
-          echo "Checking $file"
-          python3 -c "import yaml; yaml.safe_load(open('$file'))" || exit 1
-        done
-        echo "✅ All YAML files are valid"
-    
-    - name: Validate JSON files
-      run: |
-        echo "🔍 Validating JSON files..."
-        find . -name "*.json" | while read file; do
-          echo "Checking $file"
-          python3 -c "import json; json.load(open('$file'))" || exit 1
-        done
-        echo "✅ All JSON files are valid"
-    
-    - name: Validate Markdown files
-      run: |
-        echo "🔍 Checking Markdown files..."
-        find . -name "*.md" | while read file; do
-          echo "Found: $file"
-        done
-        echo "✅ Markdown files check complete"
-    
-    - name: Verify directory structure
-      run: |
-        echo "🔍 Verifying directory structure..."
-        dirs=(".agents" ".claude" ".cursor" ".codex" ".gemini" ".github" "scripts")
-        for dir in "${dirs[@]}"; do
-          if [ -d "$dir" ]; then
-            echo "✅ $dir exists"
-          else
-            echo "❌ $dir is missing"
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
+
+      - name: Validate YAML files
+        run: |
+          echo "Validating YAML files..."
+          find . -type f \( -name "*.yml" -o -name "*.yaml" \) \
+            -not -path "./node_modules/*" \
+            -not -path "./.next/*" \
+            -not -path "./dist/*" | while read file; do
+            echo "Checking $file"
+            python -c "import yaml; yaml.safe_load(open('$file'))" || exit 1
+          done
+          echo "All YAML files are valid"
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          find . -type f -name "*.json" \
+            -not -path "./node_modules/*" \
+            -not -path "./.next/*" \
+            -not -path "./dist/*" | while read file; do
+            echo "Checking $file"
+            python -c "import json; json.load(open('$file'))" || exit 1
+          done
+          echo "All JSON files are valid"
+
+      - name: Validate Markdown files
+        run: |
+          echo "Checking Markdown files..."
+          find . -type f -name "*.md" \
+            -not -path "./node_modules/*" \
+            -not -path "./.next/*" \
+            -not -path "./dist/*" | while read file; do
+            echo "Found: $file"
+          done
+          echo "Markdown files check complete"
+
+      - name: Verify directory structure
+        run: |
+          echo "Verifying directory structure..."
+          required_dirs=(".github")
+          optional_dirs=(".agents" ".claude" ".cursor" ".codex" ".gemini" "scripts")
+          missing_required=0
+          for dir in "${required_dirs[@]}"; do
+            if [ -d "$dir" ]; then
+              echo "OK: $dir exists"
+            else
+              echo "ERROR: $dir is missing"
+              missing_required=1
+            fi
+          done
+          for dir in "${optional_dirs[@]}"; do
+            if [ -d "$dir" ]; then
+              echo "OK: $dir exists"
+            else
+              echo "WARN: $dir is missing (optional)"
+            fi
+          done
+          if [ "$missing_required" -ne 0 ]; then
             exit 1
           fi
-        done
-        echo "✅ Directory structure is valid"
+          echo "Directory structure is valid"
