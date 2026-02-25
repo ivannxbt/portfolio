@@ -1,83 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { LandingContent } from "@/content/site-content";
-import { isValidLocale, type Locale } from "@/lib/i18n";
-import { getServerSession } from "next-auth";
-import { getAuthOptions, NEXTAUTH_SECRET_ERROR } from "@/lib/auth";
+
+import { createSessionValidator } from "@/backend/auth/session-validator";
 import {
-  deepMerge,
-  getAllLandingContent,
-  getLandingContent,
-  readOverrides,
-  writeOverrides,
-} from "@/lib/content-store";
+  parseContentGetQuery,
+  parseContentPutRequest,
+} from "@/backend/contracts/content";
+import { fetchContent, updateContent } from "@/backend/services/content-service";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const langParam = searchParams.get("lang");
-    if (langParam) {
-      if (!isValidLocale(langParam)) {
-        return NextResponse.json(
-          { error: "Invalid language parameter." },
-          { status: 400 }
-        );
-      }
-      const locale = langParam as Locale;
-      const data = await getLandingContent(locale);
-      return NextResponse.json({ data });
+    const query = parseContentGetQuery({ lang: searchParams.get("lang") });
+
+    if (!query.ok) {
+      return NextResponse.json({ error: query.error }, { status: query.status });
     }
 
-    const data = await getAllLandingContent();
-    return NextResponse.json({ data });
+    const response = await fetchContent(query.locale);
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Content API GET error:", error);
-    return NextResponse.json(
-      { error: "Failed to load content." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to load content." }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const authOptions = getAuthOptions();
-    if (!authOptions) {
-      console.error("Content API PUT blocked:", NEXTAUTH_SECRET_ERROR);
-      return NextResponse.json({ error: NEXTAUTH_SECRET_ERROR }, { status: 500 });
-    }
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await createSessionValidator().validateSession();
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const body = await request.json();
-    const { lang, content } = body as {
-      lang?: string;
-      content?: Partial<LandingContent>;
-    };
-
-    if (!lang || !isValidLocale(lang) || !content || typeof content !== "object") {
-      return NextResponse.json(
-        { error: "Payload must include a valid lang and content object." },
-        { status: 400 }
-      );
+    const body = parseContentPutRequest(await request.json());
+    if (!body.ok) {
+      return NextResponse.json({ error: body.error }, { status: body.status });
     }
 
-    const overrides = await readOverrides();
-    const current = overrides[lang] ?? {};
-    overrides[lang] = deepMerge(current, content);
-    await writeOverrides(overrides);
-
-    const data = await getLandingContent(lang);
-    return NextResponse.json({ data });
+    const response = await updateContent(body.lang, body.content);
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Content API PUT error:", error);
-    return NextResponse.json(
-      { error: "Failed to update content." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update content." }, { status: 500 });
   }
 }

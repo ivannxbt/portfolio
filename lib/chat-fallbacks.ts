@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/backend/contracts/endpoints";
+import { buildApiUrl } from "@/lib/api-client";
 import type { Language, FallbackProfile } from "@/lib/types";
 
 export const fallbackChatProfile: Record<Language, FallbackProfile> = {
@@ -161,7 +163,7 @@ export const callAIAssistant = async ({
   fallback?: () => string;
 }): Promise<string> => {
   try {
-    const response = await fetch("/api/chat", {
+    const response = await fetch(buildApiUrl(API_ENDPOINTS.chat), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

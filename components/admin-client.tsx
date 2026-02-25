@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { API_ENDPOINTS } from "@/backend/contracts/endpoints";
+import { buildApiUrl } from "@/lib/api-client";
 import {
   defaultContent,
   type LandingContent,
@@ -345,7 +347,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
       setError(null);
       setMessage(null);
       try {
-        const response = await fetch(`/api/content?lang=${lang}`, {
+        const response = await fetch(`${buildApiUrl(API_ENDPOINTS.content)}?lang=${lang}`, {
           signal: controller.signal,
           next: { revalidate: 60 }, // Cache for 1 minute
         });
@@ -409,7 +411,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     setError(null);
     setMessage(null);
     try {
-      const response = await fetch("/api/content", {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.content), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lang, content: sanitizedContent }),

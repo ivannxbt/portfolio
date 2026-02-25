@@ -3,6 +3,8 @@
 import React, { useState, useRef, useCallback } from "react";
 import { Send, Sparkles, Loader2, X } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
+import { API_ENDPOINTS } from "@/backend/contracts/endpoints";
+import { buildApiUrl } from "@/lib/api-client";
 
 type Message = {
   id: string;
@@ -52,7 +54,7 @@ async function streamChat(params: {
   onError: (error: string) => void;
 }) {
   try {
-    const response = await fetch("/api/chat", {
+    const response = await fetch(buildApiUrl(API_ENDPOINTS.chat), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
