@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     request.headers.get("x-real-ip") ??
     "127.0.0.1";
 
-  const rl = checkRateLimit(ip, { limit: 10, windowMs: 60_000 });
+  const rl = await checkRateLimit(ip, { limit: 10, windowMs: 60_000 });
   if (!rl.ok) {
     return NextResponse.json(
       { error: "Too many requests. Please wait before sending another message." },
