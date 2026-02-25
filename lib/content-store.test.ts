@@ -2,26 +2,27 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import os from 'os';
 
-// NOTE: content-store.ts maintains module-level state (resolvedOverridesPath and pathResolutionPromise)
-// which persists across tests. Tests are designed to work with this shared state rather than
-// attempting to reset modules between tests, as module resets would interfere with mock setup.
-// The first test that triggers path resolution will establish the state used by subsequent tests.
-
 // Mock server-only to prevent it from throwing errors in tests
 vi.mock('server-only', () => ({
   default: {},
 }));
 
 // Mock the fs/promises module
+const { mockReadFile, mockWriteFile, mockMkdir } = vi.hoisted(() => ({
+  mockReadFile: vi.fn(),
+  mockWriteFile: vi.fn(),
+  mockMkdir: vi.fn(),
+}));
+
 vi.mock('fs/promises', () => ({
   default: {
-    readFile: vi.fn(),
-    writeFile: vi.fn(),
-    mkdir: vi.fn(),
+    readFile: mockReadFile,
+    writeFile: mockWriteFile,
+    mkdir: mockMkdir,
   },
-  readFile: vi.fn(),
-  writeFile: vi.fn(),
-  mkdir: vi.fn(),
+  readFile: mockReadFile,
+  writeFile: mockWriteFile,
+  mkdir: mockMkdir,
 }));
 
 // Mock react cache
@@ -46,6 +47,7 @@ describe('content-store', () => {
   let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
+    vi.resetModules();
     vi.clearAllMocks();
     consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -291,6 +293,30 @@ describe('content-store', () => {
 
       expect(vi.mocked(mkdir)).toHaveBeenCalled();
     });
+
+    it('should return updated overrides on subsequent reads without re-importing', async () => {
+      let fileContents = JSON.stringify({
+        en: { hero: { headline: 'Before Update' } },
+      });
+
+      vi.mocked(mkdir).mockResolvedValue(undefined);
+      vi.mocked(readFile).mockImplementation(async () => fileContents);
+      vi.mocked(writeFile).mockImplementation(async (_path, data) => {
+        fileContents = String(data);
+      });
+
+      const { readOverrides, writeOverrides } = await import('./content-store');
+
+      const before = await readOverrides();
+      expect(before.en?.hero?.headline).toBe('Before Update');
+
+      await writeOverrides({
+        en: { hero: { headline: 'After Update' } },
+      });
+
+      const after = await readOverrides();
+      expect(after.en?.hero?.headline).toBe('After Update');
+    });
   });
 
   describe('deepMerge', () => {
@@ -376,6 +402,30 @@ describe('content-store', () => {
       const result = await getLandingContent('en');
 
       expect(result.hero.headline).toBe('Override');
+    });
+
+    it('should return updated merged content after write in the same process', async () => {
+      let fileContents = JSON.stringify({
+        en: { hero: { headline: 'Initial' } },
+      });
+
+      vi.mocked(mkdir).mockResolvedValue(undefined);
+      vi.mocked(readFile).mockImplementation(async () => fileContents);
+      vi.mocked(writeFile).mockImplementation(async (_path, data) => {
+        fileContents = String(data);
+      });
+
+      const { getLandingContent, writeOverrides } = await import('./content-store');
+
+      const before = await getLandingContent('en');
+      expect(before.hero.headline).toBe('Initial');
+
+      await writeOverrides({
+        en: { hero: { headline: 'Updated' } },
+      });
+
+      const after = await getLandingContent('en');
+      expect(after.hero.headline).toBe('Updated');
     });
   });
 

@@ -7,6 +7,7 @@ import {
   deepMerge,
   getAllLandingContent,
   getLandingContent,
+  mergeWithDefaults,
   readOverrides,
   writeOverrides,
 } from "@/lib/content-store";
@@ -71,7 +72,7 @@ export async function PUT(request: NextRequest) {
     overrides[lang] = deepMerge(current, content);
     await writeOverrides(overrides);
 
-    const data = await getLandingContent(lang);
+    const data = mergeWithDefaults(lang, overrides[lang]);
     return NextResponse.json({ data });
   } catch (error) {
     console.error("Content API PUT error:", error);

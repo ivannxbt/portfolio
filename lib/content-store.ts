@@ -1,6 +1,5 @@
 import "server-only";
 
-import { cache } from "react";
 import { readFile, writeFile, mkdir } from "fs/promises";
 import os from "os";
 import path from "path";
@@ -76,7 +75,7 @@ async function getOverridesPath() {
   return pathResolutionPromise;
 }
 
-export const readOverrides = cache(async (): Promise<ContentOverrides> => {
+export async function readOverrides(): Promise<ContentOverrides> {
   const overridesPath = await getOverridesPath();
   const raw = await readFile(overridesPath, "utf-8");
   if (!raw.trim()) {
@@ -90,7 +89,7 @@ export const readOverrides = cache(async (): Promise<ContentOverrides> => {
     await writeFile(overridesPath, "{}", "utf-8");
     return {};
   }
-});
+}
 
 export async function writeOverrides(overrides: ContentOverrides) {
   const overridesPath = await getOverridesPath();
@@ -141,15 +140,15 @@ export function mergeWithDefaults(
   return deepMerge(defaultContent[locale], overrides ?? {});
 }
 
-export const getLandingContent = cache(async (locale: Locale): Promise<LandingContent> => {
+export async function getLandingContent(locale: Locale): Promise<LandingContent> {
   const overrides = await readOverrides();
   return mergeWithDefaults(locale, overrides[locale]);
-});
+}
 
-export const getAllLandingContent = cache(async (): Promise<Record<Locale, LandingContent>> => {
+export async function getAllLandingContent(): Promise<Record<Locale, LandingContent>> {
   const overrides = await readOverrides();
   return locales.reduce<Record<Locale, LandingContent>>((acc, locale) => {
     acc[locale] = mergeWithDefaults(locale, overrides[locale]);
     return acc;
   }, {} as Record<Locale, LandingContent>);
-});
+}
