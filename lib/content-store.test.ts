@@ -316,6 +316,41 @@ describe('content-store', () => {
       expect(result).toEqual({ arr: [4, 5] });
     });
 
+    it('should not merge non-plain objects', async () => {
+      const { deepMerge } = await import('./content-store');
+
+      const sourceDate = new Date('2024-01-01T00:00:00.000Z');
+      const result = deepMerge({ value: { nested: true } }, { value: sourceDate });
+
+      expect(result).toEqual({ value: sourceDate });
+    });
+
+    it('should skip denylisted keys and preserve global prototype safety', async () => {
+      const { deepMerge } = await import('./content-store');
+
+      const beforePolluted = (Object.prototype as { polluted?: boolean }).polluted;
+      const source = JSON.parse('{"__proto__":{"polluted":true},"safe":1}');
+
+      const result = deepMerge({}, source) as Record<string, unknown>;
+
+      expect(result).toEqual({ safe: 1 });
+      expect((Object.prototype as { polluted?: boolean }).polluted).toBe(beforePolluted);
+      expect(({} as { polluted?: boolean }).polluted).toBeUndefined();
+    });
+
+    it('should block constructor.prototype pollution payloads', async () => {
+      const { deepMerge } = await import('./content-store');
+
+      const beforePolluted = (Object.prototype as { polluted?: boolean }).polluted;
+      const source = JSON.parse('{"constructor":{"prototype":{"polluted":true}},"safe":2}');
+
+      const result = deepMerge({}, source) as Record<string, unknown>;
+
+      expect(result).toEqual({ safe: 2 });
+      expect((Object.prototype as { polluted?: boolean }).polluted).toBe(beforePolluted);
+      expect(({} as { polluted?: boolean }).polluted).toBeUndefined();
+    });
+
     it('should throw error on deep circular references', async () => {
       const { deepMerge } = await import('./content-store');
 
