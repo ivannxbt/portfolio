@@ -23,24 +23,25 @@ A modern, dark-themed bilingual portfolio built with Next.js 15, Tailwind CSS, a
 
 ## Getting Started
 
-1. Set up your environment variables. You can use a `.env.local` file for local development:
-```bash
-ADMIN_EMAIL=you@example.com
-ADMIN_PASSWORD_HASH=your_hashed_password
-DATABASE_URL="postgresql://user:pass@host/db"
-NEXTAUTH_SECRET="secure-random-string"
-```
+1. Set up your environment variables:
 
-To generate a password hash, you can use:
-```bash
-node generate-hash.mjs
-```
+   ```bash
+   cp .env.example .env.local
+   ```
 
-2. Install dependencies and run:
-```bash
-npm install
-npm run dev
-```
+   Then fill in your values. Required variables:
+
+   - `ADMIN_EMAIL` — admin login email
+   - `ADMIN_PASSWORD_HASH` — bcrypt hash of your password (generate with `node generate-hash.mjs`)
+   - `NEXTAUTH_SECRET` — random secret (generate with `openssl rand -base64 32`)
+   - `GOOGLE_API_KEY` — Google Gemini API key (required for AI chat and summarization)
+
+1. Install dependencies and run:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
 
 Open [http://localhost:3000](http://localhost:3000) to view your portfolio.
 
@@ -50,7 +51,7 @@ Visit `/admin` to manage content. Edit text, blog entries, and other content acr
 
 ## Project Structure
 
-```
+```text
 ├── app/[lang]/          # Language-specific pages
 ├── app/admin/           # CMS admin panel
 ├── app/api/             # API routes (chat, summarize, content)
@@ -63,10 +64,12 @@ Visit `/admin` to manage content. Edit text, blog entries, and other content acr
 ## Adding Content
 
 Create MDX files in `content/blog/` or `content/projects/` with language suffixes:
+
 - `your-post.en.mdx` (English)
 - `your-post.es.mdx` (Spanish)
 
 Example frontmatter:
+
 ```mdx
 ---
 title: "Your Title"
@@ -84,11 +87,14 @@ tags: ["Tag1", "Tag2"]
 
 ## Deployment
 
-Deploy to Vercel, Netlify, or any platform that supports Next.js. Set admin credentials using environment variables:
+Deploy to Vercel, Netlify, or any platform that supports Next.js. Set the following environment variables:
+
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD_HASH`
-- `DATABASE_URL`
 - `NEXTAUTH_SECRET`
+- `GOOGLE_API_KEY`
+- `NEXT_PUBLIC_SITE_URL` (optional)
+- `NEXT_PUBLIC_SUBSTACK_USERNAME` (optional)
 
 ## License
 

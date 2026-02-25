@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # secret config generated on the backend
 data/secret-config.json
@@ -53,3 +54,15 @@ next-env.d.ts
 .gemini/
 .opencode/
 gha-creds-*.json
+
+# GitHub AI-specific configs
+.github/copilot-instructions.md
+.github/commands/
+.github/skills/
+.github/workflows/gemini-*.yml
+
+# build artifacts and debug files
+build-output.log
+reproduce_issue.js
+
+data/substack-cache.json

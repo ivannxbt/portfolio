@@ -9,8 +9,22 @@ import {
 import { defaultContent } from "@/content/site-content";
 import { generateSystemPrompt } from "@/lib/chat-context";
 import { Language } from "@/lib/types";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "127.0.0.1";
+
+  const rl = checkRateLimit(ip, { limit: 10, windowMs: 60_000 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait before sending another message." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   // Check if AI provider is configured
   if (!isAIConfigured()) {
     const validation = validateGoogleAPIKey();

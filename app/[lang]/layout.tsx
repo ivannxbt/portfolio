@@ -23,6 +23,10 @@ export async function generateMetadata({
       lang === "es"
         ? "Portafolio bilingüe con agentes, RAG y operaciones de datos para empresas reguladas."
         : "Bilingual portfolio featuring agents, RAG systems, and data operations for regulated teams.",
+    twitter: {
+      card: "summary_large_image",
+      creator: "@ivannxbt",
+    },
   };
 }
 
