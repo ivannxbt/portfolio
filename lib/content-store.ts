@@ -99,6 +99,15 @@ export async function writeOverrides(overrides: ContentOverrides) {
 }
 
 const MAX_MERGE_DEPTH = 50;
+const DENYLISTED_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
+}
 
 export function deepMerge<T>(target: T, source: unknown, depth = 0): T {
   if (depth > MAX_MERGE_DEPTH) {
@@ -115,17 +124,16 @@ export function deepMerge<T>(target: T, source: unknown, depth = 0): T {
     return source.slice() as T;
   }
 
-  if (source && typeof source === "object") {
-    const base =
-      target && typeof target === "object"
-        ? { ...(target as Record<string, unknown>) }
-        : {};
-    for (const key of Object.keys(source as Record<string, unknown>)) {
-      const nextSource = (source as Record<string, unknown>)[key];
-      const nextTarget =
-        target && typeof target === "object"
-          ? (target as Record<string, unknown>)[key]
-          : undefined;
+  if (isPlainObject(source)) {
+    const plainTarget = isPlainObject(target) ? target : undefined;
+    const base = plainTarget ? { ...plainTarget } : {};
+    for (const key of Object.keys(source)) {
+      if (DENYLISTED_KEYS.has(key)) {
+        continue;
+      }
+
+      const nextSource = source[key];
+      const nextTarget = plainTarget ? plainTarget[key] : undefined;
       base[key] = deepMerge(nextTarget, nextSource, depth + 1);
     }
     return base as T;
