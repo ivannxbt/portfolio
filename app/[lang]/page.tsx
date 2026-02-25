@@ -1,4 +1,5 @@
 import { PortfolioLanding } from "@/components/portfolio-landing";
+import { defaultContent } from "@/content/site-content";
 import { defaultLocale, isValidLocale, type Locale } from "@/lib/i18n";
 import { getLandingContent } from "@/lib/content-store";
 import { getSubstackPosts } from "@/lib/substack";
@@ -13,11 +14,15 @@ export default async function HomePage({ params }: PageProps) {
 
   // Pre-fetch BOTH language versions on the server for instant language switching
   // This eliminates the 1-3s client-side fetch delay
-  const [enContent, esContent, substackPosts] = await Promise.all([
-    getLandingContent('en'),
-    getLandingContent('es'),
+  const [enResult, esResult, substackResult] = await Promise.allSettled([
+    getLandingContent("en"),
+    getLandingContent("es"),
     getSubstackPosts(3),
   ]);
+
+  const enContent = enResult.status === "fulfilled" ? enResult.value : defaultContent.en;
+  const esContent = esResult.status === "fulfilled" ? esResult.value : defaultContent.es;
+  const substackPosts = substackResult.status === "fulfilled" ? substackResult.value : [];
 
   return (
     <PortfolioLanding
