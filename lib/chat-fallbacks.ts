@@ -1,4 +1,5 @@
 import type { Language, FallbackProfile } from "@/lib/types";
+import { getPublicApiUrl } from "@/lib/env/public";
 
 export const fallbackChatProfile: Record<Language, FallbackProfile> = {
   en: {
@@ -161,7 +162,7 @@ export const callAIAssistant = async ({
   fallback?: () => string;
 }): Promise<string> => {
   try {
-    const response = await fetch("/api/chat", {
+    const response = await fetch(getPublicApiUrl("/api/chat"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+import { publicEnv } from "@/lib/env/public";
 import { SessionProviders } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -20,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "600"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ivan-caamano.me";
+const SITE_URL = publicEnv.siteUrl;
 const OG_IMAGE_PATH = "/profile.webp";
 
 export const metadata: Metadata = {

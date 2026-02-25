@@ -43,6 +43,7 @@ import {
 } from "@/content/site-content";
 import { ProjectCardBrutal } from "@/components/project-card-brutal";
 import { RichText } from "@/components/portfolio/rich-text";
+import { getSubstackUrl } from "@/lib/env/public";
 
 const GithubContributions = dynamic(
   () => import("@/components/github-contributions").then(mod => mod.GithubContributions),
@@ -1059,7 +1060,7 @@ export function PortfolioLanding({
               </div>
               {substackPosts && substackPosts.length > 0 && (
                 <a
-                  href={`https://${process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || ''}.substack.com`}
+                  href={getSubstackUrl()}
                   target="_blank"
                   rel="noreferrer"
                   className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition ${
@@ -1090,7 +1091,7 @@ export function PortfolioLanding({
               )}
             </ScrollReveal>
             <a
-              href={`https://${process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || ''}.substack.com`}
+              href={getSubstackUrl()}
               target="_blank"
               rel="noreferrer"
               className={`inline-block mt-10 text-sm font-medium transition-colors ${theme === "dark" ? "text-neutral-500 hover:text-white" : "text-neutral-500 hover:text-black"

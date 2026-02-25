@@ -10,6 +10,7 @@ import { defaultContent } from "@/content/site-content";
 import { generateSystemPrompt } from "@/lib/chat-context";
 import { Language } from "@/lib/types";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { serverEnv } from "@/lib/env/server";
 
 export async function POST(request: NextRequest) {
   const ip =
@@ -100,7 +101,7 @@ export async function GET() {
     provider,
     model,
     apiKey: {
-      set: !!process.env.GOOGLE_API_KEY,
+      set: !!serverEnv.googleApiKey,
       valid: apiKeyValidation.valid,
       message: apiKeyValidation.message,
     },

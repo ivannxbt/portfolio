@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
+import { publicEnv } from "@/lib/env/public";
 import { locales } from "@/lib/i18n";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://ivan-caamano.me";
+    publicEnv.siteUrl;
 
   return locales.map((lang) => ({
     url: `${baseUrl}/${lang}`,

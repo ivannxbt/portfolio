@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { serverEnv } from "@/lib/env/server";
 
 // AI Provider Configuration
 export type AIProvider = "gemini";
 
 const AI_PROVIDER = "gemini" as const;
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_API_KEY = serverEnv.googleApiKey;
 
 // Model configurations
 const MODELS = {
