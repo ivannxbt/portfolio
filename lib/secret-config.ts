@@ -1,3 +1,5 @@
+import { serverEnv } from "@/lib/env/server";
+
 export type SecretConfig = {
   adminEmail?: string;
   adminPasswordHash?: string;
@@ -6,10 +8,10 @@ export type SecretConfig = {
 };
 
 export const secretConfig: SecretConfig = {
-  adminEmail: process.env.ADMIN_EMAIL,
-  adminPasswordHash: process.env.ADMIN_PASSWORD_HASH,
-  databaseUrl: process.env.DATABASE_URL,
-  nextAuthSecret: process.env.NEXTAUTH_SECRET,
+  adminEmail: serverEnv.adminEmail,
+  adminPasswordHash: serverEnv.adminPasswordHash,
+  databaseUrl: serverEnv.databaseUrl,
+  nextAuthSecret: serverEnv.nextAuthSecret,
 };
 
 export function getDatabaseUrl(): string | undefined {

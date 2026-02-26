@@ -15,6 +15,7 @@ import {
   type StackSection,
   type StackIcon,
 } from "@/content/site-content";
+import { getPublicApiUrl } from "@/lib/env/public";
 import {
   ChevronDown,
   ChevronUp,
@@ -345,7 +346,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
       setError(null);
       setMessage(null);
       try {
-        const response = await fetch(`/api/content?lang=${lang}`, {
+        const response = await fetch(getPublicApiUrl(`/api/content?lang=${lang}`), {
           signal: controller.signal,
           next: { revalidate: 60 }, // Cache for 1 minute
         });
@@ -409,7 +410,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     setError(null);
     setMessage(null);
     try {
-      const response = await fetch("/api/content", {
+      const response = await fetch(getPublicApiUrl("/api/content"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lang, content: sanitizedContent }),

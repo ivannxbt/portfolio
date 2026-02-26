@@ -1,6 +1,7 @@
 import Parser from "rss-parser";
 import { unstable_cache } from "next/cache";
 import type { BlogEntry } from "@/content/site-content";
+import { publicEnv } from "@/lib/env/public";
 
 interface SubstackRSSItem {
   title?: string;
@@ -16,7 +17,7 @@ interface SubstackRSSItem {
 
 const parser = new Parser<unknown, SubstackRSSItem>();
 
-const SUBSTACK_USERNAME = process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || "ivanxbt";
+const SUBSTACK_USERNAME = publicEnv.substackUsername;
 
 if (!SUBSTACK_USERNAME) {
   console.warn("NEXT_PUBLIC_SUBSTACK_USERNAME not set in environment variables");

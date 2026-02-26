@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { Send, Sparkles, Loader2, X } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
+import { getPublicApiUrl } from "@/lib/env/public";
 
 type Message = {
   id: string;
@@ -52,7 +53,7 @@ async function streamChat(params: {
   onError: (error: string) => void;
 }) {
   try {
-    const response = await fetch("/api/chat", {
+    const response = await fetch(getPublicApiUrl("/api/chat"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
