@@ -47,7 +47,7 @@ Si te preguntan sobre temas no relacionados, declina educadamente y sugiere preg
 async function streamChat(params: {
   message: string;
   systemInstruction: string;
-  onChunk: (text: string) => void;
+  onReply: (text: string) => void;
   onComplete: () => void;
   onError: (error: string) => void;
 }) {
@@ -65,20 +65,14 @@ async function streamChat(params: {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
+    const data = (await response.json()) as { reply?: string };
+    const reply = data.reply?.trim();
 
-    if (!reader) {
-      throw new Error("No response stream");
+    if (!reply) {
+      throw new Error("No reply returned");
     }
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      params.onChunk(chunk);
-    }
+    params.onReply(reply);
 
     params.onComplete();
   } catch (error) {
@@ -139,8 +133,8 @@ export function AIAssistant({
     await streamChat({
       message: userMessage.text,
       systemInstruction,
-      onChunk: (chunk) => {
-        assistantText += chunk;
+      onReply: (reply) => {
+        assistantText = reply;
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === assistantMessageId
@@ -154,7 +148,7 @@ export function AIAssistant({
         setIsLoading(false);
         scrollToBottom();
       },
-      onError: (error) => {
+      onError: () => {
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === assistantMessageId
