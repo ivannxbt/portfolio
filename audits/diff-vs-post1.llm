@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diff version="0.0.38">
+ <baseline id="aa7f9a3e-c351-4c80-938b-8275e90c5945" url="http://127.0.0.1:3000" date="2026-03-03T08:51:02.987Z" pages="9" score="55" grade="F"/>
+ <current id="8a640721-03ef-41f7-863c-f203c3755558" url="http://127.0.0.1:3000" date="2026-03-03T08:53:38.659Z" pages="9" score="63" grade="D"/>
+ <summary added="13" removed="32" changed="7" regressions="0" improvements="0"/>
+ <added>
+  <issue fp="d9a93aa20763" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+   4 potential color contrast issue(s)
+   Target: item p with class &quot;mt-4 text-base leading-7 text-...&quot; may have low contrast
+   Meta: classBasedIssues: 2, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+  </issue>
+  <issue fp="797de3a69252" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="5a66e9a0328b" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="00adb9d94f1b" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="82ac9498bd10" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="f09f263edae6" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="28cc5b5fbbf7" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+  <issue fp="32942200ba1b" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="5d00bfde0d5f" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="027dd5df42a5" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="9dc355a53174" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="180a6f0038c1" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="f15aa9491be5" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+ </added>
+ <removed>
+  <issue fp="d5cbb2f1b3f1" rule="core/meta-title" severity="error" status="warn" check="meta-title" category="core" weight="8">
+   Title too short
+   Target: item http://127.0.0.1:3000/en/about (About | Iván Caamaño (20 chars))
+  </issue>
+  <issue fp="7c7af8562fd6" rule="core/meta-title" severity="error" status="warn" check="meta-title" category="core" weight="8">
+   Title too short
+   Target: item http://127.0.0.1:3000/en/contact (Contact | Iván Caamaño (22 chars))
+  </issue>
+  <issue fp="99b2abbb1d31" rule="core/meta-title" severity="error" status="warn" check="meta-title" category="core" weight="8">
+   Title too short
+   Target: item http://127.0.0.1:3000/en/privacy (Privacy | Iván Caamaño (22 chars))
+  </issue>
+  <issue fp="40ad69c557a6" rule="core/meta-title" severity="error" status="warn" check="meta-title" category="core" weight="8">
+   Title too short
+   Target: item http://127.0.0.1:3000/es/about (Sobre mí | Iván Caamaño (23 chars))
+  </issue>
+  <issue fp="7f731379c3f3" rule="core/meta-title" severity="error" status="warn" check="meta-title" category="core" weight="8">
+   Title too short
+   Target: item http://127.0.0.1:3000/es/contact (Contacto | Iván Caamaño (23 chars))
+  </issue>
+  <issue fp="304ef1646f39" rule="core/meta-title" severity="error" status="warn" check="meta-title" category="core" weight="8">
+   Title too short
+   Target: item http://127.0.0.1:3000/es/privacy (Privacidad | Iván Caamaño (25 chars))
+  </issue>
+  <issue fp="05f0521b87f7" rule="core/meta-description" severity="error" status="warn" check="meta-description" category="core" weight="7">
+   Description too short
+   Target: item http://127.0.0.1:3000/en/about (Professional profile of Iván Caamaño, focused on A (92 chars))
+  </issue>
+  <issue fp="6eeb39fd68e5" rule="core/meta-description" severity="error" status="warn" check="meta-description" category="core" weight="7">
+   Description too short
+   Target: item http://127.0.0.1:3000/en/contact (Contact page for collaboration, consulting, and AI (82 chars))
+  </issue>
+  <issue fp="f36f747cd829" rule="core/meta-description" severity="error" status="warn" check="meta-description" category="core" weight="7">
+   Description too short
+   Target: item http://127.0.0.1:3000/en/privacy (Basic privacy information for Iván Caamaño&apos;s perso (72 chars))
+  </issue>
+  <issue fp="f6d94c3d7c9c" rule="core/meta-description" severity="error" status="warn" check="meta-description" category="core" weight="7">
+   Description too short
+   Target: item http://127.0.0.1:3000/es/about (Perfil profesional de Iván Caamaño: experiencia en (86 chars))
+  </issue>
+  <issue fp="00e25cf8fe83" rule="core/meta-description" severity="error" status="warn" check="meta-description" category="core" weight="7">
+   Description too short
+   Target: item http://127.0.0.1:3000/es/contact (Página de contacto para colaboraciones, consultorí (81 chars))
+  </issue>
+  <issue fp="5f8145b6a189" rule="core/meta-description" severity="error" status="warn" check="meta-description" category="core" weight="7">
+   Description too short
+   Target: item http://127.0.0.1:3000/es/privacy (Información básica de privacidad del portfolio per (72 chars))
+  </issue>
+  <issue fp="61a928e6ecb1" rule="a11y/landmark-one-main" severity="warning" status="fail" check="landmark-one-main" category="a11y" weight="5">
+   Page has 2 main landmarks (should be 1)
+   Target: item main.mx-auto
+   Meta: issue: Multiple main landmarks confuse navigation
+  </issue>
+  <issue fp="e180f3d44c3a" rule="a11y/landmark-one-main" severity="warning" status="fail" check="landmark-one-main" category="a11y" weight="5">
+   Page has 2 main landmarks (should be 1)
+   Target: item main#main-content
+   Meta: issue: Multiple main landmarks confuse navigation
+  </issue>
+  <issue fp="ad0ae4f73e88" rule="links/orphan-pages" severity="warning" status="warn" check="orphan-pages" category="links" weight="5">
+   2 orphan page(s) with &lt;2 incoming links
+   Target: item http://127.0.0.1:3000/en/about
+   Meta: total: 2
+  </issue>
+  <issue fp="38f419a23b68" rule="links/orphan-pages" severity="warning" status="warn" check="orphan-pages" category="links" weight="5">
+   2 orphan page(s) with &lt;2 incoming links
+   Target: item http://127.0.0.1:3000/es/about
+   Meta: total: 2
+  </issue>
+  <issue fp="1ee0285b10b4" rule="links/weak-internal-links" severity="warning" status="warn" check="weak-internal-links" category="links" weight="3">
+   2 page(s) have only 1 internal link
+   Target: item http://127.0.0.1:3000/en/about
+   Meta: total: 2
+  </issue>
+  <issue fp="b1dd168ab792" rule="links/weak-internal-links" severity="warning" status="warn" check="weak-internal-links" category="links" weight="3">
+   2 page(s) have only 1 internal link
+   Target: item http://127.0.0.1:3000/es/about
+   Meta: total: 2
+  </issue>
+  <issue fp="0a78b72cca17" rule="social/og-url-match" severity="warning" status="warn" check="og-url-match" category="social" weight="3">
+   og:url does not match canonical URL
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="e91c78c01b7b" rule="social/og-url-match" severity="warning" status="warn" check="og-url-match" category="social" weight="3">
+   og:url does not match canonical URL
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="b08d5bd34d18" rule="social/og-url-match" severity="warning" status="warn" check="og-url-match" category="social" weight="3">
+   og:url does not match canonical URL
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="597f86a99370" rule="social/og-url-match" severity="warning" status="warn" check="og-url-match" category="social" weight="3">
+   og:url does not match canonical URL
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="076894399949" rule="social/og-url-match" severity="warning" status="warn" check="og-url-match" category="social" weight="3">
+   og:url does not match canonical URL
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="68470eadb6a7" rule="social/og-url-match" severity="warning" status="warn" check="og-url-match" category="social" weight="3">
+   og:url does not match canonical URL
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+  <issue fp="ac1b25743758" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/en
+  </issue>
+  <issue fp="ab3a396b96d1" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="5f9d4db65052" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="837739c8db5a" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="422efda9fa4b" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/es
+  </issue>
+  <issue fp="1eee762a992e" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="0c5f94e3be43" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="636ffb8c9a3d" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+ </removed>
+ <changed>
+  <change type="change" fp="176b33166e3a" rule="perf/total-byte-weight" severity="warning" status="warn" check="total-byte-weight">
+   warn→warn: Total tracked resources: 3684KB (heavy page)
+   Before:
+    <issue fp="176b33166e3a" rule="perf/total-byte-weight" severity="warning" status="warn" check="total-byte-weight" category="perf" weight="6">
+     Total tracked resources: 3683KB (heavy page)
+     Target: check total-byte-weight
+     Meta: css: 120KB, cssFiles: 1, imageFiles: 10, images: 425KB, js: 3138KB, jsFiles: 10, pagesAnalyzed: 8
+    </issue>
+   After:
+    <issue fp="176b33166e3a" rule="perf/total-byte-weight" severity="warning" status="warn" check="total-byte-weight" category="perf" weight="6">
+     Total tracked resources: 3684KB (heavy page)
+     Target: check total-byte-weight
+     Meta: css: 121KB, cssFiles: 1, imageFiles: 10, images: 425KB, js: 3138KB, jsFiles: 10, pagesAnalyzed: 8
+    </issue>
+  </change>
+  <change type="change" fp="05a23210707d" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 4 potential color contrast issue(s)
+   Before:
+    <issue fp="05a23210707d" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     3 potential color contrast issue(s)
+     Target: item p with class &quot;mt-6 text-base leading-7 text-...&quot; may have low contrast
+     Meta: classBasedIssues: 1, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="05a23210707d" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     4 potential color contrast issue(s)
+     Target: item p with class &quot;mt-6 text-base leading-7 text-...&quot; may have low contrast
+     Meta: classBasedIssues: 2, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="ad705a41ca5e" rule="content/word-count" severity="warning" status="warn" check="word-count">
+   warn→warn: Thin content: 48 words (min 300)
+   Before:
+    <issue fp="ad705a41ca5e" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 28 words (min 300)
+     Target: page http://127.0.0.1:3000/en/about
+    </issue>
+   After:
+    <issue fp="ad705a41ca5e" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 48 words (min 300)
+     Target: page http://127.0.0.1:3000/en/about
+    </issue>
+  </change>
+  <change type="change" fp="e7ae1b718951" rule="content/word-count" severity="warning" status="warn" check="word-count">
+   warn→warn: Thin content: 40 words (min 300)
+   Before:
+    <issue fp="e7ae1b718951" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 29 words (min 300)
+     Target: page http://127.0.0.1:3000/en/contact
+    </issue>
+   After:
+    <issue fp="e7ae1b718951" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 40 words (min 300)
+     Target: page http://127.0.0.1:3000/en/contact
+    </issue>
+  </change>
+  <change type="change" fp="7eaa3fc8b9ab" rule="content/word-count" severity="warning" status="warn" check="word-count">
+   warn→warn: Thin content: 47 words (min 300)
+   Before:
+    <issue fp="7eaa3fc8b9ab" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 29 words (min 300)
+     Target: page http://127.0.0.1:3000/es/about
+    </issue>
+   After:
+    <issue fp="7eaa3fc8b9ab" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 47 words (min 300)
+     Target: page http://127.0.0.1:3000/es/about
+    </issue>
+  </change>
+  <change type="change" fp="506e2189ef69" rule="content/word-count" severity="warning" status="warn" check="word-count">
+   warn→warn: Thin content: 39 words (min 300)
+   Before:
+    <issue fp="506e2189ef69" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 25 words (min 300)
+     Target: page http://127.0.0.1:3000/es/contact
+    </issue>
+   After:
+    <issue fp="506e2189ef69" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 39 words (min 300)
+     Target: page http://127.0.0.1:3000/es/contact
+    </issue>
+  </change>
+  <change type="change" fp="625bdbc81a1c" rule="content/word-count" severity="warning" status="warn" check="word-count">
+   warn→warn: Thin content: 43 words (min 300)
+   Before:
+    <issue fp="625bdbc81a1c" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 42 words (min 300)
+     Target: page http://127.0.0.1:3000/es/privacy
+    </issue>
+   After:
+    <issue fp="625bdbc81a1c" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+     Thin content: 43 words (min 300)
+     Target: page http://127.0.0.1:3000/es/privacy
+    </issue>
+  </change>
+ </changed>
+</diff>
+
+

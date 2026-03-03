@@ -13,19 +13,33 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  
+
   return {
     title:
       lang === "es"
-        ? "Iván Caamaño | Ingeniero de IA"
-        : "Ivan Caamano | AI Engineer",
+        ? "Iván Caamaño | Ingeniero de IA y Software para empresas"
+        : "Iván Caamaño | AI & Software Engineer for production teams",
     description:
       lang === "es"
-        ? "Portafolio bilingüe con agentes, RAG y operaciones de datos para empresas reguladas."
-        : "Bilingual portfolio featuring agents, RAG systems, and data operations for regulated teams.",
+        ? "Portafolio bilingüe con agentes de IA, sistemas RAG y operaciones de datos orientadas a producto para equipos y empresas."
+        : "Bilingual portfolio featuring AI agents, RAG systems, and data operations designed for production software and measurable outcomes.",
+    alternates: {
+      canonical: `/${lang}`,
+      languages: {
+        en: "/en",
+        es: "/es",
+        "x-default": "/es",
+      },
+    },
+    openGraph: {
+      url: `/${lang}`,
+      locale: lang === "es" ? "es_ES" : "en_US",
+      images: ["/profile.webp"],
+    },
     twitter: {
       card: "summary_large_image",
       creator: "@ivannxbt",
+      images: ["/profile.webp"],
     },
   };
 }
@@ -38,14 +52,14 @@ export default async function LangLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  
+
   if (!isValidLocale(lang)) {
     notFound();
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="flex-1">{children}</main>
+    <div className="flex min-h-dvh flex-col">
+      <div className="flex-1">{children}</div>
     </div>
   );
 }

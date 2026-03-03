@@ -22,7 +22,7 @@ export function Footer({ lang }: FooterProps) {
     <footer className="border-t border-slate-900 bg-slate-950/80">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
+          <p className="text-sm tracking-[0.3em] text-slate-500 uppercase">
             {t.footer.tagline}
           </p>
           <p className="mt-2 text-slate-400">
@@ -34,7 +34,7 @@ export function Footer({ lang }: FooterProps) {
           <Link
             href={socialLinks.github}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="text-slate-400 transition-colors hover:text-white"
           >
             <Github className="h-5 w-5" />
@@ -43,7 +43,7 @@ export function Footer({ lang }: FooterProps) {
           <Link
             href={socialLinks.linkedin}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="text-slate-400 transition-colors hover:text-white"
           >
             <Linkedin className="h-5 w-5" />
@@ -52,7 +52,7 @@ export function Footer({ lang }: FooterProps) {
           <Link
             href={socialLinks.twitter}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="text-slate-400 transition-colors hover:text-white"
           >
             <Twitter className="h-5 w-5" />

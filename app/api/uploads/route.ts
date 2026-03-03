@@ -5,6 +5,9 @@ import crypto from "crypto";
 
 import { getServerSession } from "next-auth";
 import { getAuthOptions, NEXTAUTH_SECRET_ERROR } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/client-ip";
+import { guardStateChangingRequest } from "@/lib/request-guard";
 
 const UPLOAD_DIR = path.join(process.cwd(), "data", "uploads");
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -21,6 +24,11 @@ async function ensureUploadDir() {
 }
 
 export async function POST(request: NextRequest) {
+  const guardResponse = guardStateChangingRequest(request);
+  if (guardResponse) {
+    return guardResponse;
+  }
+
   const authOptions = getAuthOptions();
   if (!authOptions) {
     console.error("Uploads API blocked:", NEXTAUTH_SECRET_ERROR);
@@ -29,6 +37,23 @@ export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+
+  const rl = await checkRateLimit(ip, { limit: 30, windowMs: 60 * 60_000 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      {
+        error: "Too many upload requests. Please wait before trying again.",
+      },
+      {
+        status: 429,
+        headers: rl.retryAfter
+          ? { "Retry-After": String(rl.retryAfter) }
+          : undefined,
+      },
+    );
   }
 
   const formData = await request.formData();
@@ -41,16 +66,25 @@ export async function POST(request: NextRequest) {
   const uploadFile = file as File;
 
   if (!ALLOWED_TYPES.includes(uploadFile.type)) {
-    return NextResponse.json({ error: "Only PNG, JPEG, WebP, and GIF files are allowed." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Only PNG, JPEG, WebP, and GIF files are allowed." },
+      { status: 400 },
+    );
   }
 
   if (uploadFile.size > MAX_FILE_SIZE) {
-    return NextResponse.json({ error: "File exceeds the 5 MB upload limit." }, { status: 413 });
+    return NextResponse.json(
+      { error: "File exceeds the 5 MB upload limit." },
+      { status: 413 },
+    );
   }
 
   const buffer = Buffer.from(await uploadFile.arrayBuffer());
 
-  const id = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const id =
+    typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const extension = MIME_EXTENSIONS[uploadFile.type] || ".png";
   const filename = `${id}${extension}`;
   const destination = path.join(UPLOAD_DIR, filename);

@@ -166,10 +166,22 @@ export const translations = {
       emailPlaceholder: "you@company.com",
       messagePlaceholder: "Share goals, stack, and success metrics.",
       details: [
-        { label: "Email", value: "ivanncaamano@gmail.com", href: "mailto:ivanncaamano@gmail.com" },
+        {
+          label: "Email",
+          value: "ivanncaamano@gmail.com",
+          href: "mailto:ivanncaamano@gmail.com",
+        },
         { label: "Phone", value: "+34 644 983 729", href: "tel:+34644983729" },
-        { label: "GitHub", value: "@ivanncaamano", href: "https://github.com/ivanncaamano" },
-        { label: "X / Twitter", value: "@ivannxbt", href: "https://twitter.com/ivannxbt" },
+        {
+          label: "GitHub",
+          value: "@ivanncaamano",
+          href: "https://github.com/ivanncaamano",
+        },
+        {
+          label: "X / Twitter",
+          value: "@ivannxbt",
+          href: "https://twitter.com/ivannxbt",
+        },
         { label: "Location", value: "Madrid, Spain" },
       ],
     },
@@ -341,10 +353,26 @@ export const translations = {
       emailPlaceholder: "tu@empresa.com",
       messagePlaceholder: "Comparte objetivos, stack y métricas de éxito.",
       details: [
-        { label: "Email", value: "ivanncaamano@gmail.com", href: "mailto:ivanncaamano@gmail.com" },
-        { label: "Teléfono", value: "+34 644 983 729", href: "tel:+34644983729" },
-        { label: "GitHub", value: "@ivanncaamano", href: "https://github.com/ivanncaamano" },
-        { label: "X / Twitter", value: "@ivannxbt", href: "https://twitter.com/ivannxbt" },
+        {
+          label: "Email",
+          value: "ivanncaamano@gmail.com",
+          href: "mailto:ivanncaamano@gmail.com",
+        },
+        {
+          label: "Teléfono",
+          value: "+34 644 983 729",
+          href: "tel:+34644983729",
+        },
+        {
+          label: "GitHub",
+          value: "@ivanncaamano",
+          href: "https://github.com/ivanncaamano",
+        },
+        {
+          label: "X / Twitter",
+          value: "@ivannxbt",
+          href: "https://twitter.com/ivannxbt",
+        },
         { label: "Ubicación", value: "Madrid, España" },
       ],
     },

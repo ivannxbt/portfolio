@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 /**
  * Mouse position coordinates
@@ -26,7 +26,10 @@ interface MousePosition {
  * ```
  */
 export function useMousePosition(): MousePosition {
-  const [mousePosition, setMousePosition] = useState<MousePosition>({ x: 0, y: 0 });
+  const [mousePosition, setMousePosition] = useState<MousePosition>({
+    x: 0,
+    y: 0,
+  });
 
   useEffect(() => {
     // Only track mouse on desktop (not on mobile/tablet devices)
@@ -61,11 +64,11 @@ export function useMousePosition(): MousePosition {
     };
 
     // Attach the listener to track cursor movement
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
 
     // Cleanup function: remove listener and cancel any pending RAF
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("mousemove", handleMouseMove);
       if (animationFrameId !== null) {
         cancelAnimationFrame(animationFrameId);
       }

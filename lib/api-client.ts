@@ -19,7 +19,10 @@ function getApiBaseUrl(): string {
   return "http://localhost:3000";
 }
 
-async function fetchFromApi<T>(pathname: string, init?: RequestInit): Promise<T> {
+async function fetchFromApi<T>(
+  pathname: string,
+  init?: RequestInit,
+): Promise<T> {
   const baseUrl = getApiBaseUrl();
   const response = await fetch(`${baseUrl}${pathname}`, {
     ...init,
@@ -39,8 +42,11 @@ async function fetchFromApi<T>(pathname: string, init?: RequestInit): Promise<T>
 
 export async function getLandingContentFromApi(
   locale: Locale,
-  init?: RequestInit
+  init?: RequestInit,
 ): Promise<LandingContent> {
   const params = new URLSearchParams({ lang: locale });
-  return fetchFromApi<LandingContent>(`/api/content?${params.toString()}`, init);
+  return fetchFromApi<LandingContent>(
+    `/api/content?${params.toString()}`,
+    init,
+  );
 }

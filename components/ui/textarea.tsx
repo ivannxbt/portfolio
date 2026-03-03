@@ -1,102 +1,53 @@
 "use client";
 
 import * as React from "react";
-import { motion, useReducedMotion, Variants } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
-/** Textarea state variants for animations */
-const textareaVariants: Variants = {
-  default: {
-    scale: 1,
-    x: 0,
-  },
-  focus: {
-    scale: 1.01,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 30,
-    },
-  },
-  error: {
-    x: [-10, 10, -10, 10, 0],
-    transition: {
-      duration: 0.4,
-    },
-  },
-  success: {
-    scale: [1, 1.02, 1],
-    transition: {
-      duration: 0.3,
-    },
-  },
-};
-
-export interface TextareaProps
-  extends Omit<
-    React.ComponentProps<"textarea">,
-    "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd"
-  > {
+export interface TextareaProps extends Omit<
+  React.ComponentPropsWithRef<"textarea">,
+  "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd"
+> {
+  /** Visual state of the textarea */
+  state?: "default" | "error" | "success";
+  /** @deprecated Use `state="error"` instead */
   /** Show error state with red border and shake animation */
   error?: boolean;
+  /** @deprecated Use `state="success"` instead */
   /** Show success state with green border and pulse animation */
   success?: boolean;
 }
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, error = false, success = false, ...props }, ref) => {
-    const prefersReducedMotion = useReducedMotion();
-    const [isFocused, setIsFocused] = React.useState(false);
+function Textarea({
+  className,
+  state,
+  error = false,
+  success = false,
+  ref,
+  ...props
+}: TextareaProps) {
+  const resolvedState =
+    state ?? (error ? "error" : success ? "success" : "default");
 
-    // Determine current variant
-    const currentVariant = error ? "error" : success ? "success" : isFocused ? "focus" : "default";
-
-    // Determine border color class based on state
-    const borderColorClass = error
+  // Determine border color class based on state
+  const borderColorClass =
+    resolvedState === "error"
       ? "border-red-500 focus-visible:ring-red-400 dark:border-red-600 dark:focus-visible:ring-red-500"
-      : success
-      ? "border-green-500 focus-visible:ring-green-400 dark:border-green-600 dark:focus-visible:ring-green-500"
-      : "border-slate-200 focus-visible:ring-slate-400 dark:border-slate-700/30 dark:focus-visible:ring-slate-600/40";
+      : resolvedState === "success"
+        ? "border-green-500 focus-visible:ring-green-400 dark:border-green-600 dark:focus-visible:ring-green-500"
+        : "border-slate-200 focus-visible:ring-slate-400 dark:border-slate-700/30 dark:focus-visible:ring-slate-600/40";
 
-    // If reduced motion is preferred, use regular textarea
-    if (prefersReducedMotion) {
-      return (
-        <textarea
-          className={cn(
-            "flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:placeholder:text-slate-400",
-            borderColorClass,
-            className
-          )}
-          ref={ref}
-          {...props}
-        />
-      );
-    }
-
-    return (
-      <motion.textarea
-        className={cn(
-          "flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:placeholder:text-slate-400",
-          borderColorClass,
-          className
-        )}
-        ref={ref}
-        variants={textareaVariants}
-        animate={currentVariant}
-        onFocus={(e) => {
-          setIsFocused(true);
-          props.onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          setIsFocused(false);
-          props.onBlur?.(e);
-        }}
-        {...props}
-      />
-    );
-  }
-);
-Textarea.displayName = "Textarea";
+  return (
+    <textarea
+      className={cn(
+        "flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-slate-500 focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:placeholder:text-slate-400",
+        borderColorClass,
+        className,
+      )}
+      ref={ref}
+      {...props}
+    />
+  );
+}
 
 export { Textarea };

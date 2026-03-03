@@ -10,8 +10,28 @@ import {
   readOverrides,
   writeOverrides,
 } from "@/lib/content-store";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/client-ip";
+import { guardStateChangingRequest } from "@/lib/request-guard";
 
 export async function GET(request: NextRequest) {
+  const ip = getClientIp(request);
+
+  const rl = await checkRateLimit(ip, { limit: 120, windowMs: 60 * 60_000 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      {
+        error: "Too many content requests. Please wait before trying again.",
+      },
+      {
+        status: 429,
+        headers: rl.retryAfter
+          ? { "Retry-After": String(rl.retryAfter) }
+          : undefined,
+      },
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const langParam = searchParams.get("lang");
@@ -19,7 +39,7 @@ export async function GET(request: NextRequest) {
       if (!isValidLocale(langParam)) {
         return NextResponse.json(
           { error: "Invalid language parameter." },
-          { status: 400 }
+          { status: 400 },
         );
       }
       const locale = langParam as Locale;
@@ -33,23 +53,46 @@ export async function GET(request: NextRequest) {
     console.error("Content API GET error:", error);
     return NextResponse.json(
       { error: "Failed to load content." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
+    const guardResponse = guardStateChangingRequest(request);
+    if (guardResponse) {
+      return guardResponse;
+    }
+
     const authOptions = getAuthOptions();
     if (!authOptions) {
       console.error("Content API PUT blocked:", NEXTAUTH_SECRET_ERROR);
-      return NextResponse.json({ error: NEXTAUTH_SECRET_ERROR }, { status: 500 });
+      return NextResponse.json(
+        { error: NEXTAUTH_SECRET_ERROR },
+        { status: 500 },
+      );
     }
     const session = await getServerSession(authOptions);
     if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const ip = getClientIp(request);
+
+    const rl = await checkRateLimit(ip, { limit: 30, windowMs: 60 * 60_000 });
+    if (!rl.ok) {
       return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
+        {
+          error:
+            "Too many content update requests. Please wait before trying again.",
+        },
+        {
+          status: 429,
+          headers: rl.retryAfter
+            ? { "Retry-After": String(rl.retryAfter) }
+            : undefined,
+        },
       );
     }
 
@@ -59,10 +102,15 @@ export async function PUT(request: NextRequest) {
       content?: Partial<LandingContent>;
     };
 
-    if (!lang || !isValidLocale(lang) || !content || typeof content !== "object") {
+    if (
+      !lang ||
+      !isValidLocale(lang) ||
+      !content ||
+      typeof content !== "object"
+    ) {
       return NextResponse.json(
         { error: "Payload must include a valid lang and content object." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -77,7 +125,7 @@ export async function PUT(request: NextRequest) {
     console.error("Content API PUT error:", error);
     return NextResponse.json(
       { error: "Failed to update content." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

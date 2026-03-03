@@ -14,7 +14,7 @@ const FILENAME_PATTERN = /^[a-zA-Z0-9_-]+\.[a-zA-Z0-9]+$/;
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ filename: string }> }
+  { params }: { params: Promise<{ filename: string }> },
 ) {
   const { filename } = await params;
   if (!filename || !FILENAME_PATTERN.test(filename)) {

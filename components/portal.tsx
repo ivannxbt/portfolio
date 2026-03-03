@@ -41,7 +41,9 @@ export function Portal({ children, containerId }: PortalProps) {
     : document.body;
 
   if (!container) {
-    console.warn(`Portal: Container "${containerId}" not found, falling back to body`);
+    console.warn(
+      `Portal: Container "${containerId}" not found, falling back to body`,
+    );
     return createPortal(children, document.body);
   }
 

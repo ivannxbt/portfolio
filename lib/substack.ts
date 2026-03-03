@@ -16,10 +16,13 @@ interface SubstackRSSItem {
 
 const parser = new Parser<unknown, SubstackRSSItem>();
 
-const SUBSTACK_USERNAME = process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || "ivanxbt";
+const SUBSTACK_USERNAME =
+  process.env.NEXT_PUBLIC_SUBSTACK_USERNAME || "ivanxbt";
 
 if (!SUBSTACK_USERNAME) {
-  console.warn("NEXT_PUBLIC_SUBSTACK_USERNAME not set in environment variables");
+  console.warn(
+    "NEXT_PUBLIC_SUBSTACK_USERNAME not set in environment variables",
+  );
 }
 
 const RSS_FEED_URL = `https://${SUBSTACK_USERNAME}.substack.com/feed`;
@@ -35,7 +38,7 @@ function formatDate(dateString: string): string {
 
 export function transformRSSItemToBlogEntry(
   item: SubstackRSSItem,
-  index: number
+  index: number,
 ): BlogEntry {
   const summary = item.contentSnippet || item.content || "";
   const cleanSummary = stripHtmlTags(summary).slice(0, 200);
@@ -52,7 +55,9 @@ export function transformRSSItemToBlogEntry(
 
 const fetchSubstackPosts = async (limit?: number): Promise<BlogEntry[]> => {
   if (!SUBSTACK_USERNAME) {
-    console.error("Cannot fetch Substack posts: NEXT_PUBLIC_SUBSTACK_USERNAME is not set");
+    console.error(
+      "Cannot fetch Substack posts: NEXT_PUBLIC_SUBSTACK_USERNAME is not set",
+    );
     return [];
   }
 
@@ -74,5 +79,5 @@ const fetchSubstackPosts = async (limit?: number): Promise<BlogEntry[]> => {
 export const getSubstackPosts = unstable_cache(
   fetchSubstackPosts,
   ["substack-posts"],
-  { revalidate: 3600 }
+  { revalidate: 3600 },
 );

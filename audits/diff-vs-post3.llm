@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diff version="0.0.38">
+ <baseline id="76aa2f4a-230e-400c-b130-220300e9e09a" url="http://127.0.0.1:3000" date="2026-03-03T08:59:49.137Z" pages="9" score="68" grade="D"/>
+ <current id="ffd27e22-7411-441a-b6d4-b1848a0fe3b3" url="http://127.0.0.1:3000" date="2026-03-03T09:01:33.568Z" pages="9" score="68" grade="D"/>
+ <summary added="0" removed="1" changed="0" regressions="0" improvements="0"/>
+ <added>
+ </added>
+ <removed>
+  <issue fp="d2a079bfaeb1" rule="images/dimensions" severity="warning" status="warn" check="image-dimensions" category="images" weight="4">
+   1 image(s) missing width/height (causes CLS)
+   Target: item http://127.0.0.1:3000/_next/image (http://127.0.0.1:3000/_next/image?url=https%3A%2F%2Fsubstackcdn.com%2Fimage%2Ffetch%2F%24s_!-ahB!%2Cf_auto%2Cq_auto%3Agood%2Cfl_progressive%3Asteep%2Fhttps%253A%252F%252Fsubstack-post-media.s3.amazonaws.com%252Fpublic%252Fimages%252Fdf87822c-37cd-4074-af04-c9f3b4fb88e3_863x360.jpeg&amp;w=3840&amp;q=75)
+  </issue>
+ </removed>
+ <changed>
+ </changed>
+</diff>
+
+

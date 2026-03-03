@@ -6,7 +6,7 @@ import type { Language } from "@/lib/types";
  */
 export function generateSystemPrompt(
   content: LandingContent,
-  lang: Language
+  lang: Language,
 ): string {
   const { hero, about, experience, stack, projectItems, blogPosts } = content;
 
@@ -16,28 +16,33 @@ export function generateSystemPrompt(
     .join(", ");
 
   // Get recent projects (first 3)
-  const recentProjects = projectItems
-    ?.slice(0, 3)
-    .map((p) => `- ${p.title}: ${p.desc}`)
-    .join("\n") || "";
+  const recentProjects =
+    projectItems
+      ?.slice(0, 3)
+      .map((p) => `- ${p.title}: ${p.desc}`)
+      .join("\n") || "";
 
   // Get experience summary
-  const experienceDetails = experience.roles
-    ?.slice(0, 3)
-    .map((role) => {
-      const company = role.company ? ` at ${role.company}` : "";
-      return `- ${role.role}${company} (${role.period}): ${role.summary}`;
-    })
-    .join("\n") || "";
+  const experienceDetails =
+    experience.roles
+      ?.slice(0, 3)
+      .map((role) => {
+        const company = role.company ? ` at ${role.company}` : "";
+        return `- ${role.role}${company} (${role.period}): ${role.summary}`;
+      })
+      .join("\n") || "";
 
   // Get blog posts if available
-  const blogPostsText = blogPosts
-    ?.slice(0, 3)
-    .map((post) => `- ${post.title}: ${post.summary}`)
-    .join("\n") || "";
+  const blogPostsText =
+    blogPosts
+      ?.slice(0, 3)
+      .map((post) => `- ${post.title}: ${post.summary}`)
+      .join("\n") || "";
 
   const languageInstruction =
-    lang === "en" ? "Always respond in English." : "Siempre responde en español.";
+    lang === "en"
+      ? "Always respond in English."
+      : "Siempre responde en español.";
 
   return `You are Clairo, an AI assistant for ${hero.greeting || "Iván"}'s professional portfolio website.
 

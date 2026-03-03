@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState, useRef } from "react";
 
@@ -47,35 +47,39 @@ interface GithubContributionsProps {
 const CACHE_TTL = 60 * 60 * 1000;
 
 // SVG cell dimensions
-const CELL_SIZE = 14;  // h-3.5 w-3.5 = 14px
-const GAP = 4;         // gap-1 = 4px
+const CELL_SIZE = 14; // h-3.5 w-3.5 = 14px
+const GAP = 4; // gap-1 = 4px
 
 // SVG colors (replacing Tailwind classes)
 const SVG_COLORS: Record<Theme, Record<number, string>> = {
   dark: {
     0: "#1f1f1f",
-    1: "rgba(20, 83, 45, 0.3)",   // teal-900/30
-    2: "rgba(17, 94, 117, 0.6)",  // teal-800/60
+    1: "rgba(20, 83, 45, 0.3)", // teal-900/30
+    2: "rgba(17, 94, 117, 0.6)", // teal-800/60
     3: "rgba(13, 148, 136, 0.8)", // teal-600/80
-    4: "#2dd4bf",                  // teal-400
+    4: "#2dd4bf", // teal-400
   },
   light: {
-    0: "#e5e5e5",    // neutral-200
-    1: "#99f6e4",    // teal-200
-    2: "#5eead4",    // teal-300
-    3: "#2dd4bf",    // teal-400
-    4: "#14b8a6",    // teal-500
+    0: "#e5e5e5", // neutral-200
+    1: "#99f6e4", // teal-200
+    2: "#5eead4", // teal-300
+    3: "#2dd4bf", // teal-400
+    4: "#14b8a6", // teal-500
   },
   brutal: {
-    0: "#e5e5e5",    // neutral-200
-    1: "#ffdd00",    // yellow accent
-    2: "#fbbf24",    // amber-400
-    3: "#f59e0b",    // amber-500
-    4: "#000000",    // black
+    0: "#e5e5e5", // neutral-200
+    1: "#ffdd00", // yellow accent
+    2: "#fbbf24", // amber-400
+    3: "#f59e0b", // amber-500
+    4: "#000000", // black
   },
 };
 
-export function GithubContributions({ username, theme, copy }: GithubContributionsProps) {
+export function GithubContributions({
+  username,
+  theme,
+  copy,
+}: GithubContributionsProps) {
   const [data, setData] = useState<ContributionsResponse | null>(null);
   const [hasError, setHasError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -97,9 +101,9 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
         }
       },
       {
-        rootMargin: '100px', // Start loading 100px before visible
+        rootMargin: "100px", // Start loading 100px before visible
         threshold: 0.1,
-      }
+      },
     );
 
     observer.observe(container);
@@ -131,9 +135,13 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
         const parsed = JSON.parse(cached);
 
         // Validate the structure of cached data
-        if (!parsed || typeof parsed !== 'object' ||
-            !parsed.data || !parsed.timestamp ||
-            typeof parsed.timestamp !== 'number') {
+        if (
+          !parsed ||
+          typeof parsed !== "object" ||
+          !parsed.data ||
+          !parsed.timestamp ||
+          typeof parsed.timestamp !== "number"
+        ) {
           localStorage.removeItem(cacheKey);
           cacheRef.current.set(cacheKey, null);
           return null;
@@ -179,12 +187,12 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
         localStorage.setItem(cacheKey, cacheString);
       } catch (err) {
         // Handle quota exceeded or other storage errors
-        if (err instanceof Error && err.name === 'QuotaExceededError') {
+        if (err instanceof Error && err.name === "QuotaExceededError") {
           console.warn("localStorage quota exceeded, clearing old cache");
           try {
             // Clear all github-contributions caches to make room
-            Object.keys(localStorage).forEach(key => {
-              if (key.startsWith('github-contributions-')) {
+            Object.keys(localStorage).forEach((key) => {
+              if (key.startsWith("github-contributions-")) {
                 localStorage.removeItem(key);
               }
             });
@@ -217,7 +225,7 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
       try {
         const response = await fetch(
           `https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`,
-          { cache: "default" }
+          { cache: "default" },
         );
         if (!response.ok) throw new Error("Failed to fetch contributions");
         const payload = (await response.json()) as ApiResponse;
@@ -263,7 +271,7 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
       ref={containerRef}
       className={`overflow-hidden border ${
         theme === "brutal"
-          ? "border-black border-[3px] bg-white"
+          ? "border-[3px] border-black bg-white"
           : theme === "dark"
             ? "rounded-3xl border-white/5 bg-[#0c0c0c]"
             : "rounded-3xl border-neutral-200 bg-white"
@@ -295,7 +303,8 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
         >
           {data ? (
             <>
-              <strong className="text-teal-400">{data.total}</strong> {copy.commitsLabel}
+              <strong className="text-teal-400">{data.total}</strong>{" "}
+              {copy.commitsLabel}
             </>
           ) : hasError ? (
             copy.errorText
@@ -310,7 +319,7 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
           {data && data.weeks.length > 0 ? (
             <svg
               viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-              className="w-full h-auto contrib-chart"
+              className="contrib-chart h-auto w-full"
               style={{ minWidth: svgWidth }}
               role="img"
               aria-label={`${copy.heatmapLabel} - ${data.total} ${copy.commitsLabel}`}
@@ -341,12 +350,16 @@ export function GithubContributions({ username, theme, copy }: GithubContributio
                     width={CELL_SIZE}
                     height={CELL_SIZE}
                     rx={2}
-                    fill={SVG_COLORS[theme][day.level as keyof typeof SVG_COLORS["dark"]]}
+                    fill={
+                      SVG_COLORS[theme][
+                        day.level as keyof (typeof SVG_COLORS)["dark"]
+                      ]
+                    }
                     className="contrib-cell"
                   >
                     <title>{`${day.date}: ${day.count} ${copy.tooltipSuffix}`}</title>
                   </rect>
-                ))
+                )),
               )}
             </svg>
           ) : (

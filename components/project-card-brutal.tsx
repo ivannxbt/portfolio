@@ -2,8 +2,14 @@
 
 import React from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { ExternalLink, Lock, Globe, BrainCircuit } from "lucide-react";
+import { motion } from "motion/react";
+import {
+  ExternalLink,
+  Globe,
+  BrainCircuit,
+  Smartphone,
+  type LucideIcon,
+} from "lucide-react";
 import { refinedElevate, tagStagger, tagItem } from "@/lib/animations";
 import type { ProjectItem } from "@/content/site-content";
 
@@ -15,35 +21,52 @@ interface ProjectCardBrutalProps {
   index: number;
 }
 
+const secondaryTypeConfig: Record<
+  NonNullable<ProjectItem["secondaryTypes"]>[number],
+  {
+    icon: LucideIcon;
+    darkClassName: string;
+    lightClassName: string;
+  }
+> = {
+  Mobile: {
+    icon: Smartphone,
+    darkClassName: "bg-orange-500/20 text-orange-300",
+    lightClassName: "bg-orange-100 text-orange-700",
+  },
+};
+
 export const ProjectCardBrutal = React.memo(
   ({ project, theme, index }: ProjectCardBrutalProps) => {
     const projectNumber = String(index + 1).padStart(2, "0");
     const projectImage = project.image?.trim() || "/blog/default.svg";
+    const projectYearLabel = index < 2 ? "2025-2026" : "2025";
 
     return (
       <motion.article
-        className={`relative overflow-hidden flex flex-col h-full border ${
+        className={`relative flex h-full flex-col overflow-hidden border ${
           theme === "brutal"
-            ? "bg-white border-black border-[3px] rounded-none"
+            ? "rounded-none border-[3px] border-black bg-white"
             : theme === "dark"
-              ? "bg-[#242424] border-neutral-800 rounded-xl"
-              : "bg-white border-neutral-200 rounded-xl"
+              ? "rounded-xl border-neutral-800 bg-[#242424]"
+              : "rounded-xl border-neutral-200 bg-white"
         }`}
         initial="rest"
         whileHover="hover"
         variants={refinedElevate}
       >
-        <div className="p-6 flex flex-col flex-grow">
+        <div className="flex flex-grow flex-col p-6">
           {/* Header: Number + Tags */}
-          <div className="flex items-start justify-between mb-6">
+          <div className="mb-6 flex items-start justify-between">
             <span
-              className={`font-mono text-sm ${theme === "dark" ? "text-neutral-600" : "text-neutral-400"
-                }`}
+              className={`font-mono text-sm ${
+                theme === "dark" ? "text-neutral-600" : "text-neutral-400"
+              }`}
             >
               #{projectNumber}
             </span>
             <motion.div
-              className="flex flex-wrap gap-2 justify-end"
+              className="flex flex-wrap justify-end gap-2"
               variants={tagStagger}
               initial="hidden"
               animate="visible"
@@ -52,8 +75,9 @@ export const ProjectCardBrutal = React.memo(
                 <motion.span
                   key={tag}
                   variants={tagItem}
-                  className={`text-[10px] uppercase tracking-[0.15em] font-medium ${theme === "dark" ? "text-neutral-500" : "text-neutral-500"
-                    }`}
+                  className={`text-[10px] font-medium tracking-[0.15em] uppercase ${
+                    theme === "dark" ? "text-neutral-500" : "text-neutral-500"
+                  }`}
                 >
                   {tag}
                 </motion.span>
@@ -63,12 +87,12 @@ export const ProjectCardBrutal = React.memo(
 
           {/* Title */}
           <h3
-            className={`text-2xl tracking-tight mb-4 leading-[1.1] ${
+            className={`mb-4 text-2xl leading-[1.1] tracking-tight ${
               theme === "brutal"
-                ? "text-black font-black"
+                ? "font-black text-black"
                 : theme === "dark"
-                  ? "text-white font-bold"
-                  : "text-neutral-900 font-bold"
+                  ? "font-bold text-white"
+                  : "font-bold text-neutral-900"
             }`}
             style={{ fontFamily: "var(--font-heading)" }}
           >
@@ -77,36 +101,60 @@ export const ProjectCardBrutal = React.memo(
 
           {/* Description */}
           <p
-            className={`text-sm leading-relaxed mb-6 line-clamp-4 ${
+            className={`mb-6 line-clamp-4 text-sm leading-relaxed ${
               theme === "dark" ? "text-neutral-400" : "text-neutral-600"
             }`}
           >
             {project.desc}
           </p>
 
-          {/* Labels: Project Type + Confidential */}
-          <div className="flex flex-wrap gap-2 mb-4">
+          {/* Labels: Project Type + Secondary Types */}
+          <div className="mb-4 flex flex-wrap gap-2">
             {/* Project Type Badge */}
             {project.projectType && (
-              <span className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-1 rounded-full ${
-                project.projectType === "AI"
-                  ? (theme === "dark" ? "bg-purple-500/20 text-purple-400" : "bg-purple-100 text-purple-700")
-                  : (theme === "dark" ? "bg-teal-500/20 text-teal-400" : "bg-teal-100 text-teal-700")
-              }`}>
-                {project.projectType === "AI" ? <BrainCircuit size={12} /> : <Globe size={12} />}
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold tracking-wider uppercase ${
+                  project.projectType === "AI"
+                    ? theme === "dark"
+                      ? "bg-purple-500/20 text-purple-400"
+                      : "bg-purple-100 text-purple-700"
+                    : theme === "dark"
+                      ? "bg-teal-500/20 text-teal-400"
+                      : "bg-teal-100 text-teal-700"
+                }`}
+              >
+                {project.projectType === "AI" ? (
+                  <BrainCircuit size={12} />
+                ) : (
+                  <Globe size={12} />
+                )}
                 {project.projectType}
               </span>
             )}
 
-            {/* Confidential Badge */}
-            {project.confidential && (
-              <span className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-medium px-2 py-1 rounded-full ${
-                theme === "dark" ? "bg-amber-500/20 text-amber-400" : "bg-amber-100 text-amber-700"
-              }`}>
-                <Lock size={10} />
-                Confidential
-              </span>
-            )}
+            {/* Secondary Type Badges */}
+            {project.secondaryTypes?.map((type) => {
+              const config = secondaryTypeConfig[type];
+              if (!config) {
+                return null;
+              }
+
+              const Icon = config.icon;
+
+              return (
+                <span
+                  key={type}
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold tracking-wider uppercase ${
+                    theme === "dark"
+                      ? config.darkClassName
+                      : config.lightClassName
+                  }`}
+                >
+                  <Icon size={12} />
+                  {type}
+                </span>
+              );
+            })}
           </div>
 
           {/* Spacer to push content below to bottom */}
@@ -114,14 +162,19 @@ export const ProjectCardBrutal = React.memo(
 
           {/* Project Image - Floating Island */}
           {projectImage && (
-            <div className={`relative w-full h-40 my-4 rounded-xl overflow-hidden shadow-lg ${
-              theme === "dark" ? "ring-1 ring-white/10" : "ring-1 ring-black/5"
-            }`}>
+            <div
+              className={`relative my-4 h-40 w-full overflow-hidden rounded-xl shadow-lg ${
+                theme === "dark"
+                  ? "ring-1 ring-white/10"
+                  : "ring-1 ring-black/5"
+              }`}
+            >
               <Image
                 src={projectImage}
                 alt={`${project.title} preview`}
-                fill
-                className="object-cover object-center"
+                width={1200}
+                height={675}
+                className="h-full w-full object-cover object-center"
                 sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
               />
             </div>
@@ -129,24 +182,27 @@ export const ProjectCardBrutal = React.memo(
 
           {/* Footer: Year + Links */}
           <div
-            className={`flex items-center justify-between pt-4 border-t ${theme === "dark" ? "border-neutral-800" : "border-neutral-200"
-              }`}
+            className={`flex items-center justify-between border-t pt-4 ${
+              theme === "dark" ? "border-neutral-800" : "border-neutral-200"
+            }`}
           >
             <span
-              className={`text-xs font-mono ${theme === "dark" ? "text-neutral-600" : "text-neutral-400"
-                }`}
+              className={`font-mono text-xs ${
+                theme === "dark" ? "text-neutral-600" : "text-neutral-400"
+              }`}
             >
-              2024-2025
+              {projectYearLabel}
             </span>
             {project.liveUrl && (
               <motion.a
                 href={project.liveUrl}
                 target="_blank"
-                rel="noreferrer"
-                className={`${theme === "dark"
-                  ? "text-neutral-500 hover:text-white"
-                  : "text-neutral-400 hover:text-neutral-900"
-                  }`}
+                rel="noopener noreferrer"
+                className={`${
+                  theme === "dark"
+                    ? "text-neutral-500 hover:text-white"
+                    : "text-neutral-400 hover:text-neutral-900"
+                }`}
                 whileHover={{ scale: 1.1, rotate: -15 }}
                 aria-label="View live site"
               >
@@ -157,7 +213,7 @@ export const ProjectCardBrutal = React.memo(
         </div>
       </motion.article>
     );
-  }
+  },
 );
 
 ProjectCardBrutal.displayName = "ProjectCardBrutal";

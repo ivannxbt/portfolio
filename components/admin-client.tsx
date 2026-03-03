@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import useSWR from "swr";
 import {
   defaultContent,
   type LandingContent,
@@ -33,7 +34,7 @@ import {
   FolderKanban,
   FileText,
   Mail,
-  Home
+  Home,
 } from "lucide-react";
 
 type LanguageOption = {
@@ -47,7 +48,12 @@ const languages: LanguageOption[] = [
 ];
 
 const projectIconOptions: ProjectIcon[] = ["cloud", "database", "layers"];
-const socialPlatformOptions: SocialPlatform[] = ["github", "linkedin", "twitter", "resume"];
+const socialPlatformOptions: SocialPlatform[] = [
+  "github",
+  "linkedin",
+  "twitter",
+  "resume",
+];
 const stackIconOptions: StackIcon[] = ["code", "layers", "brain"];
 
 const fallbackTheme = defaultContent.en.theme ?? {
@@ -98,7 +104,8 @@ const createStackSection = (): StackSection => ({
   items: [],
 });
 
-const parseStackItems = (input: string) => input.split(/\r?\n/).map((item) => item.trim());
+const parseStackItems = (input: string) =>
+  input.split(/\r?\n/).map((item) => item.trim());
 
 const sanitizeStackSections = (sections: StackSection[]) =>
   sections.map((section) => ({
@@ -125,6 +132,76 @@ type LinkPromptState = {
   start: number;
   end: number;
   label: string;
+};
+
+type CollapsibleFieldsetProps = {
+  id: string;
+  title: string;
+  description?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
+  expandedSections: Record<string, boolean>;
+  onToggle: (id: string) => void;
+};
+
+const CollapsibleFieldset = ({
+  id,
+  title,
+  description,
+  icon: Icon,
+  children,
+  expandedSections,
+  onToggle,
+}: CollapsibleFieldsetProps) => {
+  const isOpen = expandedSections[id] ?? false;
+
+  return (
+    <fieldset className="overflow-hidden rounded-2xl border border-gray-200 bg-white p-0 shadow-sm transition-colors hover:border-gray-300">
+      <button
+        type="button"
+        onClick={() => onToggle(id)}
+        className="group flex w-full items-center justify-between p-6 transition-colors hover:bg-gray-50"
+      >
+        <div className="flex items-center gap-3">
+          {Icon && (
+            <Icon className="h-5 w-5 text-teal-600 transition-colors group-hover:text-teal-700" />
+          )}
+          <div className="text-left">
+            <legend className="text-base font-semibold text-gray-900">
+              {title}
+            </legend>
+            {description && (
+              <p className="mt-1 text-xs text-gray-600">{description}</p>
+            )}
+          </div>
+        </div>
+        {isOpen ? (
+          <ChevronUp className="h-5 w-5 text-gray-500 transition-colors group-hover:text-gray-700" />
+        ) : (
+          <ChevronDown className="h-5 w-5 text-gray-500 transition-colors group-hover:text-gray-700" />
+        )}
+      </button>
+      {isOpen && (
+        <div className="space-y-4 border-t border-gray-100 px-6 pt-6 pb-6">
+          {children}
+        </div>
+      )}
+    </fieldset>
+  );
+};
+
+const fetchLandingContent = async (url: string): Promise<LandingContent> => {
+  const response = await fetch(url, {
+    next: { revalidate: 60 },
+  });
+  if (!response.ok) {
+    throw new Error("Failed to load content.");
+  }
+  const payload = (await response.json()) as { data?: LandingContent };
+  return (
+    payload.data ??
+    (url.includes("lang=es") ? defaultContent.es : defaultContent.en)
+  );
 };
 
 const MarkdownField = ({
@@ -155,7 +232,9 @@ const MarkdownField = ({
     const end = textarea.selectionEnd ?? 0;
     const normalizedValue = value ?? "";
     const hasSelection = start !== end;
-    const selectionText = hasSelection ? normalizedValue.slice(start, end) : placeholder;
+    const selectionText = hasSelection
+      ? normalizedValue.slice(start, end)
+      : placeholder;
     const nextValue =
       normalizedValue.slice(0, start) +
       before +
@@ -218,17 +297,35 @@ const MarkdownField = ({
     "rounded-full border border-gray-300 bg-gray-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:cursor-not-allowed disabled:opacity-40";
 
   return (
-    <label className="block text-xs uppercase tracking-widest text-gray-600">
+    <label className="block text-xs tracking-widest text-gray-600 uppercase">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span>{label}</span>
         <div className="flex flex-wrap gap-2">
-          <button type="button" className={buttonClass} onClick={() => wrapSelection("**", "**", "bold text")} disabled={disabled} aria-label="Bold">
+          <button
+            type="button"
+            className={buttonClass}
+            onClick={() => wrapSelection("**", "**", "bold text")}
+            disabled={disabled}
+            aria-label="Bold"
+          >
             B
           </button>
-          <button type="button" className={buttonClass} onClick={() => wrapSelection("*", "*", "italic text")} disabled={disabled} aria-label="Italic">
+          <button
+            type="button"
+            className={buttonClass}
+            onClick={() => wrapSelection("*", "*", "italic text")}
+            disabled={disabled}
+            aria-label="Italic"
+          >
             I
           </button>
-          <button type="button" className={buttonClass} onClick={insertLink} disabled={disabled} aria-label="Insert link">
+          <button
+            type="button"
+            className={buttonClass}
+            onClick={insertLink}
+            disabled={disabled}
+            aria-label="Insert link"
+          >
             Link
           </button>
         </div>
@@ -244,7 +341,7 @@ const MarkdownField = ({
             ref={linkInputRef}
             type="url"
             name="link-url"
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 md:w-auto"
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none md:w-auto"
             value={linkUrl}
             onChange={(event) => setLinkUrl(event.target.value)}
             onKeyDown={handleLinkInputKeyDown}
@@ -253,14 +350,14 @@ const MarkdownField = ({
           />
           <button
             type="button"
-            className="rounded-full border border-gray-300 bg-gray-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+            className="rounded-full border border-gray-300 bg-gray-50 px-3 py-1 text-[10px] font-semibold tracking-[0.3em] text-gray-700 uppercase transition-colors hover:border-gray-400 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
             onClick={submitLink}
           >
             Insert
           </button>
           <button
             type="button"
-            className="rounded-full border border-transparent bg-gray-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+            className="rounded-full border border-transparent bg-gray-50 px-3 py-1 text-[10px] font-semibold tracking-[0.3em] text-gray-700 uppercase transition-colors hover:border-gray-300 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
             onClick={handleLinkCancel}
           >
             Cancel
@@ -271,7 +368,7 @@ const MarkdownField = ({
         ref={textareaRef}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
         rows={rows}
         disabled={disabled}
       />
@@ -300,8 +397,9 @@ export function AdminClient({ initialContent }: AdminClientProps) {
   const [error, setError] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const dirtyRef = useRef(false);
-  const isInitialMount = useRef(true);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     branding: true,
     navigation: false,
     theme: false,
@@ -313,7 +411,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     contact: false,
     footer: false,
   });
+  const [hasUserSwitchedLang, setHasUserSwitchedLang] = useState(false);
   const handleLangChange = (value: "en" | "es") => {
+    if (value !== lang) {
+      setHasUserSwitchedLang(true);
+    }
     setLang(value);
     dirtyRef.current = false;
     setIsDirty(false);
@@ -326,59 +428,54 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     }));
   };
 
-  useEffect(() => {
-    if (!session) return;
+  const shouldFetchRemoteContent =
+    Boolean(session) && (lang !== "en" || hasUserSwitchedLang);
+  const contentRequestKey = shouldFetchRemoteContent
+    ? `/api/content?lang=${lang}`
+    : null;
+  const {
+    data: remoteContent,
+    error: remoteError,
+    isValidating,
+  } = useSWR(contentRequestKey, fetchLandingContent, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60_000,
+  });
 
-    // Skip fetching on initial mount for English (we have initialContent)
-    if (isInitialMount.current && lang === "en") {
-      isInitialMount.current = false;
+  useEffect(() => {
+    if (!contentRequestKey || dirtyRef.current) {
+      setLoading(false);
       return;
     }
-    isInitialMount.current = false;
+    setLoading(isValidating);
+  }, [contentRequestKey, isValidating]);
 
-    const controller = new AbortController();
-    const loadContent = async () => {
-      if (dirtyRef.current) {
-        return;
-      }
-      setLoading(true);
-      setError(null);
-      setMessage(null);
-      try {
-        const response = await fetch(`/api/content?lang=${lang}`, {
-          signal: controller.signal,
-          next: { revalidate: 60 }, // Cache for 1 minute
-        });
-        if (!response.ok) {
-          throw new Error("Failed to load content.");
-        }
-        const payload = (await response.json()) as { data: LandingContent };
-        const data = payload.data ?? defaultContent[lang];
-        setContent(cloneContent(data));
-        dirtyRef.current = false;
-        setIsDirty(false);
-      } catch (err) {
-        if (controller.signal.aborted || (err as DOMException)?.name === "AbortError") {
-          return;
-        }
-        console.error("Admin load error", err);
-        setError("Unable to load content. Showing defaults.");
-        setContent(cloneContent(defaultContent[lang]));
-        dirtyRef.current = false;
-        setIsDirty(false);
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    };
+  useEffect(() => {
+    if (!remoteContent || dirtyRef.current) {
+      return;
+    }
+    setError(null);
+    setMessage(null);
+    setContent(cloneContent(remoteContent));
+    dirtyRef.current = false;
+    setIsDirty(false);
+  }, [remoteContent]);
 
-    loadContent();
-    return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, session?.user?.email]); // Use primitive dependency instead of session object
+  useEffect(() => {
+    if (!remoteError || dirtyRef.current) {
+      return;
+    }
+    console.error("Admin load error", remoteError);
+    setError("Unable to load content. Showing defaults.");
+    setContent(cloneContent(defaultContent[lang]));
+    dirtyRef.current = false;
+    setIsDirty(false);
+    setLoading(false);
+  }, [lang, remoteError]);
 
-  const updateContent = (updater: (current: LandingContent) => LandingContent) => {
+  const updateContent = (
+    updater: (current: LandingContent) => LandingContent,
+  ) => {
     setContent((prev) => {
       if (!prev) {
         return prev;
@@ -396,6 +493,21 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     event.preventDefault();
     if (!content) return;
 
+    setError(null);
+    setMessage(null);
+
+    // Lightweight client-side validation before save
+    if (!content.hero?.headline?.trim()) {
+      setError("Hero headline is required.");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+    if (!content.contact?.email?.trim()) {
+      setError("Contact email is required.");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
     const sanitizedContent: LandingContent = {
       ...content,
       stack: {
@@ -406,30 +518,45 @@ export function AdminClient({ initialContent }: AdminClientProps) {
     setContent(cloneContent(sanitizedContent));
 
     setSaving(true);
-    setError(null);
-    setMessage(null);
     try {
       const response = await fetch("/api/content", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({ lang, content: sanitizedContent }),
       });
+
+      const payload = (await response.json()) as {
+        data?: LandingContent;
+        error?: string;
+      };
+
       if (!response.ok) {
-        throw new Error("Failed to save content.");
+        const serverMessage =
+          typeof payload.error === "string"
+            ? payload.error
+            : response.status === 429
+              ? "Too many saves. Please wait a moment."
+              : response.status === 401
+                ? "Session expired. Please sign in again."
+                : "Saving failed. Please try again.";
+        setError(serverMessage);
+        setTimeout(() => setError(null), 5000);
+        return;
       }
-      const payload = (await response.json()) as { data: LandingContent };
+
       if (payload.data) {
         setContent(cloneContent(payload.data));
       }
       setMessage("Content updated successfully.");
       dirtyRef.current = false;
       setIsDirty(false);
-      // Clear message after 5 seconds
       setTimeout(() => setMessage(null), 5000);
     } catch (err) {
       console.error("Admin save error", err);
       setError("Saving failed. Please try again.");
-      // Clear error after 5 seconds
       setTimeout(() => setError(null), 5000);
     } finally {
       setSaving(false);
@@ -438,7 +565,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center">
+      <div className="flex min-h-dvh items-center justify-center bg-gray-50 text-gray-900">
         <p className="text-sm text-gray-600">Checking session...</p>
       </div>
     );
@@ -446,15 +573,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center px-6">
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 text-center max-w-md space-y-4 shadow-lg">
-          <h1 className="text-2xl font-semibold text-gray-900">Admin login required</h1>
+      <div className="flex min-h-dvh items-center justify-center bg-gray-50 px-6 text-gray-900">
+        <div className="max-w-md space-y-4 rounded-3xl border border-gray-200 bg-white p-8 text-center shadow-lg">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Admin login required
+          </h1>
           <p className="text-sm text-gray-600">
             Please sign in to manage the site content.
           </p>
           <button
             onClick={() => router.push("/admin/login")}
-            className="w-full rounded-full bg-teal-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+            className="w-full rounded-full bg-teal-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-600 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             Go to login
           </button>
@@ -465,7 +594,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
 
   if (!content) {
     return (
-      <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center">
+      <div className="flex min-h-dvh items-center justify-center bg-gray-50 text-gray-900">
         <p className="text-sm text-gray-600">Loading content...</p>
       </div>
     );
@@ -473,70 +602,35 @@ export function AdminClient({ initialContent }: AdminClientProps) {
 
   const themeSettings = content.theme ?? fallbackTheme;
 
-  const CollapsibleFieldset = ({
-    id,
-    title,
-    description,
-    icon: Icon,
-    children,
-  }: {
-    id: string;
-    title: string;
-    description?: string;
-    icon?: React.ComponentType<{ className?: string }>;
-    children: React.ReactNode;
-  }) => {
-    const isOpen = expandedSections[id] ?? false;
-    return (
-      <fieldset className="rounded-2xl border border-gray-200 bg-white p-0 overflow-hidden transition-colors hover:border-gray-300 shadow-sm">
-        <button
-          type="button"
-          onClick={() => toggleSection(id)}
-          className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors group"
-        >
-          <div className="flex items-center gap-3">
-            {Icon && <Icon className="w-5 h-5 text-teal-600 group-hover:text-teal-700 transition-colors" />}
-            <div className="text-left">
-              <legend className="text-base font-semibold text-gray-900">{title}</legend>
-              {description && <p className="text-xs text-gray-600 mt-1">{description}</p>}
-            </div>
-          </div>
-          {isOpen ? (
-            <ChevronUp className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
-          )}
-        </button>
-        {isOpen && <div className="px-6 pb-6 space-y-4 border-t border-gray-100 pt-6">{children}</div>}
-      </fieldset>
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-dvh bg-gray-50 text-gray-900">
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-teal-600" />
-                <p className="text-xs uppercase tracking-[0.3em] text-teal-600">Content Manager</p>
+                <Globe className="h-5 w-5 text-teal-600" />
+                <p className="text-xs tracking-[0.3em] text-teal-600 uppercase">
+                  Content Manager
+                </p>
               </div>
-              <h1 className="mt-1 text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
+              <h1 className="mt-1 text-2xl font-semibold text-gray-900">
+                Admin Dashboard
+              </h1>
             </div>
             <div className="flex items-center gap-3">
               {isDirty && !saving && (
-                <span className="text-xs text-amber-600 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
+                <span className="flex items-center gap-1 text-xs text-amber-600">
+                  <AlertCircle className="h-3 w-3" />
                   Unsaved changes
                 </span>
               )}
               <button
                 onClick={() => signOut({ callbackUrl: "/admin/login" })}
-                className="flex items-center gap-2 rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                className="flex items-center gap-2 rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-200 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:outline-none"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="h-4 w-4" />
                 Sign out
               </button>
             </div>
@@ -544,20 +638,24 @@ export function AdminClient({ initialContent }: AdminClientProps) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-4xl px-6 py-8 space-y-6">
+      <div className="mx-auto max-w-4xl space-y-6 px-6 py-8">
         {/* Language Selector */}
         <div className="rounded-2xl border border-gray-200 bg-white p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-900">Editing Language</p>
-              <p className="text-xs text-gray-600 mt-1">Select which language version you&apos;re editing</p>
+              <p className="text-sm font-medium text-gray-900">
+                Editing Language
+              </p>
+              <p className="mt-1 text-xs text-gray-600">
+                Select which language version you&apos;re editing
+              </p>
             </div>
             <div className="flex gap-3">
               {languages.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => handleLangChange(option.value)}
-                  className={`rounded-full px-5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 ${
+                  className={`rounded-full px-5 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:outline-none ${
                     lang === option.value
                       ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -573,14 +671,14 @@ export function AdminClient({ initialContent }: AdminClientProps) {
 
         {/* Status Messages */}
         {error && (
-          <div className="rounded-xl border border-red-300 bg-red-50 p-4 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <div className="flex items-center gap-3 rounded-xl border border-red-300 bg-red-50 p-4">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
         {message && (
-          <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+          <div className="flex items-center gap-3 rounded-xl border border-emerald-300 bg-emerald-50 p-4">
+            <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-600" />
             <p className="text-sm text-emerald-700">{message}</p>
           </div>
         )}
@@ -591,8 +689,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Branding & SEO"
             description="Page title, description, logo, and favicon settings"
             icon={Image}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Page title
               <input
                 type="text"
@@ -603,26 +703,29 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     branding: { ...prev.branding, title: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Description
               <textarea
                 value={content.branding.description}
                 onChange={(event) =>
                   updateContent((prev) => ({
                     ...prev,
-                    branding: { ...prev.branding, description: event.target.value },
+                    branding: {
+                      ...prev.branding,
+                      description: event.target.value,
+                    },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 rows={3}
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Logo text
               <input
                 type="text"
@@ -630,14 +733,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                 onChange={(event) =>
                   updateContent((prev) => ({
                     ...prev,
-                    branding: { ...prev.branding, logoText: event.target.value },
+                    branding: {
+                      ...prev.branding,
+                      logoText: event.target.value,
+                    },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Favicon URL (PNG/SVG/ICO)
               <input
                 type="text"
@@ -649,7 +755,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                   }))
                 }
                 placeholder="/icons/ivan-orb.svg"
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
@@ -660,10 +766,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Navigation"
             description="Menu labels and navigation text"
             icon={Menu}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              {(Object.keys(content.nav) as Array<keyof typeof content.nav>).map((key) => (
-                <label key={key} className="block text-xs uppercase tracking-widest text-gray-600">
+              {(
+                Object.keys(content.nav) as Array<keyof typeof content.nav>
+              ).map((key) => (
+                <label
+                  key={key}
+                  className="block text-xs tracking-widest text-gray-600 uppercase"
+                >
                   {key}
                   <input
                     type="text"
@@ -674,7 +787,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         nav: { ...prev.nav, [key]: event.target.value },
                       }))
                     }
-                    className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                    className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                     disabled={loading}
                   />
                 </label>
@@ -687,8 +800,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Theme Fonts"
             description="Customize font families for body, headings, and code"
             icon={Type}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Body font stack
               <input
                 type="text"
@@ -696,14 +811,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                 onChange={(event) =>
                   updateContent((prev) => ({
                     ...prev,
-                    theme: { ...(prev.theme ?? fallbackTheme), bodyFont: event.target.value },
+                    theme: {
+                      ...(prev.theme ?? fallbackTheme),
+                      bodyFont: event.target.value,
+                    },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Heading font stack
               <input
                 type="text"
@@ -711,14 +829,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                 onChange={(event) =>
                   updateContent((prev) => ({
                     ...prev,
-                    theme: { ...(prev.theme ?? fallbackTheme), headingFont: event.target.value },
+                    theme: {
+                      ...(prev.theme ?? fallbackTheme),
+                      headingFont: event.target.value,
+                    },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Mono font stack
               <input
                 type="text"
@@ -726,10 +847,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                 onChange={(event) =>
                   updateContent((prev) => ({
                     ...prev,
-                    theme: { ...(prev.theme ?? fallbackTheme), monoFont: event.target.value },
+                    theme: {
+                      ...(prev.theme ?? fallbackTheme),
+                      monoFont: event.target.value,
+                    },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
@@ -740,9 +864,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Hero Section"
             description="Main landing section with greeting, headline, and CTAs"
             icon={Sparkles}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 Greeting
                 <input
                   type="text"
@@ -753,11 +879,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       hero: { ...prev.hero, greeting: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 Role
                 <input
                   type="text"
@@ -768,12 +894,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       hero: { ...prev.hero, role: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
             </div>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Headline
               <input
                 type="text"
@@ -784,7 +910,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     hero: { ...prev.hero, headline: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
@@ -802,7 +928,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               disabled={loading}
             />
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 Primary CTA label
                 <input
                   type="text"
@@ -813,11 +939,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       hero: { ...prev.hero, cta: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 Contact CTA label
                 <input
                   type="text"
@@ -828,7 +954,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       hero: { ...prev.hero, contact: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
@@ -840,8 +966,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="About Section"
             description="Personal summary and education information"
             icon={User}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Title
               <input
                 type="text"
@@ -852,7 +980,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     about: { ...prev.about, title: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
@@ -869,7 +997,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               rows={4}
               disabled={loading}
             />
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Education section title
               <input
                 type="text"
@@ -877,15 +1005,18 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                 onChange={(event) =>
                   updateContent((prev) => ({
                     ...prev,
-                    about: { ...prev.about, educationTitle: event.target.value },
+                    about: {
+                      ...prev.about,
+                      educationTitle: event.target.value,
+                    },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 Education entry 1
                 <input
                   type="text"
@@ -896,11 +1027,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       about: { ...prev.about, education1: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 Education entry 2
                 <input
                   type="text"
@@ -911,7 +1042,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       about: { ...prev.about, education2: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
@@ -923,8 +1054,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Experience & Stack"
             description="Work experience, roles, and technology stack"
             icon={Briefcase}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Section title
               <input
                 type="text"
@@ -932,46 +1065,55 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                 onChange={(event) =>
                   updateContent((prev) => ({
                     ...prev,
-                    experience: { ...prev.experience, title: event.target.value },
+                    experience: {
+                      ...prev.experience,
+                      title: event.target.value,
+                    },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
-                Subtitle
-                <textarea
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
+              Subtitle
+              <textarea
                 value={content.experience.subtitle}
                 onChange={(event) =>
                   updateContent((prev) => ({
                     ...prev,
-                    experience: { ...prev.experience, subtitle: event.target.value },
+                    experience: {
+                      ...prev.experience,
+                      subtitle: event.target.value,
+                    },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 rows={3}
                 disabled={loading}
-                />
-              </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
-                Roles label
-                <input
-                  type="text"
-                  value={content.experience.rolesLabel ?? ""}
-                  onChange={(event) =>
-                    updateContent((prev) => ({
-                      ...prev,
-                      experience: { ...prev.experience, rolesLabel: event.target.value },
-                    }))
-                  }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                  disabled={loading}
-                />
-              </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
-                Download CTA label
-                <input
+              />
+            </label>
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
+              Roles label
+              <input
+                type="text"
+                value={content.experience.rolesLabel ?? ""}
+                onChange={(event) =>
+                  updateContent((prev) => ({
+                    ...prev,
+                    experience: {
+                      ...prev.experience,
+                      rolesLabel: event.target.value,
+                    },
+                  }))
+                }
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
+                disabled={loading}
+              />
+            </label>
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
+              Download CTA label
+              <input
                 type="text"
                 value={content.experience.cta}
                 onChange={(event) =>
@@ -980,11 +1122,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     experience: { ...prev.experience, cta: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Stack label
               <input
                 type="text"
@@ -995,14 +1137,19 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     stack: { ...prev.stack, title: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
             <div className="space-y-4">
-              <p className="text-xs uppercase tracking-widest text-gray-600">Stack sections</p>
+              <p className="text-xs tracking-widest text-gray-600 uppercase">
+                Stack sections
+              </p>
               {(content.stack.sections ?? []).map((section, sectionIndex) => (
-                <div key={`${section.title}-${sectionIndex}`} className="rounded-xl border border-gray-200 bg-white p-4 space-y-3 shadow-sm">
+                <div
+                  key={`${section.title}-${sectionIndex}`}
+                  className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                >
                   <div className="flex items-center justify-between text-xs text-gray-600">
                     <span>Section {sectionIndex + 1}</span>
                     {(content.stack.sections?.length ?? 0) > 1 && (
@@ -1018,14 +1165,14 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                             };
                           })
                         }
-                        className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                        className="rounded text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                         disabled={loading}
                       >
                         Remove
                       </button>
                     )}
                   </div>
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     Title
                     <input
                       type="text"
@@ -1037,14 +1184,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                             ...sections[sectionIndex],
                             title: event.target.value,
                           };
-                          return { ...prev, stack: { ...prev.stack, sections } };
+                          return {
+                            ...prev,
+                            stack: { ...prev.stack, sections },
+                          };
                         })
                       }
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     />
                   </label>
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     Description
                     <textarea
                       value={section.description}
@@ -1055,15 +1205,18 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                             ...sections[sectionIndex],
                             description: event.target.value,
                           };
-                          return { ...prev, stack: { ...prev.stack, sections } };
+                          return {
+                            ...prev,
+                            stack: { ...prev.stack, sections },
+                          };
                         })
                       }
                       rows={2}
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     />
                   </label>
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     Icon
                     <select
                       value={section.icon}
@@ -1074,10 +1227,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                             ...sections[sectionIndex],
                             icon: event.target.value as StackIcon,
                           };
-                          return { ...prev, stack: { ...prev.stack, sections } };
+                          return {
+                            ...prev,
+                            stack: { ...prev.stack, sections },
+                          };
                         })
                       }
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     >
                       {stackIconOptions.map((icon) => (
@@ -1087,7 +1243,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       ))}
                     </select>
                   </label>
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     Items (newline separated)
                     <textarea
                       value={section.items.join("\n")}
@@ -1098,11 +1254,14 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                             ...sections[sectionIndex],
                             items: parseStackItems(event.target.value),
                           };
-                          return { ...prev, stack: { ...prev.stack, sections } };
+                          return {
+                            ...prev,
+                            stack: { ...prev.stack, sections },
+                          };
                         })
                       }
                       rows={3}
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     />
                   </label>
@@ -1115,34 +1274,40 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     ...prev,
                     stack: {
                       ...prev.stack,
-                      sections: [...(prev.stack.sections ?? []), createStackSection()],
+                      sections: [
+                        ...(prev.stack.sections ?? []),
+                        createStackSection(),
+                      ],
                     },
                   }))
                 }
-                className="text-sm text-teal-600 hover:text-teal-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded"
+                className="rounded text-sm text-teal-600 underline-offset-4 hover:text-teal-700 hover:underline focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               >
                 Add stack section
               </button>
-          </div>
+            </div>
 
-          <MarkdownField
-            label="Description"
-            helperText="Markdown enabled—select text and click the buttons to format."
-            value={content.projects.description}
-            onChange={(text) =>
-              updateContent((prev) => ({
-                ...prev,
-                projects: { ...prev.projects, description: text },
-              }))
-            }
-            rows={3}
-            disabled={loading}
-          />
+            <MarkdownField
+              label="Description"
+              helperText="Markdown enabled—select text and click the buttons to format."
+              value={content.projects.description}
+              onChange={(text) =>
+                updateContent((prev) => ({
+                  ...prev,
+                  projects: { ...prev.projects, description: text },
+                }))
+              }
+              rows={3}
+              disabled={loading}
+            />
 
-          <div className="space-y-4">
+            <div className="space-y-4">
               {content.experience.roles.map((role, index) => (
-                <div key={`${role.role}-${index}`} className="rounded-xl border border-gray-200 bg-white p-4 space-y-3 shadow-sm">
+                <div
+                  key={`${role.role}-${index}`}
+                  className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                >
                   <div className="flex items-center justify-between text-xs text-gray-600">
                     <span>Role {index + 1}</span>
                     {content.experience.roles.length > 1 && (
@@ -1154,11 +1319,16 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                             roles.splice(index, 1);
                             return {
                               ...prev,
-                              experience: { ...prev.experience, roles: roles.length ? roles : [createExperienceRole()] },
+                              experience: {
+                                ...prev.experience,
+                                roles: roles.length
+                                  ? roles
+                                  : [createExperienceRole()],
+                              },
                             };
                           })
                         }
-                        className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                        className="rounded text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                         disabled={loading}
                       >
                         Remove
@@ -1166,7 +1336,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     )}
                   </div>
                   <div className="grid gap-3 md:grid-cols-2">
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Role
                       <input
                         type="text"
@@ -1174,15 +1344,21 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], role: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
+                            roles[index] = {
+                              ...roles[index],
+                              role: event.target.value,
+                            };
+                            return {
+                              ...prev,
+                              experience: { ...prev.experience, roles },
+                            };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Company
                       <input
                         type="text"
@@ -1190,17 +1366,23 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], company: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
+                            roles[index] = {
+                              ...roles[index],
+                              company: event.target.value,
+                            };
+                            return {
+                              ...prev,
+                              experience: { ...prev.experience, roles },
+                            };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
                   </div>
                   <div className="grid gap-3 md:grid-cols-2">
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Company logo URL
                       <input
                         type="text"
@@ -1208,15 +1390,21 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], companyLogo: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
+                            roles[index] = {
+                              ...roles[index],
+                              companyLogo: event.target.value,
+                            };
+                            return {
+                              ...prev,
+                              experience: { ...prev.experience, roles },
+                            };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Logo alt text
                       <input
                         type="text"
@@ -1224,17 +1412,23 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], companyLogoAlt: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
+                            roles[index] = {
+                              ...roles[index],
+                              companyLogoAlt: event.target.value,
+                            };
+                            return {
+                              ...prev,
+                              experience: { ...prev.experience, roles },
+                            };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
                   </div>
                   <div className="grid gap-3 md:grid-cols-2">
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Period
                       <input
                         type="text"
@@ -1242,15 +1436,21 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], period: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
+                            roles[index] = {
+                              ...roles[index],
+                              period: event.target.value,
+                            };
+                            return {
+                              ...prev,
+                              experience: { ...prev.experience, roles },
+                            };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Location
                       <input
                         type="text"
@@ -1258,33 +1458,47 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const roles = prev.experience.roles.slice();
-                            roles[index] = { ...roles[index], location: event.target.value };
-                            return { ...prev, experience: { ...prev.experience, roles } };
+                            roles[index] = {
+                              ...roles[index],
+                              location: event.target.value,
+                            };
+                            return {
+                              ...prev,
+                              experience: { ...prev.experience, roles },
+                            };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
                   </div>
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     Summary
                     <textarea
                       value={role.summary}
                       onChange={(event) =>
                         updateContent((prev) => {
                           const roles = prev.experience.roles.slice();
-                          roles[index] = { ...roles[index], summary: event.target.value };
-                          return { ...prev, experience: { ...prev.experience, roles } };
+                          roles[index] = {
+                            ...roles[index],
+                            summary: event.target.value,
+                          };
+                          return {
+                            ...prev,
+                            experience: { ...prev.experience, roles },
+                          };
                         })
                       }
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       rows={3}
                       disabled={loading}
                     />
                   </label>
                   <div className="space-y-2">
-                    <p className="text-xs uppercase tracking-widest text-gray-600">Highlights</p>
+                    <p className="text-xs tracking-widest text-gray-600 uppercase">
+                      Highlights
+                    </p>
                     {role.bullets.map((bullet, bulletIndex) => (
                       <div key={bulletIndex} className="flex gap-2">
                         <input
@@ -1296,10 +1510,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                               const bullets = roles[index].bullets.slice();
                               bullets[bulletIndex] = event.target.value;
                               roles[index] = { ...roles[index], bullets };
-                              return { ...prev, experience: { ...prev.experience, roles } };
+                              return {
+                                ...prev,
+                                experience: { ...prev.experience, roles },
+                              };
                             })
                           }
-                          className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                          className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                           disabled={loading}
                         />
                         {role.bullets.length > 1 && (
@@ -1310,11 +1527,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                                 const roles = prev.experience.roles.slice();
                                 const bullets = roles[index].bullets.slice();
                                 bullets.splice(bulletIndex, 1);
-                                roles[index] = { ...roles[index], bullets: bullets.length ? bullets : [""] };
-                                return { ...prev, experience: { ...prev.experience, roles } };
+                                roles[index] = {
+                                  ...roles[index],
+                                  bullets: bullets.length ? bullets : [""],
+                                };
+                                return {
+                                  ...prev,
+                                  experience: { ...prev.experience, roles },
+                                };
                               })
                             }
-                            className="rounded-lg border border-gray-300 px-3 text-sm text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                            className="rounded-lg border border-gray-300 px-3 text-sm text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                             disabled={loading}
                           >
                             Remove
@@ -1327,11 +1550,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       onClick={() =>
                         updateContent((prev) => {
                           const roles = prev.experience.roles.slice();
-                          roles[index] = { ...roles[index], bullets: [...roles[index].bullets, ""] };
-                          return { ...prev, experience: { ...prev.experience, roles } };
+                          roles[index] = {
+                            ...roles[index],
+                            bullets: [...roles[index].bullets, ""],
+                          };
+                          return {
+                            ...prev,
+                            experience: { ...prev.experience, roles },
+                          };
                         })
                       }
-                      className="w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs text-gray-700 hover:border-gray-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     >
                       + Add bullet
@@ -1345,10 +1574,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               onClick={() =>
                 updateContent((prev) => ({
                   ...prev,
-                  experience: { ...prev.experience, roles: [...prev.experience.roles, createExperienceRole()] },
+                  experience: {
+                    ...prev.experience,
+                    roles: [...prev.experience.roles, createExperienceRole()],
+                  },
                 }))
               }
-              className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
               disabled={loading}
             >
               + Add role
@@ -1360,9 +1592,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Projects"
             description="Portfolio projects and case studies"
             icon={FolderKanban}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 Section title
                 <input
                   type="text"
@@ -1373,11 +1607,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       projects: { ...prev.projects, title: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 View all label
                 <input
                   type="text"
@@ -1385,14 +1619,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                   onChange={(event) =>
                     updateContent((prev) => ({
                       ...prev,
-                      projects: { ...prev.projects, viewAll: event.target.value },
+                      projects: {
+                        ...prev.projects,
+                        viewAll: event.target.value,
+                      },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 View more label
                 <input
                   type="text"
@@ -1400,14 +1637,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                   onChange={(event) =>
                     updateContent((prev) => ({
                       ...prev,
-                      projects: { ...prev.projects, viewMore: event.target.value },
+                      projects: {
+                        ...prev.projects,
+                        viewMore: event.target.value,
+                      },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 View less label
                 <input
                   type="text"
@@ -1415,10 +1655,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                   onChange={(event) =>
                     updateContent((prev) => ({
                       ...prev,
-                      projects: { ...prev.projects, viewLess: event.target.value },
+                      projects: {
+                        ...prev.projects,
+                        viewLess: event.target.value,
+                      },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
@@ -1426,7 +1669,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
 
             <div className="space-y-4">
               {content.projectItems.map((project, index) => (
-                <div key={project.id} className="rounded-xl border border-gray-200 bg-white p-4 space-y-3 shadow-sm">
+                <div
+                  key={project.id}
+                  className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                >
                   <div className="flex items-center justify-between text-xs text-gray-600">
                     <span>Project {index + 1}</span>
                     {content.projectItems.length > 1 && (
@@ -1436,10 +1682,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                           updateContent((prev) => {
                             const projectItems = prev.projectItems.slice();
                             projectItems.splice(index, 1);
-                            return { ...prev, projectItems: projectItems.length ? projectItems : [createProject()] };
+                            return {
+                              ...prev,
+                              projectItems: projectItems.length
+                                ? projectItems
+                                : [createProject()],
+                            };
                           })
                         }
-                        className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                        className="rounded text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                         disabled={loading}
                       >
                         Remove
@@ -1447,7 +1698,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     )}
                   </div>
                   <div className="grid gap-3 md:grid-cols-3">
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       ID
                       <input
                         type="number"
@@ -1455,15 +1706,18 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const projectItems = prev.projectItems.slice();
-                            projectItems[index] = { ...projectItems[index], id: Number(event.target.value) };
+                            projectItems[index] = {
+                              ...projectItems[index],
+                              id: Number(event.target.value),
+                            };
                             return { ...prev, projectItems };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
-                    <label className="block text-xs uppercase tracking-widest text-gray-600 md:col-span-2">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase md:col-span-2">
                       Title
                       <input
                         type="text"
@@ -1471,11 +1725,14 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const projectItems = prev.projectItems.slice();
-                            projectItems[index] = { ...projectItems[index], title: event.target.value };
+                            projectItems[index] = {
+                              ...projectItems[index],
+                              title: event.target.value,
+                            };
                             return { ...prev, projectItems };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
@@ -1487,7 +1744,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     onChange={(text) =>
                       updateContent((prev) => {
                         const projectItems = prev.projectItems.slice();
-                        projectItems[index] = { ...projectItems[index], desc: text };
+                        projectItems[index] = {
+                          ...projectItems[index],
+                          desc: text,
+                        };
                         return { ...prev, projectItems };
                       })
                     }
@@ -1495,18 +1755,21 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     disabled={loading}
                   />
                   <div className="grid gap-3 md:grid-cols-2">
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Icon
                       <select
                         value={project.icon}
                         onChange={(event) =>
                           updateContent((prev) => {
                             const projectItems = prev.projectItems.slice();
-                            projectItems[index] = { ...projectItems[index], icon: event.target.value as ProjectIcon };
+                            projectItems[index] = {
+                              ...projectItems[index],
+                              icon: event.target.value as ProjectIcon,
+                            };
                             return { ...prev, projectItems };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       >
                         {projectIconOptions.map((option) => (
@@ -1516,7 +1779,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         ))}
                       </select>
                     </label>
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Tags (comma separated)
                       <input
                         type="text"
@@ -1532,7 +1795,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                             return { ...prev, projectItems };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
@@ -1549,7 +1812,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                   projectItems: [...prev.projectItems, createProject()],
                 }))
               }
-              className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
               disabled={loading}
             >
               + Add project
@@ -1561,8 +1824,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Blog"
             description="Blog posts and articles"
             icon={FileText}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Section title
               <input
                 type="text"
@@ -1573,7 +1838,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     blog: { ...prev.blog, title: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
@@ -1591,7 +1856,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               disabled={loading}
             />
             <div className="grid gap-4 md:grid-cols-3">
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 View all label
                 <input
                   type="text"
@@ -1602,11 +1867,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       blog: { ...prev.blog, viewAll: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 View more label
                 <input
                   type="text"
@@ -1617,11 +1882,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       blog: { ...prev.blog, viewMore: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
-              <label className="block text-xs uppercase tracking-widest text-gray-600">
+              <label className="block text-xs tracking-widest text-gray-600 uppercase">
                 View less label
                 <input
                   type="text"
@@ -1632,12 +1897,12 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       blog: { ...prev.blog, viewLess: event.target.value },
                     }))
                   }
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                   disabled={loading}
                 />
               </label>
             </div>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Read more label
               <input
                 type="text"
@@ -1648,11 +1913,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     blog: { ...prev.blog, readMore: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Empty state copy
               <input
                 type="text"
@@ -1663,14 +1928,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     blog: { ...prev.blog, empty: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
 
             <div className="space-y-4">
               {(content.blogPosts || []).map((post, index) => (
-                <div key={post.id} className="rounded-xl border border-gray-200 bg-white p-4 space-y-3 shadow-sm">
+                <div
+                  key={post.id}
+                  className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                >
                   <div className="flex items-center justify-between text-xs text-gray-600">
                     <span>Entry {index + 1}</span>
                     {(content.blogPosts?.length ?? 0) > 1 && (
@@ -1680,10 +1948,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                           updateContent((prev) => {
                             const blogPosts = (prev.blogPosts || []).slice();
                             blogPosts.splice(index, 1);
-                            return { ...prev, blogPosts: blogPosts.length ? blogPosts : [createBlogEntry()] };
+                            return {
+                              ...prev,
+                              blogPosts: blogPosts.length
+                                ? blogPosts
+                                : [createBlogEntry()],
+                            };
                           })
                         }
-                        className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                        className="rounded text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                         disabled={loading}
                       >
                         Remove
@@ -1691,7 +1964,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     )}
                   </div>
                   <div className="grid gap-3 md:grid-cols-2">
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       ID
                       <input
                         type="number"
@@ -1699,15 +1972,18 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const blogPosts = (prev.blogPosts || []).slice();
-                            blogPosts[index] = { ...blogPosts[index], id: Number(event.target.value) };
+                            blogPosts[index] = {
+                              ...blogPosts[index],
+                              id: Number(event.target.value),
+                            };
                             return { ...prev, blogPosts };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Date label
                       <input
                         type="text"
@@ -1715,16 +1991,19 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const blogPosts = (prev.blogPosts || []).slice();
-                            blogPosts[index] = { ...blogPosts[index], date: event.target.value };
+                            blogPosts[index] = {
+                              ...blogPosts[index],
+                              date: event.target.value,
+                            };
                             return { ...prev, blogPosts };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
                   </div>
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     Title
                     <input
                       type="text"
@@ -1732,11 +2011,14 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       onChange={(event) =>
                         updateContent((prev) => {
                           const blogPosts = (prev.blogPosts || []).slice();
-                          blogPosts[index] = { ...blogPosts[index], title: event.target.value };
+                          blogPosts[index] = {
+                            ...blogPosts[index],
+                            title: event.target.value,
+                          };
                           return { ...prev, blogPosts };
                         })
                       }
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     />
                   </label>
@@ -1747,14 +2029,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     onChange={(text) =>
                       updateContent((prev) => {
                         const blogPosts = (prev.blogPosts || []).slice();
-                        blogPosts[index] = { ...blogPosts[index], summary: text };
+                        blogPosts[index] = {
+                          ...blogPosts[index],
+                          summary: text,
+                        };
                         return { ...prev, blogPosts };
                       })
                     }
                     rows={3}
                     disabled={loading}
                   />
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     Cover image (URL or /public path)
                     <input
                       type="text"
@@ -1762,16 +2047,19 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       onChange={(event) =>
                         updateContent((prev) => {
                           const blogPosts = (prev.blogPosts || []).slice();
-                          blogPosts[index] = { ...blogPosts[index], image: event.target.value };
+                          blogPosts[index] = {
+                            ...blogPosts[index],
+                            image: event.target.value,
+                          };
                           return { ...prev, blogPosts };
                         })
                       }
                       placeholder="/blog/default.svg"
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     />
                   </label>
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     Optional URL
                     <input
                       type="text"
@@ -1779,12 +2067,15 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       onChange={(event) =>
                         updateContent((prev) => {
                           const blogPosts = (prev.blogPosts || []).slice();
-                          blogPosts[index] = { ...blogPosts[index], url: event.target.value };
+                          blogPosts[index] = {
+                            ...blogPosts[index],
+                            url: event.target.value,
+                          };
                           return { ...prev, blogPosts };
                         })
                       }
                       placeholder="https://example.com/article"
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     />
                   </label>
@@ -1800,7 +2091,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                   blogPosts: [...(prev.blogPosts || []), createBlogEntry()],
                 }))
               }
-              className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
               disabled={loading}
             >
               + Add blog entry
@@ -1812,8 +2103,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Contact"
             description="Contact information and social links"
             icon={Mail}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Section title
               <input
                 type="text"
@@ -1824,11 +2117,11 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     contact: { ...prev.contact, title: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Email
               <input
                 type="email"
@@ -1839,7 +2132,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     contact: { ...prev.contact, email: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
@@ -1859,7 +2152,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
 
             <div className="space-y-4">
               {content.contact.socials.map((social, index) => (
-                <div key={`${social.platform}-${index}`} className="rounded-xl border border-gray-200 bg-white p-4 space-y-4 shadow-sm">
+                <div
+                  key={`${social.platform}-${index}`}
+                  className="space-y-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                >
                   <div className="flex items-center justify-between text-xs text-gray-600">
                     <span>Social {index + 1}</span>
                     {content.contact.socials.length > 1 && (
@@ -1871,11 +2167,16 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                             socials.splice(index, 1);
                             return {
                               ...prev,
-                              contact: { ...prev.contact, socials: socials.length ? socials : [createSocialLink()] },
+                              contact: {
+                                ...prev.contact,
+                                socials: socials.length
+                                  ? socials
+                                  : [createSocialLink()],
+                              },
                             };
                           })
                         }
-                        className="text-red-600 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                        className="rounded text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                         disabled={loading}
                       >
                         Remove
@@ -1883,7 +2184,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     )}
                   </div>
                   <div className="grid gap-3 md:grid-cols-2">
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Label
                       <input
                         type="text"
@@ -1891,26 +2192,38 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                         onChange={(event) =>
                           updateContent((prev) => {
                             const socials = prev.contact.socials.slice();
-                            socials[index] = { ...socials[index], label: event.target.value };
-                            return { ...prev, contact: { ...prev.contact, socials } };
+                            socials[index] = {
+                              ...socials[index],
+                              label: event.target.value,
+                            };
+                            return {
+                              ...prev,
+                              contact: { ...prev.contact, socials },
+                            };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       />
                     </label>
-                    <label className="block text-xs uppercase tracking-widest text-gray-600">
+                    <label className="block text-xs tracking-widest text-gray-600 uppercase">
                       Platform
                       <select
                         value={social.platform}
                         onChange={(event) =>
                           updateContent((prev) => {
                             const socials = prev.contact.socials.slice();
-                            socials[index] = { ...socials[index], platform: event.target.value as SocialPlatform };
-                            return { ...prev, contact: { ...prev.contact, socials } };
+                            socials[index] = {
+                              ...socials[index],
+                              platform: event.target.value as SocialPlatform,
+                            };
+                            return {
+                              ...prev,
+                              contact: { ...prev.contact, socials },
+                            };
                           })
                         }
-                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                         disabled={loading}
                       >
                         {socialPlatformOptions.map((option) => (
@@ -1921,7 +2234,7 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       </select>
                     </label>
                   </div>
-                  <label className="block text-xs uppercase tracking-widest text-gray-600">
+                  <label className="block text-xs tracking-widest text-gray-600 uppercase">
                     URL
                     <input
                       type="text"
@@ -1929,11 +2242,17 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                       onChange={(event) =>
                         updateContent((prev) => {
                           const socials = prev.contact.socials.slice();
-                          socials[index] = { ...socials[index], url: event.target.value };
-                          return { ...prev, contact: { ...prev.contact, socials } };
+                          socials[index] = {
+                            ...socials[index],
+                            url: event.target.value,
+                          };
+                          return {
+                            ...prev,
+                            contact: { ...prev.contact, socials },
+                          };
                         })
                       }
-                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                       disabled={loading}
                     />
                   </label>
@@ -1946,10 +2265,13 @@ export function AdminClient({ initialContent }: AdminClientProps) {
               onClick={() =>
                 updateContent((prev) => ({
                   ...prev,
-                  contact: { ...prev.contact, socials: [...prev.contact.socials, createSocialLink()] },
+                  contact: {
+                    ...prev.contact,
+                    socials: [...prev.contact.socials, createSocialLink()],
+                  },
                 }))
               }
-              className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="w-full rounded-xl border border-dashed border-gray-300 py-3 text-sm text-gray-700 hover:border-gray-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
               disabled={loading}
             >
               + Add social link
@@ -1961,8 +2283,10 @@ export function AdminClient({ initialContent }: AdminClientProps) {
             title="Footer"
             description="Footer copyright and legal text"
             icon={Home}
+            expandedSections={expandedSections}
+            onToggle={toggleSection}
           >
-            <label className="block text-xs uppercase tracking-widest text-gray-600">
+            <label className="block text-xs tracking-widest text-gray-600 uppercase">
               Copyright line
               <input
                 type="text"
@@ -1973,37 +2297,37 @@ export function AdminClient({ initialContent }: AdminClientProps) {
                     footer: { ...prev.footer, copyright: event.target.value },
                   }))
                 }
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
                 disabled={loading}
               />
             </label>
           </CollapsibleFieldset>
 
           {/* Sticky Save Button */}
-          <div className="sticky bottom-0 pb-6 pt-4 bg-white/95 backdrop-blur-sm border-t border-gray-200 mt-8">
-              <button
-                type="submit"
-                disabled={loading || saving || !isDirty}
-                className="w-full flex items-center justify-center gap-2 rounded-full bg-teal-500 py-4 text-center text-base font-semibold text-black transition-colors hover:bg-teal-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-teal-500 shadow-lg shadow-teal-500/20"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Saving changes...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-5 h-5" />
-                    Save all changes
-                  </>
-                )}
-              </button>
-              {isDirty && !saving && (
-                <p className="text-xs text-amber-600 text-center mt-2 flex items-center justify-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  You have unsaved changes
-                </p>
+          <div className="sticky bottom-0 mt-8 border-t border-gray-200 bg-white/95 pt-4 pb-6 backdrop-blur-sm">
+            <button
+              type="submit"
+              disabled={loading || saving || !isDirty}
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-teal-500 py-4 text-center text-base font-semibold text-black shadow-lg shadow-teal-500/20 transition-colors hover:bg-teal-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-teal-500"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Saving changes...
+                </>
+              ) : (
+                <>
+                  <Save className="h-5 w-5" />
+                  Save all changes
+                </>
               )}
+            </button>
+            {isDirty && !saving && (
+              <p className="mt-2 flex items-center justify-center gap-1 text-center text-xs text-amber-600">
+                <AlertCircle className="h-3 w-3" />
+                You have unsaved changes
+              </p>
+            )}
           </div>
         </form>
       </div>

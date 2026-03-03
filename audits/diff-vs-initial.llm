@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diff version="0.0.38">
+ <baseline id="147cd3c3-ee40-41d2-b06d-6ee5bdcd4b78" url="http://127.0.0.1:3000" date="2026-03-03T08:46:35.168Z" pages="3" score="45" grade="F"/>
+ <current id="8a640721-03ef-41f7-863c-f203c3755558" url="http://127.0.0.1:3000" date="2026-03-03T08:53:38.659Z" pages="9" score="63" grade="D"/>
+ <summary added="34" removed="37" changed="11" regressions="0" improvements="0"/>
+ <added>
+  <issue fp="ff1796ff1581" rule="security/https" severity="error" status="fail" check="https" category="security" weight="8">
+   Page not served over HTTPS
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="c5c71285b039" rule="security/https" severity="error" status="fail" check="https" category="security" weight="8">
+   Page not served over HTTPS
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="1e2d3aa8fa19" rule="security/https" severity="error" status="fail" check="https" category="security" weight="8">
+   Page not served over HTTPS
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="da6764120bab" rule="security/https" severity="error" status="fail" check="https" category="security" weight="8">
+   Page not served over HTTPS
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="481dad943094" rule="security/https" severity="error" status="fail" check="https" category="security" weight="8">
+   Page not served over HTTPS
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="6bfd66b6f7ef" rule="security/https" severity="error" status="fail" check="https" category="security" weight="8">
+   Page not served over HTTPS
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+  <issue fp="b94595251a6b" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+   3 potential color contrast issue(s)
+   Target: item div with class &quot;mt-6 space-y-4 text-base leadi...&quot; may have low contrast
+   Meta: classBasedIssues: 1, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+  </issue>
+  <issue fp="d9a93aa20763" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+   4 potential color contrast issue(s)
+   Target: item p with class &quot;mt-4 text-base leading-7 text-...&quot; may have low contrast
+   Meta: classBasedIssues: 2, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+  </issue>
+  <issue fp="05a23210707d" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+   4 potential color contrast issue(s)
+   Target: item p with class &quot;mt-6 text-base leading-7 text-...&quot; may have low contrast
+   Meta: classBasedIssues: 2, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+  </issue>
+  <issue fp="797de3a69252" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="5a66e9a0328b" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="00adb9d94f1b" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="82ac9498bd10" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="f09f263edae6" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="28cc5b5fbbf7" rule="core/og-tags" severity="warning" status="warn" check="og-image" category="core" weight="5">
+   Missing og:image - social shares will lack imagery
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+  <issue fp="65a75a7d3863" rule="perf/duplicate-js" severity="warning" status="warn" check="duplicate-js-same-version" category="perf" weight="5">
+   2 library(s) loaded multiple times
+   Target: item node (12x)
+   Meta: note: Remove duplicates to reduce page weight
+  </issue>
+  <issue fp="ad705a41ca5e" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+   Thin content: 48 words (min 300)
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="e7ae1b718951" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+   Thin content: 40 words (min 300)
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="3b2d8b76dd3b" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+   Thin content: 43 words (min 300)
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="7eaa3fc8b9ab" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+   Thin content: 47 words (min 300)
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="506e2189ef69" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+   Thin content: 39 words (min 300)
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="625bdbc81a1c" rule="content/word-count" severity="warning" status="warn" check="word-count" category="content" weight="4">
+   Thin content: 43 words (min 300)
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+  <issue fp="32942200ba1b" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="5d00bfde0d5f" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="027dd5df42a5" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="9dc355a53174" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="180a6f0038c1" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="f15aa9491be5" rule="core/twitter-cards" severity="info" status="warn" check="twitter-card" category="core" weight="3">
+   summary_large_image card requires an image
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+  <issue fp="488546e0f3bf" rule="perf/http2" severity="info" status="warn" check="http2-https-required" category="perf" weight="3">
+   HTTP/2 requires HTTPS
+   Target: page http://127.0.0.1:3000/en/about
+  </issue>
+  <issue fp="d0ecd8c3b07c" rule="perf/http2" severity="info" status="warn" check="http2-https-required" category="perf" weight="3">
+   HTTP/2 requires HTTPS
+   Target: page http://127.0.0.1:3000/en/contact
+  </issue>
+  <issue fp="bbb47f8d4014" rule="perf/http2" severity="info" status="warn" check="http2-https-required" category="perf" weight="3">
+   HTTP/2 requires HTTPS
+   Target: page http://127.0.0.1:3000/en/privacy
+  </issue>
+  <issue fp="ae0c1b4f877a" rule="perf/http2" severity="info" status="warn" check="http2-https-required" category="perf" weight="3">
+   HTTP/2 requires HTTPS
+   Target: page http://127.0.0.1:3000/es/about
+  </issue>
+  <issue fp="f0c604b28c4e" rule="perf/http2" severity="info" status="warn" check="http2-https-required" category="perf" weight="3">
+   HTTP/2 requires HTTPS
+   Target: page http://127.0.0.1:3000/es/contact
+  </issue>
+  <issue fp="8590e9faa9d1" rule="perf/http2" severity="info" status="warn" check="http2-https-required" category="perf" weight="3">
+   HTTP/2 requires HTTPS
+   Target: page http://127.0.0.1:3000/es/privacy
+  </issue>
+ </added>
+ <removed>
+  <issue fp="f67eef0e3b2a" rule="core/meta-title" severity="error" status="warn" check="meta-title" category="core" weight="8">
+   Title too short
+   Target: item http://127.0.0.1:3000/en (Ivan Caamano | AI Engineer (26 chars))
+  </issue>
+  <issue fp="e2fd200b8751" rule="crawl/sitemap-domain" severity="error" status="fail" check="sitemap-domain" category="crawl" weight="8">
+   2 URL(s) point to different domain(s)
+   Target: item https://ivan-caamano.me/en
+   Meta: expectedHost: 127.0.0.1, foundHosts: ivan-caamano.me, host: ivan-caamano.me
+  </issue>
+  <issue fp="bdd95675317c" rule="crawl/sitemap-domain" severity="error" status="fail" check="sitemap-domain" category="crawl" weight="8">
+   2 URL(s) point to different domain(s)
+   Target: item https://ivan-caamano.me/es
+   Meta: expectedHost: 127.0.0.1, foundHosts: ivan-caamano.me, host: ivan-caamano.me
+  </issue>
+  <issue fp="959322525a6e" rule="a11y/label-content-name-mismatch" severity="error" status="fail" check="label-content-name-mismatch" category="a11y" weight="7">
+   1 element(s) where visible text doesn&apos;t match accessible name
+   Target: item button: visible=&quot;ask me anything...as&quot; vs aria-label=&quot;ask me anything...&quot;
+   Meta: issue: Voice control users may not be able to activate these controls
+  </issue>
+  <issue fp="be619ed34ba5" rule="a11y/label-content-name-mismatch" severity="error" status="fail" check="label-content-name-mismatch" category="a11y" weight="7">
+   1 element(s) where visible text doesn&apos;t match accessible name
+   Target: item button: visible=&quot;pregúntame lo que se&quot; vs aria-label=&quot;pregúntame lo que se&quot;
+   Meta: issue: Voice control users may not be able to activate these controls
+  </issue>
+  <issue fp="7c9a210e0509" rule="core/meta-description" severity="error" status="warn" check="meta-description" category="core" weight="7">
+   Description too short
+   Target: item http://127.0.0.1:3000/en (Bilingual portfolio featuring agents, RAG systems, (91 chars))
+  </issue>
+  <issue fp="78c5cc6be6c9" rule="core/meta-description" severity="error" status="warn" check="meta-description" category="core" weight="7">
+   Description too short
+   Target: item http://127.0.0.1:3000/es (Portafolio bilingüe con agentes, RAG y operaciones (84 chars))
+  </issue>
+  <issue fp="bf54cc93d53b" rule="core/canonical" severity="warning" status="warn" check="canonical" category="core" weight="6">
+   Missing canonical URL
+   Target: page http://127.0.0.1:3000/en
+  </issue>
+  <issue fp="580ec2b22227" rule="core/canonical" severity="warning" status="warn" check="canonical" category="core" weight="6">
+   Missing canonical URL
+   Target: page http://127.0.0.1:3000/es
+  </issue>
+  <issue fp="a4ff59d17367" rule="a11y/landmark-one-main" severity="warning" status="fail" check="landmark-one-main" category="a11y" weight="5">
+   Page has 2 main landmarks (should be 1)
+   Target: item main.flex-1
+   Meta: issue: Multiple main landmarks confuse navigation
+  </issue>
+  <issue fp="8e06970df4c2" rule="a11y/landmark-one-main" severity="warning" status="fail" check="landmark-one-main" category="a11y" weight="5">
+   Page has 2 main landmarks (should be 1)
+   Target: item main.relative
+   Meta: issue: Multiple main landmarks confuse navigation
+  </issue>
+  <issue fp="36bad25ca445" rule="crawl/sitemap-coverage" severity="warning" status="warn" check="sitemap-coverage" category="crawl" weight="5">
+   2 indexable page(s) not in sitemap (100%)
+   Target: item http://127.0.0.1:3000/en
+   Meta: percentage: 100, total: 2
+  </issue>
+  <issue fp="9fc829031127" rule="crawl/sitemap-coverage" severity="warning" status="warn" check="sitemap-coverage" category="crawl" weight="5">
+   2 indexable page(s) not in sitemap (100%)
+   Target: item http://127.0.0.1:3000/es
+   Meta: percentage: 100, total: 2
+  </issue>
+  <issue fp="f632d591e55b" rule="crawl/sitemap-coverage" severity="warning" status="warn" check="sitemap-orphans" category="crawl" weight="5">
+   2 sitemap URL(s) were not crawled
+   Target: item https://ivan-caamano.me/en
+   Meta: total: 2
+  </issue>
+  <issue fp="7d9b813f119d" rule="crawl/sitemap-coverage" severity="warning" status="warn" check="sitemap-orphans" category="crawl" weight="5">
+   2 sitemap URL(s) were not crawled
+   Target: item https://ivan-caamano.me/es
+   Meta: total: 2
+  </issue>
+  <issue fp="342733ae0445" rule="eeat/about-page" severity="warning" status="warn" check="about-page" category="eeat" weight="5">
+   No About page found
+   Target: check about-page
+  </issue>
+  <issue fp="0967d6e53c4a" rule="eeat/author-byline" severity="warning" status="warn" check="author-byline" category="eeat" weight="5">
+   No content pages have author attribution
+   Target: check author-byline
+  </issue>
+  <issue fp="3027a8099809" rule="eeat/contact-page" severity="warning" status="warn" check="contact-page" category="eeat" weight="5">
+   No Contact page found
+   Target: check contact-page
+  </issue>
+  <issue fp="af6eec6357e6" rule="eeat/privacy-policy" severity="warning" status="warn" check="privacy-policy" category="eeat" weight="5">
+   No Privacy Policy page found
+   Target: check privacy-policy
+  </issue>
+  <issue fp="659c965a7cf6" rule="legal/privacy-policy" severity="warning" status="warn" check="privacy-policy" category="legal" weight="5">
+   No privacy policy link found across site
+   Target: check privacy-policy
+  </issue>
+  <issue fp="227190acc142" rule="links/broken-external-links" severity="warning" status="warn" check="broken-external-links" category="links" weight="5">
+   3 broken external link(s): 1 with 999, 1 with 404, 1 failed
+   Target: item https://.substack.com/ (https://.substack.com/ (Error: Was there a typo in the url or port?))
+   Sources (4): http://127.0.0.1:3000/es, http://127.0.0.1:3000/es, http://127.0.0.1:3000/en, http://127.0.0.1:3000/en
+   Meta: error: Was there a typo in the url or port?, status: null, totalBroken: 3, totalChecked: 8
+  </issue>
+  <issue fp="d7a39d8b3708" rule="links/broken-external-links" severity="warning" status="warn" check="broken-external-links" category="links" weight="5">
+   3 broken external link(s): 1 with 999, 1 with 404, 1 failed
+   Target: item https://nexxo-waitlist.vercel.app/ (https://nexxo-waitlist.vercel.app/ (404))
+   Sources (2): http://127.0.0.1:3000/es, http://127.0.0.1:3000/en
+   Meta: error: null, status: 404, totalBroken: 3, totalChecked: 8
+  </issue>
+  <issue fp="6fc10daeede0" rule="links/orphan-pages" severity="warning" status="warn" check="orphan-pages" category="links" weight="5">
+   2 orphan page(s) with &lt;2 incoming links
+   Target: item http://127.0.0.1:3000/en
+   Meta: total: 2
+  </issue>
+  <issue fp="9ca2787e1199" rule="links/orphan-pages" severity="warning" status="warn" check="orphan-pages" category="links" weight="5">
+   2 orphan page(s) with &lt;2 incoming links
+   Target: item http://127.0.0.1:3000/es
+   Meta: total: 2
+  </issue>
+  <issue fp="6084b328f974" rule="a11y/link-text" severity="warning" status="warn" check="link-text-generic" category="a11y" weight="4">
+   1 link(s) with generic text
+   Target: item here
+  </issue>
+  <issue fp="aaba76583e77" rule="eeat/content-dates" severity="warning" status="warn" check="date-published" category="eeat" weight="4">
+   No content pages have datePublished
+   Target: check date-published
+  </issue>
+  <issue fp="208b3d4a34b3" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+   14 external link(s) missing rel=&quot;noopener&quot;
+   Target: item https://.substack.com/
+  </issue>
+  <issue fp="9e181028f0f4" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+   14 external link(s) missing rel=&quot;noopener&quot;
+   Target: item https://caamano-inmuebles.vercel.app/
+  </issue>
+  <issue fp="2a2d5a1b075e" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+   14 external link(s) missing rel=&quot;noopener&quot;
+   Target: item https://es.wikipedia.org/wiki/Isla_de_Margarita
+  </issue>
+  <issue fp="4ac31429eade" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+   14 external link(s) missing rel=&quot;noopener&quot;
+   Target: item https://github.com/ivannxbt
+  </issue>
+  <issue fp="83b9533357b9" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+   14 external link(s) missing rel=&quot;noopener&quot;
+   Target: item https://nexxo-waitlist.vercel.app/
+  </issue>
+  <issue fp="1ccf0bb29bac" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+   14 external link(s) missing rel=&quot;noopener&quot;
+   Target: item https://www.linkedin.com/in/ivancaamano
+  </issue>
+  <issue fp="57146b60811a" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+   14 external link(s) missing rel=&quot;noopener&quot;
+   Target: item https://x.com/_ivvann
+  </issue>
+  <issue fp="947ec7c690b8" rule="links/weak-internal-links" severity="warning" status="warn" check="weak-internal-links" category="links" weight="3">
+   2 page(s) have only 1 internal link
+   Target: item http://127.0.0.1:3000/en
+   Meta: total: 2
+  </issue>
+  <issue fp="fc1d42769993" rule="links/weak-internal-links" severity="warning" status="warn" check="weak-internal-links" category="links" weight="3">
+   2 page(s) have only 1 internal link
+   Target: item http://127.0.0.1:3000/es
+   Meta: total: 2
+  </issue>
+  <issue fp="ac1b25743758" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/en
+  </issue>
+  <issue fp="422efda9fa4b" rule="a11y/landmark-regions" severity="info" status="warn" check="landmark-main" category="a11y" weight="3">
+   Multiple main landmarks (2)
+   Target: page http://127.0.0.1:3000/es
+  </issue>
+ </removed>
+ <changed>
+  <change type="change" fp="176b33166e3a" rule="perf/total-byte-weight" severity="warning" status="warn" check="total-byte-weight">
+   warn→warn: Total tracked resources: 3684KB (heavy page)
+   Before:
+    <issue fp="176b33166e3a" rule="perf/total-byte-weight" severity="warning" status="warn" check="total-byte-weight" category="perf" weight="6">
+     Total tracked resources: 3681KB (heavy page)
+     Target: check total-byte-weight
+     Meta: css: 119KB, cssFiles: 1, imageFiles: 10, images: 425KB, js: 3138KB, jsFiles: 10, pagesAnalyzed: 2
+    </issue>
+   After:
+    <issue fp="176b33166e3a" rule="perf/total-byte-weight" severity="warning" status="warn" check="total-byte-weight" category="perf" weight="6">
+     Total tracked resources: 3684KB (heavy page)
+     Target: check total-byte-weight
+     Meta: css: 121KB, cssFiles: 1, imageFiles: 10, images: 425KB, js: 3138KB, jsFiles: 10, pagesAnalyzed: 8
+    </issue>
+  </change>
+  <change type="change" fp="dcbed8548e43" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 8 potential color contrast issue(s)
+   Before:
+    <issue fp="dcbed8548e43" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item a with class &quot;text-neutral-400 hover:text-ne...&quot; may have low contrast
+     Meta: classBasedIssues: 14, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="dcbed8548e43" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item a with class &quot;text-neutral-400 hover:text-ne...&quot; may have low contrast
+     Meta: classBasedIssues: 13, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="9fcebfe1243d" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 8 potential color contrast issue(s)
+   Before:
+    <issue fp="9fcebfe1243d" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;block mt-0.5 text-xs text-neut...&quot; may have low contrast
+     Meta: classBasedIssues: 14, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="9fcebfe1243d" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;block mt-0.5 text-xs text-neut...&quot; may have low contrast
+     Meta: classBasedIssues: 13, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="d7343c7e0e1f" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 8 potential color contrast issue(s)
+   Before:
+    <issue fp="d7343c7e0e1f" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;font-mono text-sm text-neutral...&quot; may have low contrast
+     Meta: classBasedIssues: 14, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="d7343c7e0e1f" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;font-mono text-sm text-neutral...&quot; may have low contrast
+     Meta: classBasedIssues: 13, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="66c7db0c9de3" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 8 potential color contrast issue(s)
+   Before:
+    <issue fp="66c7db0c9de3" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;ml-2 text-neutral-400...&quot; may have low contrast
+     Meta: classBasedIssues: 14, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="66c7db0c9de3" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;ml-2 text-neutral-400...&quot; may have low contrast
+     Meta: classBasedIssues: 13, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="f5cac7502c56" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 8 potential color contrast issue(s)
+   Before:
+    <issue fp="f5cac7502c56" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;text-neutral-500 text-neutral-...&quot; may have low contrast
+     Meta: classBasedIssues: 14, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="f5cac7502c56" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;text-neutral-500 text-neutral-...&quot; may have low contrast
+     Meta: classBasedIssues: 13, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="1f00b717cafb" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 8 potential color contrast issue(s)
+   Before:
+    <issue fp="1f00b717cafb" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;text-xs font-mono text-neutral...&quot; may have low contrast
+     Meta: classBasedIssues: 14, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="1f00b717cafb" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item span with class &quot;text-xs font-mono text-neutral...&quot; may have low contrast
+     Meta: classBasedIssues: 13, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="b5ec4c0da591" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 8 potential color contrast issue(s)
+   Before:
+    <issue fp="b5ec4c0da591" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item Very light text color: 1 instance(s)
+     Meta: classBasedIssues: 14, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="b5ec4c0da591" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item Very light text color: 1 instance(s)
+     Meta: classBasedIssues: 13, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="ee8693111ad2" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast">
+   warn→warn: 8 potential color contrast issue(s)
+   Before:
+    <issue fp="ee8693111ad2" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item White text (verify background): 1 instance(s)
+     Meta: classBasedIssues: 14, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+   After:
+    <issue fp="ee8693111ad2" rule="a11y/color-contrast" severity="warning" status="warn" check="color-contrast" category="a11y" weight="5">
+     8 potential color contrast issue(s)
+     Target: item White text (verify background): 1 instance(s)
+     Meta: classBasedIssues: 13, cssIssues: 0, inlineIssues: 0, note: WCAG AA requires 4.5:1 for normal text, 3:1 for large text, patternIssues: 2
+    </issue>
+  </change>
+  <change type="change" fp="5dc0e87c6757" rule="links/broken-external-links" severity="warning" status="warn" check="broken-external-links">
+   warn→warn: 1 broken external link(s): 1 with 999
+   Before:
+    <issue fp="5dc0e87c6757" rule="links/broken-external-links" severity="warning" status="warn" check="broken-external-links" category="links" weight="5">
+     3 broken external link(s): 1 with 999, 1 with 404, 1 failed
+     Target: item https://www.linkedin.com/in/ivancaamano (https://www.linkedin.com/in/ivancaamano/ (999))
+     Sources (4): http://127.0.0.1:3000/es, http://127.0.0.1:3000/es, http://127.0.0.1:3000/en, http://127.0.0.1:3000/en
+     Meta: error: null, status: 999, totalBroken: 3, totalChecked: 8
+    </issue>
+   After:
+    <issue fp="5dc0e87c6757" rule="links/broken-external-links" severity="warning" status="warn" check="broken-external-links" category="links" weight="5">
+     1 broken external link(s): 1 with 999
+     Target: item https://www.linkedin.com/in/ivancaamano (https://www.linkedin.com/in/ivancaamano/ (999))
+     Sources (4): http://127.0.0.1:3000/en, http://127.0.0.1:3000/en, http://127.0.0.1:3000/es, http://127.0.0.1:3000/es
+     Meta: error: null, status: 999, totalBroken: 1, totalChecked: 7
+    </issue>
+  </change>
+  <change type="change" fp="69bd927c37f8" rule="security/new-tab" severity="warning" status="warn" check="noopener">
+   warn→warn: 1 external link(s) missing rel=&quot;noopener&quot;
+   Before:
+    <issue fp="69bd927c37f8" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+     14 external link(s) missing rel=&quot;noopener&quot;
+     Target: item https://ivanxbt.substack.com/p/lo-inexplicable-de-ser-venezolano
+    </issue>
+   After:
+    <issue fp="69bd927c37f8" rule="security/new-tab" severity="warning" status="warn" check="noopener" category="security" weight="4">
+     1 external link(s) missing rel=&quot;noopener&quot;
+     Target: item https://ivanxbt.substack.com/p/lo-inexplicable-de-ser-venezolano
+    </issue>
+  </change>
+ </changed>
+</diff>
+
+

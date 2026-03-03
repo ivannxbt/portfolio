@@ -18,12 +18,15 @@ highlight: "Removed 95% of manual effort for dynamic document creation."
 ---
 
 ## Scope
+
 Legal and operations teams generated four templates manually: onboarding packs, SLA annexes, ESG addenda, and vendor scorecards. Each document pulled from different APIs, spreadsheets, and knowledge bases.
 
 ## Architecture
+
 - LangChain orchestrates tool-aware agents powered by Bedrock Claude.
 - Retrieval layer mixes Bedrock Knowledge Bases with S3 semantic stores for contextual grounding.
 - Step Functions manages validation, human approvals, and retries, persisting state in DynamoDB and emitting events to EventBridge webhooks.
 
 ## Impact
+
 Documents now assemble in under two minutes with structured citations. FinOps dashboards track token usage per template, and guardrails enforce policy prompts before sending PDFs to clients.

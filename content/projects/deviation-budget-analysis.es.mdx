@@ -18,12 +18,15 @@ highlight: "Informe DOCX completo con desviaciones y acciones en minutos."
 ---
 
 ## Alcance
+
 El equipo financiero trabajaba con múltiples CSV y dashboards, y el análisis de desviaciones llevaba horas de conciliación manual.
 
 ## Enfoque
+
 - Pipeline consolida facturas, flujos de tarjetas y previsiones en un esquema único y genera CSV listos para LangChain.
 - Una función Azure genera el prompt con esos datos y consulta Azure OpenAI para describir las desviaciones.
 - El agente exporta la narrativa a DOCX, adjunta los CSV asociados y publica el paquete en SharePoint.
 
 ## Impacto
+
 El equipo recibe un informe DOCX en minutos, con explicaciones de desviaciones y pasos recomendados para finanzas.

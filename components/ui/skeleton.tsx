@@ -19,7 +19,7 @@ export function Skeleton({ className }: SkeletonProps) {
     <div
       className={cn(
         "animate-pulse rounded-md bg-neutral-200 dark:bg-neutral-800",
-        className
+        className,
       )}
     />
   );
@@ -49,7 +49,7 @@ export function GithubContributionsSkeleton() {
  */
 export function BlogRowSkeleton() {
   return (
-    <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 p-4 space-y-3">
+    <div className="space-y-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-2">
           <Skeleton className="h-5 w-3/4" />
@@ -71,7 +71,7 @@ export function BlogRowSkeleton() {
  */
 export function ProjectCardSkeleton() {
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-900 p-6 space-y-4">
+    <div className="space-y-4 rounded-xl border border-neutral-200 p-6 dark:border-neutral-900">
       <div className="flex items-start justify-between">
         <Skeleton className="h-10 w-10 rounded-lg" />
         <Skeleton className="h-4 w-16" />
@@ -95,7 +95,7 @@ export function ProjectCardSkeleton() {
  */
 export function ExperienceCardSkeleton() {
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-900 p-6 space-y-4">
+    <div className="space-y-4 rounded-xl border border-neutral-200 p-6 dark:border-neutral-900">
       <div className="flex items-start gap-4">
         <Skeleton className="h-12 w-12 rounded-xl" />
         <div className="flex-1 space-y-2">

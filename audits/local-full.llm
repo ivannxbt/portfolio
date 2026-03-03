@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<audit version="0.0.38">
+<site url="http://127.0.0.1:3000" crawled="3" date="2026-03-03T08:46:35.168Z"/>
+<score overall="45" grade="F">
+ <cat name="Accessibility" score="88"/>
+ <cat name="Security" score="54"/>
+ <cat name="Crawlability" score="85"/>
+ <cat name="Performance" score="75"/>
+ <cat name="E-E-A-T" score="57"/>
+ <cat name="Images" score="77"/>
+ <cat name="Core SEO" score="85"/>
+ <cat name="Links" score="83"/>
+ <cat name="Legal Compliance" score="44"/>
+ <cat name="Content" score="100"/>
+ <cat name="Internationalization" score="100"/>
+ <cat name="Mobile" score="100"/>
+ <cat name="Social Media" score="100"/>
+ <cat name="URL Structure" score="100"/>
+</score>
+<summary passed="184" warnings="50" failed="7"/>
+<issues>
+ <category name="Crawlability" errors="1" warnings="2">
+  <rule id="crawl/sitemap-domain" severity="error" status="fail" docs="https://docs.squirrelscan.com/rules/crawl/sitemap-domain">
+   2 URL(s) point to different domain(s)
+   Items (2):
+    - https://ivan-caamano.me/en [host: ivan-caamano.me]
+    - https://ivan-caamano.me/es [host: ivan-caamano.me]
+  </rule>
+  <rule id="crawl/sitemap-coverage" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/crawl/sitemap-coverage">
+   2 indexable page(s) not in sitemap (100%); 2 sitemap URL(s) were not crawled
+   Items (4):
+    - /es
+    - /en
+    - https://ivan-caamano.me/en
+    - https://ivan-caamano.me/es
+  </rule>
+ </category>
+ <category name="Core SEO" errors="0" warnings="5">
+  <rule id="core/meta-title" severity="error" status="warn" docs="https://docs.squirrelscan.com/rules/core/meta-title">
+   Title too short
+   Pages (1): /en
+   Items (1):
+    - /en (Ivan Caamano | AI Engineer (26 chars))
+  </rule>
+  <rule id="core/meta-description" severity="error" status="warn" docs="https://docs.squirrelscan.com/rules/core/meta-description">
+   Description too short
+   Pages (2): /en, /es
+   Items (2):
+    - /es (Portafolio bilingüe con agentes, RAG y operaciones (84 chars))
+    - /en (Bilingual portfolio featuring agents, RAG systems, (91 chars))
+  </rule>
+  <rule id="core/canonical" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/core/canonical">
+   Missing canonical URL
+   Pages (2): /en, /es
+  </rule>
+ </category>
+ <category name="Security" errors="2" warnings="4">
+  <rule id="security/https" severity="error" status="fail" docs="https://docs.squirrelscan.com/rules/security/https">
+   Page not served over HTTPS
+   Pages (2): /en, /es
+  </rule>
+  <rule id="security/csp" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/security/csp">
+   No Content-Security-Policy header
+  </rule>
+  <rule id="security/x-frame-options" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/security/x-frame-options">
+   No clickjacking protection
+  </rule>
+  <rule id="security/new-tab" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/security/new-tab">
+   14 external link(s) missing rel=&quot;noopener&quot;
+   Pages (2): /en, /es
+   Items (5/14):
+    - https://github.com/ivannxbt
+    - https://www.linkedin.com/in/ivancaamano/
+    - https://x.com/_ivvann
+    - https://ivanxbt.substack.com/p/lo-inexplicable-de-ser-venezolano
+    - https://es.wikipedia.org/wiki/Isla_de_Margarita
+  </rule>
+ </category>
+ <category name="Links" errors="0" warnings="3">
+  <rule id="links/broken-external-links" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/links/broken-external-links">
+   3 broken external link(s): 1 with 999, 1 with 404, 1 failed
+   Items (3):
+    - https://www.linkedin.com/in/ivancaamano/ (https://www.linkedin.com/in/ivancaamano/ (999)) [status: 999] (from: /es, /es, /en, /en)
+    - https://nexxo-waitlist.vercel.app/ (https://nexxo-waitlist.vercel.app/ (404)) [status: 404] (from: /es, /en)
+    - https://.substack.com/ (https://.substack.com/ (Error: Was there a typo in the url or port?)) [error: Was there a typo in the url or port?] (from: /es, /es, /en, /en)
+  </rule>
+  <rule id="links/orphan-pages" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/links/orphan-pages">
+   2 orphan page(s) with &lt;2 incoming links
+   Items (2):
+    - /es
+    - /en
+  </rule>
+  <rule id="links/weak-internal-links" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/links/weak-internal-links">
+   2 page(s) have only 1 internal link
+   Items (2):
+    - /es
+    - /en
+  </rule>
+ </category>
+ <category name="Images" errors="0" warnings="5">
+  <rule id="images/image-file-size" severity="error" status="warn" docs="https://docs.squirrelscan.com/rules/images/image-file-size">
+   1 image(s) exceed 200.0 KB
+   Items (1):
+    - /_next/image?url=%2Fprofile.webp&amp;w=3840&amp;q=75 [sizeBytes: 250707, size: 244.8 KB, status: 200, contentType: image/jpeg] (from: /es, /en)
+  </rule>
+  <rule id="images/responsive-size" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/images/responsive-size">
+   4 small image(s) may be serving oversized files
+   Pages (2): /en, /es
+   Items (4):
+    - image (48x48, no srcset)
+    - image (48x48, no srcset)
+    - image (48x48, no srcset)
+    - image (48x48, no srcset)
+  </rule>
+  <rule id="images/dimensions" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/images/dimensions">
+   6 image(s) missing width/height (causes CLS)
+   Pages (2): /en, /es
+   Items (5/6):
+    - /icons/ivan-orb.svg | &lt;img src=&quot;http://127.0.0.1:3000/icons/ivan-orb.svg&quot; alt=&quot;Iván Caamaño&quot;&gt;
+    - /_next/image?url=%2Fprofile.webp&amp;w=3840&amp;q=75 | &lt;img src=&quot;http://127.0.0.1:3000/_next/image?url=%2Fprofile.webp&amp;w=3840&amp;q=75&quot; alt=&quot;Portrait of Iván Caamaño&quot;&gt;
+    - /_next/image?url=%2Fprojects%2Fnexxo.webp&amp;w=3840&amp;q=75 | &lt;img src=&quot;http://127.0.0.1:3000/_next/image?url=%2Fprojects%2Fnexxo.webp&amp;w=3840&amp;q=75&quot; alt=&quot;Nexxo preview&quot;&gt;
+    - /_next/image?url=%2Fprojects%2Fcaamano-inmuebles.webp&amp;w=3840&amp;q=75 | &lt;img src=&quot;http://127.0.0.1:3000/_next/image?url=%2Fprojects%2Fcaamano-inmuebles.webp&amp;w=3840&amp;q=75&quot; alt=&quot;Caamaño Inmuebles preview&quot;&gt;
+    - /_next/image?url=%2Fprojects%2Fpa-document-generator.webp&amp;w=3840&amp;q=75 | &lt;img src=&quot;http://127.0.0.1:3000/_next/image?url=%2Fprojects%2Fpa-document-generator.webp&amp;w=3840&amp;q=75&quot; alt=&quot;Agente documental con IA preview&quot;&gt;
+  </rule>
+ </category>
+ <category name="Performance" errors="0" warnings="18">
+  <rule id="perf/js-file-size" severity="error" status="warn" docs="https://docs.squirrelscan.com/rules/perf/js-file-size">
+   3 JS file(s) exceed 250.0 KB
+   Items (3):
+    - /_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js [sizeBytes: 1047866, size: 1023.3 KB, status: 200, contentType: application/javascript; charset=UTF-8] (from: /es, /en)
+    - /_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_1dd7fb59.js [sizeBytes: 816047, size: 796.9 KB, status: 200, contentType: application/javascript; charset=UTF-8] (from: /es, /en)
+    - /_next/static/chunks/node_modules_next_dist_client_17643121._.js [sizeBytes: 621043, size: 606.5 KB, status: 200, contentType: application/javascript; charset=UTF-8] (from: /es, /en)
+  </rule>
+  <rule id="perf/dom-size" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/perf/dom-size">
+   Element with 84 children found
+   Pages (2): /en, /es
+   Items (2):
+    - /es (Element with 84 children found)
+    - /en (Element with 84 children found)
+  </rule>
+  <rule id="perf/total-byte-weight" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/perf/total-byte-weight">
+   Total tracked resources: 3681KB (heavy page)
+  </rule>
+  <rule id="perf/critical-request-chains" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/perf/critical-request-chains">
+   2 critical request chain(s) found
+   Pages (2): /en, /es
+   Items (2):
+    - CSS: /_next/static/chunks/%5Broot-of-the-server%5D__b6796746._.css
+    - JS: /_next/static/chunks/node_modules_next_dist_build_polyfills_polyfill-nomodule.js
+  </rule>
+  <rule id="perf/duplicate-js" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/perf/duplicate-js">
+   3 library(s) loaded multiple times
+   Pages (2): /en, /es
+   Items (3):
+    - node (16x)
+    - app (3x)
+    - components (2x)
+  </rule>
+  <rule id="perf/lazy-above-fold" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/perf/lazy-above-fold">
+   3 above-fold image(s) with lazy loading
+   Pages (2): /en, /es
+   Items (3):
+    - /icons/ivan-orb.svg
+    - /_next/image?url=%2Fprofile.webp&amp;w=3840&amp;q=75
+    - /_next/image?url=%2Ficons%2Favvale.png&amp;w=96&amp;q=75
+  </rule>
+  <rule id="perf/unminified-js" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/perf/unminified-js">
+   8 JavaScript file(s) appear unminified
+   Pages (2): /en, /es
+   Items (5):
+    - node_modules_next_dist_compiled_react-dom_1e674e59._.js (1023.3KB, ~260.0KB savings) [reason: high newlines (1.58%), 80 comments, long function names, formatted code, excessive whitespace]
+    - node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js (167.0KB, ~53.6KB savings) [reason: high newlines (1.66%), 17 comments, long function names, formatted code, excessive whitespace]
+    - node_modules_next_dist_compiled_next-devtools_index_1dd7fb59.js (796.9KB, ~722.7KB savings) [reason: 80 comments]
+    - node_modules_next_dist_compiled_a0e4c7b4._.js (141.0KB, ~60.3KB savings) [reason: high newlines (2.02%), 171 comments, long function names, formatted code, excessive whitespace]
+    - node_modules_next_dist_client_17643121._.js (606.5KB, ~292.5KB savings) [reason: high newlines (2.05%), 2715 comments, long variable names, long function names, formatted code, excessive whitespace]
+  </rule>
+  <rule id="perf/http2" severity="info" status="warn" docs="https://docs.squirrelscan.com/rules/perf/http2">
+   HTTP/2 requires HTTPS
+   Pages (2): /en, /es
+   Items (2):
+    - /es (HTTP/2 requires HTTPS)
+    - /en (HTTP/2 requires HTTPS)
+  </rule>
+  <rule id="perf/source-maps" severity="info" status="warn" docs="https://docs.squirrelscan.com/rules/perf/source-maps">
+   188 potential source map(s) detected; 1 inline source map(s) found
+   Pages (2): /en, /es
+   Items (5/11):
+    - /_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js.map (from /_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js)
+    - /_next/static/chunks/%22 (from /_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js)
+    - /_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js.map (from /_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js)
+    - /_next/static/chunks/index.js.map (from /_next/static/chunks/node_modules_next_dist_f3530cac._.js)
+    - /_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_1dd7fb59.js.map (from /_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_1dd7fb59.js)
+  </rule>
+ </category>
+ <category name="Accessibility" errors="4" warnings="7">
+  <rule id="a11y/label-content-name-mismatch" severity="error" status="fail" docs="https://docs.squirrelscan.com/rules/a11y/label-content-name-mismatch">
+   1 element(s) where visible text doesn&apos;t match accessible name
+   Pages (2): /en, /es
+   Items (2):
+    - button: visible=&quot;pregúntame lo que se&quot; vs aria-label=&quot;pregúntame lo que se&quot;
+    - button: visible=&quot;ask me anything...as&quot; vs aria-label=&quot;ask me anything...&quot;
+  </rule>
+  <rule id="a11y/color-contrast" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/a11y/color-contrast">
+   8 potential color contrast issue(s)
+   Pages (2): /en, /es
+   Items (5/8):
+    - span with class &quot;ml-2 text-neutral-400...&quot; may have low contrast
+    - span with class &quot;block mt-0.5 text-xs text-neut...&quot; may have low contrast
+    - span with class &quot;text-neutral-500 text-neutral-...&quot; may have low contrast
+    - span with class &quot;font-mono text-sm text-neutral...&quot; may have low contrast
+    - span with class &quot;text-xs font-mono text-neutral...&quot; may have low contrast
+  </rule>
+  <rule id="a11y/landmark-one-main" severity="warning" status="fail" docs="https://docs.squirrelscan.com/rules/a11y/landmark-one-main">
+   Page has 2 main landmarks (should be 1)
+   Pages (2): /en, /es
+   Items (2):
+    - main.flex-1
+    - main.relative
+  </rule>
+  <rule id="a11y/link-in-text-block" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/a11y/link-in-text-block">
+   1 link(s) in text may lack underlines
+   Pages (2): /en, /es
+   Items (1):
+    - &quot;Lo inexplicable de ser venezol...&quot;
+  </rule>
+  <rule id="a11y/link-text" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/a11y/link-text">
+   1 link(s) with generic text
+   Pages (1): /en
+   Items (1):
+    - here
+  </rule>
+  <rule id="a11y/landmark-regions" severity="info" status="warn" docs="https://docs.squirrelscan.com/rules/a11y/landmark-regions">
+   Multiple main landmarks (2)
+   Pages (2): /en, /es
+   Items (2):
+    - /es (Multiple main landmarks (2))
+    - /en (Multiple main landmarks (2))
+  </rule>
+ </category>
+ <category name="E-E-A-T" errors="0" warnings="5">
+  <rule id="eeat/about-page" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/eeat/about-page">
+   No About page found
+  </rule>
+  <rule id="eeat/author-byline" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/eeat/author-byline">
+   No content pages have author attribution
+  </rule>
+  <rule id="eeat/contact-page" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/eeat/contact-page">
+   No Contact page found
+  </rule>
+  <rule id="eeat/privacy-policy" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/eeat/privacy-policy">
+   No Privacy Policy page found
+  </rule>
+  <rule id="eeat/content-dates" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/eeat/content-dates">
+   No content pages have datePublished
+  </rule>
+ </category>
+ <category name="Legal Compliance" errors="0" warnings="1">
+  <rule id="legal/privacy-policy" severity="warning" status="warn" docs="https://docs.squirrelscan.com/rules/legal/privacy-policy">
+   No privacy policy link found across site
+  </rule>
+ </category>
+</issues>
+</audit>

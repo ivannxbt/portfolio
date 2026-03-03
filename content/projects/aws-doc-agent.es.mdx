@@ -18,12 +18,15 @@ highlight: "Eliminó 95% del esfuerzo manual en la generación documental."
 ---
 
 ## Alcance
+
 Equipos legales y de operaciones armaban manualmente cuatro plantillas: paquetes de onboarding, anexos SLA, adendas ESG y scorecards de proveedores. Cada documento consumía APIs, hojas de cálculo y bases de conocimiento distintas.
 
 ## Arquitectura
+
 - LangChain orquesta agentes con herramientas respaldados por Claude en Bedrock.
 - La capa de retrieval combina Knowledge Bases con almacenes semánticos en S3 para dar contexto.
 - Step Functions controla validaciones, aprobación humana y reintentos, guardando estado en DynamoDB y enviando eventos vía EventBridge.
 
 ## Impacto
+
 Los documentos se generan en menos de dos minutos con citas estructuradas. FinOps monitorea tokens por plantilla y los guardrails validan políticas antes de enviar PDFs al cliente.

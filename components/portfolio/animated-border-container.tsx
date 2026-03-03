@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "motion/react";
 
 /**
  * AnimatedBorderContainer
@@ -115,7 +115,7 @@ export function AnimatedBorderContainer({
       {/* Animated border layer with dynamic opacity */}
       {isMounted && (
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="pointer-events-none absolute inset-0"
           style={{
             borderRadius: `${borderRadius}px`,
             padding: `${borderWidth}px`,
@@ -125,7 +125,8 @@ export function AnimatedBorderContainer({
             WebkitMaskComposite: "xor",
             mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
             maskComposite: "exclude",
-            animation: duration > 0 ? `spin ${duration}s linear infinite` : "none",
+            animation:
+              duration > 0 ? `spin ${duration}s linear infinite` : "none",
             opacity: opacity,
             transition: "opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
             willChange: "transform, opacity",
@@ -135,7 +136,7 @@ export function AnimatedBorderContainer({
 
       {/* Content container with white background */}
       <div
-        className="relative z-10 w-full h-full"
+        className="relative z-10 h-full w-full"
         style={{
           borderRadius: `${borderRadius}px`,
           backgroundColor: "#ffffff",
@@ -161,29 +162,29 @@ export function AnimatedBorderContainer({
 
 /**
  * USAGE EXAMPLES:
- * 
+ *
  * Basic:
  * <AnimatedBorderContainer>
  *   <div>Your content</div>
  * </AnimatedBorderContainer>
- * 
+ *
  * Custom colors (subtle gray to blue):
  * <AnimatedBorderContainer
  *   gradientColors={["#e5e7eb", "#3b82f6"]}
  * >
  *   <div>Your content</div>
  * </AnimatedBorderContainer>
- * 
+ *
  * Three-color gradient (premium look):
  * <AnimatedBorderContainer
  *   gradientColors={["#e5e7eb", "#8b5cf6", "#3b82f6"]}
  * >
  *   <div>Your content</div>
  * </AnimatedBorderContainer>
- * 
+ *
  * Dynamic state:
  * const [state, setState] = useState<"idle" | "focus" | "loading">("idle");
- * 
+ *
  * <AnimatedBorderContainer
  *   state={state}
  *   gradientColors={["#d1d5db", "#3b82f6", "#8b5cf6"]}

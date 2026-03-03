@@ -30,10 +30,11 @@ A modern, dark-themed bilingual portfolio built with Next.js 15, Tailwind CSS, a
    ```
 
    Then fill in your values. Required variables:
-
    - `ADMIN_EMAIL` — admin login email
    - `ADMIN_PASSWORD_HASH` — bcrypt hash of your password (generate with `node generate-hash.mjs`)
    - `NEXTAUTH_SECRET` — random secret (generate with `openssl rand -base64 32`)
+   - `TRUST_PROXY_HEADERS` — set `true` only when running behind a trusted reverse proxy
+   - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` — optional, enables shared production rate limiting
    - `GOOGLE_API_KEY` — Google Gemini API key (required for AI chat and summarization)
 
 1. Install dependencies and run:
@@ -44,6 +45,45 @@ A modern, dark-themed bilingual portfolio built with Next.js 15, Tailwind CSS, a
    ```
 
 Open [http://localhost:3000](http://localhost:3000) to view your portfolio.
+
+## Code Formatting
+
+- Check formatting without changing files:
+
+  ```bash
+  npm run format:check
+  ```
+
+- Format the codebase:
+
+  ```bash
+  npm run format
+  ```
+
+Formatting rollout is currently check-only in CI to avoid noisy, large diffs while active work is in progress.
+
+## Quality Checks
+
+Run these checks before pushing changes:
+
+```bash
+npm run typecheck
+npm run test:run
+npm run lint
+```
+
+## Agent Workflow
+
+If AI agents are used in this repo, the canonical operational guide is:
+
+- [`AGENTS.md`](AGENTS.md)
+
+Supporting docs for execution and consistency:
+
+- `docs/agents/architecture-map.md`
+- `docs/agents/playbook.md`
+- `docs/agents/checklists.md`
+- `docs/agents/task-template.md`
 
 ## Admin Panel
 
@@ -92,6 +132,8 @@ Deploy to Vercel, Netlify, or any platform that supports Next.js. Set the follow
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD_HASH`
 - `NEXTAUTH_SECRET`
+- `TRUST_PROXY_HEADERS` (optional; default `false`)
+- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optional; recommended for multi-instance rate limiting)
 - `GOOGLE_API_KEY`
 - `NEXT_PUBLIC_SITE_URL` (optional)
 - `NEXT_PUBLIC_SUBSTACK_USERNAME` (optional)

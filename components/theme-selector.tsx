@@ -1,9 +1,9 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { Sun, Moon, Zap } from "lucide-react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { timing, ease } from "@/lib/animations";
 import type { Theme } from "@/lib/types";
 
@@ -14,28 +14,30 @@ const themeConfig: Record<Theme, { icon: typeof Sun; label: string }> = {
 };
 
 const themeOrder: Theme[] = ["light", "dark", "brutal"];
+const isTheme = (value: string): value is Theme =>
+  themeOrder.includes(value as Theme);
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
+  if (!mounted || !theme || !isTheme(theme)) {
     return (
       <button
-        className="p-2 transition-colors cursor-pointer"
+        className="cursor-pointer p-2 transition-colors"
         aria-label="Theme selector loading"
       >
-        <div className="w-5 h-5" />
+        <div className="h-5 w-5" />
       </button>
     );
   }
 
-  const currentTheme = (theme as Theme) || "dark";
+  const currentTheme = theme;
   const CurrentIcon = themeConfig[currentTheme].icon;
 
   const cycleTheme = () => {
@@ -46,7 +48,9 @@ export function ThemeSelector() {
 
   // Icon color based on current theme (no background, just icon color)
   const iconClasses =
-    currentTheme === "brutal" ? "w-5 h-5 text-black" : "w-5 h-5 text-neutral-300";
+    currentTheme === "brutal"
+      ? "w-5 h-5 text-black"
+      : "w-5 h-5 text-neutral-300";
 
   // Animation variants for each icon with unique rotation directions
   const iconVariants = {
@@ -73,12 +77,13 @@ export function ThemeSelector() {
     : { ...ease.inOut, duration: timing.normal };
 
   // Get current variant based on theme
-  const currentVariant = iconVariants[currentTheme as keyof typeof iconVariants];
+  const currentVariant =
+    iconVariants[currentTheme as keyof typeof iconVariants];
 
   return (
     <button
       onClick={cycleTheme}
-      className="p-2 transition-colors cursor-pointer"
+      className="cursor-pointer p-2 transition-colors"
       aria-label={`Current theme: ${themeConfig[currentTheme].label}. Click to change.`}
       title={`Theme: ${themeConfig[currentTheme].label}`}
     >

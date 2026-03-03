@@ -21,7 +21,9 @@ export default async function AdminPage() {
 
   // Fetch content for English (default language) on the server.
   // AdminClient is responsible for fetching other languages via /api/content?lang=...
-  const initialContent = await getLandingContentFromApi("en", { cache: "no-store" });
+  const initialContent = await getLandingContentFromApi("en", {
+    cache: "no-store",
+  });
 
   return <AdminClient initialContent={initialContent} />;
 }

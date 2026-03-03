@@ -36,6 +36,7 @@ export interface ProjectItem {
   image?: string;
   confidential?: boolean;
   projectType?: "AI" | "Web";
+  secondaryTypes?: Array<"Mobile">;
 }
 
 export interface BlogEntry {
@@ -194,7 +195,8 @@ export type SiteContent = Record<Language, LandingContent>;
 const englishContent: LandingContent = {
   branding: {
     title: "Iván Caamaño - AI & Software Engineer",
-    description: "AI & Software Engineer building production-grade agents, ML systems, and scalable platforms.",
+    description:
+      "AI & Software Engineer building production-grade agents, ML systems, and scalable platforms.",
     favicon: "/icon.svg",
     logoText: "Iván Caamaño",
   },
@@ -241,7 +243,10 @@ const englishContent: LandingContent = {
       { label: "4+ Years of Total Experience", value: "4+" },
       { label: "5+ Freelance Projects", value: "5+" },
       { label: "4+ Company (Confidential) Projects", value: "4+" },
-      { label: "4000+ Hours of Coding (From March 15, 2024 to Present)", value: "4000+" },
+      {
+        label: "4000+ Hours of Coding (From March 15, 2024 to Present)",
+        value: "4000+",
+      },
       { label: "1000+ GitHub Contributions", value: "1000+" },
     ],
     roles: [
@@ -297,21 +302,55 @@ const englishContent: LandingContent = {
     sections: [
       {
         title: "Programming",
-        description: "Languages I use across consulting projects and open-source work.",
+        description:
+          "Languages I use across consulting projects and open-source work.",
         icon: "code",
-        items: ["Python", "SQL", "TypeScript", "JavaScript", "Java", "Go", "Rust", "Solidity"],
+        items: [
+          "Python",
+          "SQL",
+          "TypeScript",
+          "JavaScript",
+          "Java",
+          "Go",
+          "Rust",
+          "Solidity",
+        ],
       },
       {
         title: "Software",
-        description: "Cloud and platform tooling from my DevOps and product experience.",
+        description:
+          "Cloud and platform tooling from my DevOps and product experience.",
         icon: "layers",
-        items: ["AWS", "Azure", "Docker", "Kubernetes", "Databricks", "Linux", "Git", "Next.js", "Terraform", "CI/CD"],
+        items: [
+          "AWS",
+          "Azure",
+          "Docker",
+          "Kubernetes",
+          "Databricks",
+          "Linux",
+          "Git",
+          "Next.js",
+          "Terraform",
+          "CI/CD",
+        ],
       },
       {
         title: "AI & Data",
-        description: "The AI/ML stack powering my RAG, CV, and analytics deliveries.",
+        description:
+          "The AI/ML stack powering my RAG, CV, and analytics deliveries.",
         icon: "brain",
-        items: ["PyTorch", "TensorFlow", "Keras", "LangChain", "MLflow", "RAG", "Prompt Engineering", "Computer Vision", "Data Engineering", "LLMOps"],
+        items: [
+          "PyTorch",
+          "TensorFlow",
+          "Keras",
+          "LangChain",
+          "MLflow",
+          "RAG",
+          "Prompt Engineering",
+          "Computer Vision",
+          "Data Engineering",
+          "LLMOps",
+        ],
       },
     ],
   },
@@ -376,7 +415,8 @@ const englishContent: LandingContent = {
   blog: {
     eyebrow: "Blog",
     title: "Latest Insights",
-    description: "Thoughts on building with AI, lessons from the field, and what I'm learning along the way.",
+    description:
+      "Thoughts on building with AI, lessons from the field, and what I'm learning along the way.",
     viewAll: "Read all articles",
     viewMore: "View more insights",
     viewLess: "View fewer insights",
@@ -397,14 +437,21 @@ const englishContent: LandingContent = {
           subtitle: "@ivannxbt",
           description:
             "Code powering Avvale automation, NFQ risk tooling, and Indra ML experiments.",
-          highlights: ["400+ contributions in 2024", "Featured Avvale, NFQ & Indra toolkits"],
+          highlights: [
+            "400+ contributions in 2024",
+            "Featured Avvale, NFQ & Indra toolkits",
+          ],
           stats: [
             { label: "Repos", value: "40+" },
             { label: "Followers", value: "90+" },
           ],
           avatar: "/profile.webp",
           badge: "Active this week",
-          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          brandIcons: [
+            "/icons/avvale.png",
+            "/icons/nfq.png",
+            "/icons/indra.png",
+          ],
           previewImage: "/github.webp",
         },
       },
@@ -417,14 +464,21 @@ const englishContent: LandingContent = {
           subtitle: "AI & Software Engineer · Avvale",
           description:
             "Leading Avvale AI programs while staying connected with NFQ and Indra collaborators.",
-          highlights: ["600+ professional connections", "Open to advisory roles"],
+          highlights: [
+            "600+ professional connections",
+            "Open to advisory roles",
+          ],
           stats: [
             { label: "Experience", value: "4+ yrs" },
             { label: "Recommendations", value: "5" },
           ],
           avatar: "/profile.webp",
           badge: "Available for chat",
-          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          brandIcons: [
+            "/icons/avvale.png",
+            "/icons/nfq.png",
+            "/icons/indra.png",
+          ],
           previewImage: "/linkedin.webp",
         },
       },
@@ -444,7 +498,11 @@ const englishContent: LandingContent = {
           ],
           avatar: "/profile.webp",
           badge: "Posting now",
-          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          brandIcons: [
+            "/icons/avvale.png",
+            "/icons/nfq.png",
+            "/icons/indra.png",
+          ],
           previewImage: "/x.webp",
         },
       },
@@ -455,14 +513,23 @@ const englishContent: LandingContent = {
         preview: {
           title: "Resume",
           subtitle: "Iván Caamaño · 2025 Edition",
-          description: "Telematics Engineer focused on AI, data, and software systems.",
-          highlights: ["Avvale · AI & Data Analyst", "NFQ · Software Consultant", "Indra · ML Intern"],
+          description:
+            "Telematics Engineer focused on AI, data, and software systems.",
+          highlights: [
+            "Avvale · AI & Data Analyst",
+            "NFQ · Software Consultant",
+            "Indra · ML Intern",
+          ],
           stats: [
             { label: "Pages", value: "2" },
             { label: "Updated", value: "Mar 2025" },
           ],
           badge: "Download PDF",
-          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          brandIcons: [
+            "/icons/avvale.png",
+            "/icons/nfq.png",
+            "/icons/indra.png",
+          ],
           previewImage: "/cv_iacc.webp",
         },
       },
@@ -476,7 +543,8 @@ const englishContent: LandingContent = {
 const spanishContent: LandingContent = {
   branding: {
     title: "Iván Caamaño - IA & Software Engineer",
-    description: "Ingeniero en IA y software construyendo agentes, sistemas de ML y plataformas escalables.",
+    description:
+      "Ingeniero en IA y software construyendo agentes, sistemas de ML y plataformas escalables.",
     favicon: "/icon.svg",
     logoText: "Iván Caamaño",
   },
@@ -523,7 +591,11 @@ const spanishContent: LandingContent = {
       { label: "4+ Años de Experiencia Total", value: "4+" },
       { label: "5+ Proyectos Freelance", value: "5+" },
       { label: "4+ Proyectos Empresariales (Confidenciales)", value: "4+" },
-      { label: "4000+ Horas de Código (Desde el 15 de marzo de 2024 hasta el presente)", value: "4000+" },
+      {
+        label:
+          "4000+ Horas de Código (Desde el 15 de marzo de 2024 hasta el presente)",
+        value: "4000+",
+      },
       { label: "1000+ Contribuciones en GitHub", value: "1000+" },
     ],
     roles: [
@@ -579,21 +651,55 @@ const spanishContent: LandingContent = {
     sections: [
       {
         title: "Programación",
-        description: "Lenguajes que utilizo en consultoría y proyectos open-source.",
+        description:
+          "Lenguajes que utilizo en consultoría y proyectos open-source.",
         icon: "code",
-        items: ["Python", "SQL", "TypeScript", "JavaScript", "Java", "Go", "Rust", "Solidity"],
+        items: [
+          "Python",
+          "SQL",
+          "TypeScript",
+          "JavaScript",
+          "Java",
+          "Go",
+          "Rust",
+          "Solidity",
+        ],
       },
       {
         title: "Software",
-        description: "Herramientas de nube y plataforma que llevo desde DevOps y producto.",
+        description:
+          "Herramientas de nube y plataforma que llevo desde DevOps y producto.",
         icon: "layers",
-        items: ["AWS", "Azure", "Docker", "Kubernetes", "Databricks", "Linux", "Git", "Next.js", "Terraform", "CI/CD"],
+        items: [
+          "AWS",
+          "Azure",
+          "Docker",
+          "Kubernetes",
+          "Databricks",
+          "Linux",
+          "Git",
+          "Next.js",
+          "Terraform",
+          "CI/CD",
+        ],
       },
       {
         title: "IA y Datos",
-        description: "La pila de IA/ML que impulsa mis entregas RAG, CV y analítica.",
+        description:
+          "La pila de IA/ML que impulsa mis entregas RAG, CV y analítica.",
         icon: "brain",
-        items: ["PyTorch", "TensorFlow", "Keras", "LangChain", "MLflow", "RAG", "Prompt Engineering", "Computer Vision", "Data Engineering", "LLMOps"],
+        items: [
+          "PyTorch",
+          "TensorFlow",
+          "Keras",
+          "LangChain",
+          "MLflow",
+          "RAG",
+          "Prompt Engineering",
+          "Computer Vision",
+          "Data Engineering",
+          "LLMOps",
+        ],
       },
     ],
   },
@@ -658,7 +764,8 @@ const spanishContent: LandingContent = {
   blog: {
     eyebrow: "Blog",
     title: "Reflexiones Recientes",
-    description: "Reflexiones sobre construir con IA, lecciones del camino y lo que voy aprendiendo.",
+    description:
+      "Reflexiones sobre construir con IA, lecciones del camino y lo que voy aprendiendo.",
     viewAll: "Leer todos los artículos",
     viewMore: "Ver más ideas",
     viewLess: "Ver menos ideas",
@@ -679,14 +786,21 @@ const spanishContent: LandingContent = {
           subtitle: "@ivannxbt",
           description:
             "Código que impulsa la automatización de Avvale, las herramientas de riesgo de NFQ y los experimentos ML de Indra.",
-          highlights: ["400+ contribuciones en 2024", "Integraciones destacadas con Avvale, NFQ e Indra"],
+          highlights: [
+            "400+ contribuciones en 2024",
+            "Integraciones destacadas con Avvale, NFQ e Indra",
+          ],
           stats: [
             { label: "Repos", value: "40+" },
             { label: "Followers", value: "90+" },
           ],
           avatar: "/profile.webp",
           badge: "Activo esta semana",
-          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          brandIcons: [
+            "/icons/avvale.png",
+            "/icons/nfq.png",
+            "/icons/indra.png",
+          ],
           previewImage: "/github.webp",
         },
       },
@@ -699,14 +813,21 @@ const spanishContent: LandingContent = {
           subtitle: "AI & Software Engineer · Avvale",
           description:
             "Dirijo programas de IA en Avvale y mantengo la conexión con colegas de NFQ e Indra.",
-          highlights: ["600+ conexiones profesionales", "Disponible para asesorías"],
+          highlights: [
+            "600+ conexiones profesionales",
+            "Disponible para asesorías",
+          ],
           stats: [
             { label: "Experience", value: "4+ yrs" },
             { label: "Recommendations", value: "5" },
           ],
           avatar: "/profile.webp",
           badge: "Disponible para conversar",
-          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          brandIcons: [
+            "/icons/avvale.png",
+            "/icons/nfq.png",
+            "/icons/indra.png",
+          ],
           previewImage: "/linkedin.webp",
         },
       },
@@ -726,7 +847,11 @@ const spanishContent: LandingContent = {
           ],
           avatar: "/profile.webp",
           badge: "Publicando ahora",
-          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          brandIcons: [
+            "/icons/avvale.png",
+            "/icons/nfq.png",
+            "/icons/indra.png",
+          ],
           previewImage: "/x.webp",
         },
       },
@@ -737,14 +862,23 @@ const spanishContent: LandingContent = {
         preview: {
           title: "Currículum",
           subtitle: "Iván Caamaño · Edición 2025",
-          description: "Ingeniero telemático centrado en IA, datos y sistemas de software.",
-          highlights: ["Avvale · AI & Data Analyst", "NFQ · Software Consultant", "Indra · ML Intern"],
+          description:
+            "Ingeniero telemático centrado en IA, datos y sistemas de software.",
+          highlights: [
+            "Avvale · AI & Data Analyst",
+            "NFQ · Software Consultant",
+            "Indra · ML Intern",
+          ],
           stats: [
             { label: "Pages", value: "2" },
             { label: "Updated", value: "Mar 2025" },
           ],
           badge: "Descargar PDF",
-          brandIcons: ["/icons/avvale.png", "/icons/nfq.png", "/icons/indra.png"],
+          brandIcons: [
+            "/icons/avvale.png",
+            "/icons/nfq.png",
+            "/icons/indra.png",
+          ],
           previewImage: "/cv_iacc.webp",
         },
       },

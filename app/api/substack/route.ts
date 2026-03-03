@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSubstackPosts } from "@/lib/substack";
 import type { BlogEntry } from "@/content/site-content";
 import fs from "fs/promises";
 import path from "path";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/client-ip";
 
 export const revalidate = 3600;
 
@@ -39,13 +41,35 @@ async function writeCache(posts: BlogEntry[]): Promise<void> {
       posts,
     };
 
-    await fs.writeFile(CACHE_FILE_PATH, JSON.stringify(cache, null, 2), "utf-8");
+    await fs.writeFile(
+      CACHE_FILE_PATH,
+      JSON.stringify(cache, null, 2),
+      "utf-8",
+    );
   } catch (error) {
     console.error("Error writing Substack cache:", error);
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const ip = getClientIp(request);
+
+  const rl = await checkRateLimit(ip, { limit: 30, windowMs: 60 * 60_000 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      {
+        error: "Too many Substack requests. Please wait before trying again.",
+        posts: [],
+      },
+      {
+        status: 429,
+        headers: rl.retryAfter
+          ? { "Retry-After": String(rl.retryAfter) }
+          : undefined,
+      },
+    );
+  }
+
   try {
     const cachedData = await readCache();
     if (cachedData) {
@@ -61,7 +85,7 @@ export async function GET() {
     console.error("Substack API GET error:", error);
     return NextResponse.json(
       { error: "Failed to fetch Substack posts.", posts: [] },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

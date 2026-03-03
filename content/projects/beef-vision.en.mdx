@@ -18,10 +18,13 @@ highlight: "Consistency uplift of +80% for industrial classification."
 ---
 
 ## Pipeline
+
 Images land in S3, trigger Lambda preprocessing, and move through a PyTorch segmentation model. A FastAPI service exposes inference plus explainability overlays consumed by QA operators.
 
 ## MLOps
+
 Training pipelines log metrics to ClearML, and a drift monitor alerts when fat distribution changes. Rollouts happen via blue/green Lambda aliases to avoid downtime.
 
 ## Business outcome
+
 Buyers receive standardized reports in both Spanish and English, cutting manual review time by several hours per batch and aligning pricing decisions across plants.

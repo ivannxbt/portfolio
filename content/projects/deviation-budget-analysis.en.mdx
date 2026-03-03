@@ -18,12 +18,15 @@ highlight: "Automatically produces DOCX deviation reports after merging multiple
 ---
 
 ## Scope
+
 Budget owners juggled multiple CSVs and dashboards, and deviation analysis took hours to reconcile across systems.
 
 ## Approach
+
 - Pipeline ingests invoices, card feeds, and forecast data, normalizes the schema, and writes structured CSVs for LangChain consumption.
 - An Azure Functions workflow builds a prompt with the normalized tables and calls Azure OpenAI to narrate key deviations.
 - The agent packages the narrative into a DOCX, attaches CSV appendices, and uploads the bundle to SharePoint.
 
 ## Impact
+
 Users now receive a DOCX report in minutes, complete with deviation explanations and action items for finance stakeholders.

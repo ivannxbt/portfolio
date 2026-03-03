@@ -7,7 +7,10 @@
  * Useful for form submissions, multi-step flows, and coordinated animations.
  */
 
-import { useAnimationControls as useFramerControls, useReducedMotion } from "framer-motion";
+import {
+  useAnimationControls as useFramerControls,
+  useReducedMotion,
+} from "motion/react";
 import { useCallback } from "react";
 
 /**
@@ -88,7 +91,7 @@ export function useAnimationControls(): AnimationControlsReturn {
         duration: duration ?? undefined,
       });
     },
-    [controls, prefersReducedMotion]
+    [controls, prefersReducedMotion],
   );
 
   /**
@@ -108,7 +111,9 @@ export function useAnimationControls(): AnimationControlsReturn {
       for (const step of steps) {
         // Wait for delay if specified
         if (step.delay) {
-          await new Promise((resolve) => setTimeout(resolve, step.delay! * 1000));
+          await new Promise((resolve) =>
+            setTimeout(resolve, step.delay! * 1000),
+          );
         }
 
         // Animate to variant
@@ -117,7 +122,7 @@ export function useAnimationControls(): AnimationControlsReturn {
         });
       }
     },
-    [controls, prefersReducedMotion]
+    [controls, prefersReducedMotion],
   );
 
   /**

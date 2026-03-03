@@ -3,7 +3,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // AI Provider Configuration
 export type AIProvider = "gemini";
 
-const AI_PROVIDER = "gemini" as const;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 // Model configurations
@@ -17,7 +16,7 @@ let geminiClient: GoogleGenerativeAI | null = null;
 function getGeminiClient(): GoogleGenerativeAI {
   if (!GOOGLE_API_KEY) {
     throw new Error(
-      "GOOGLE_API_KEY environment variable is required. Please check your .env.local file."
+      "GOOGLE_API_KEY environment variable is required. Please check your .env.local file.",
     );
   }
 
@@ -44,7 +43,7 @@ export interface StreamConfig {
  * Returns a ReadableStream that can be consumed by the client
  */
 export async function streamAIResponse(
-  config: StreamConfig
+  config: StreamConfig,
 ): Promise<ReadableStream<Uint8Array>> {
   const systemInstruction = config.systemInstruction || "";
   const maxTokens = config.maxTokens || 1024;
@@ -57,17 +56,39 @@ export async function streamAIResponse(
 }
 
 /**
+ * Generate a single completion (non-streaming). Consumes the stream and returns the full text.
+ * Useful for short, one-shot tasks like summarization.
+ */
+export async function generateText(config: StreamConfig): Promise<string> {
+  const stream = await streamAIResponse(config);
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let text = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+  } finally {
+    reader.releaseLock();
+  }
+  return text.trim();
+}
+
+/**
  * Promise timeout helper
  */
 function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
-  errorMessage: string
+  errorMessage: string,
 ): Promise<T> {
   return Promise.race([
     promise,
     new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+      setTimeout(() => reject(new Error(errorMessage)), timeoutMs),
     ),
   ]);
 }
@@ -94,7 +115,7 @@ async function streamGeminiResponse(config: {
         const result = await withTimeout(
           model.generateContentStream(config.message),
           30000,
-          "Gemini API request timed out after 30 seconds"
+          "Gemini API request timed out after 30 seconds",
         );
 
         for await (const chunk of result.stream) {
@@ -109,7 +130,10 @@ async function streamGeminiResponse(config: {
         console.error("Gemini streaming error:", {
           error,
           message: error instanceof Error ? error.message : String(error),
-          config: { model: MODELS.gemini, messageLength: config.message.length },
+          config: {
+            model: MODELS.gemini,
+            messageLength: config.message.length,
+          },
         });
         controller.error(error);
       }
@@ -155,7 +179,8 @@ export function validateGoogleAPIKey(): {
   if (!GOOGLE_API_KEY.startsWith("AIza")) {
     return {
       valid: false,
-      message: "GOOGLE_API_KEY format appears invalid (should start with 'AIza')",
+      message:
+        "GOOGLE_API_KEY format appears invalid (should start with 'AIza')",
     };
   }
 

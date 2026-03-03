@@ -2,26 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   streamAIResponse,
   isAIConfigured,
-  getAIProvider,
-  getModelName,
   validateGoogleAPIKey,
 } from "@/lib/ai-client";
 import { defaultContent } from "@/content/site-content";
 import { generateSystemPrompt } from "@/lib/chat-context";
 import { Language } from "@/lib/types";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/client-ip";
 
 export async function POST(request: NextRequest) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    "127.0.0.1";
+  const ip = getClientIp(request);
 
-  const rl = checkRateLimit(ip, { limit: 10, windowMs: 60_000 });
+  const rl = await checkRateLimit(ip, { limit: 20, windowMs: 10 * 60_000 });
   if (!rl.ok) {
     return NextResponse.json(
-      { error: "Too many requests. Please wait before sending another message." },
-      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+      {
+        error: "Too many requests. Please wait before sending another message.",
+      },
+      {
+        status: 429,
+        headers: rl.retryAfter
+          ? { "Retry-After": String(rl.retryAfter) }
+          : undefined,
+      },
     );
   }
 
@@ -31,7 +34,7 @@ export async function POST(request: NextRequest) {
     console.error("AI configuration error:", validation.message);
     return NextResponse.json(
       { error: `AI service is unavailable: ${validation.message}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -42,14 +45,15 @@ export async function POST(request: NextRequest) {
     if (!message || typeof message !== "string") {
       return NextResponse.json(
         { error: "Message is required and must be a string." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Validate language
     const lang: Language = language === "es" ? "es" : "en";
 
-    // Generate secure system instruction on the server
+    // System prompt is generated only on the server (client must not send systemInstruction).
+    // See generateSystemPrompt in lib/chat-context.ts.
     const systemInstruction = generateSystemPrompt(defaultContent[lang], lang);
 
     // Get the stream from the provider
@@ -83,32 +87,41 @@ export async function POST(request: NextRequest) {
     // Don't expose internal error details to the client
     return NextResponse.json(
       { error: "Unable to process your request. Please try again later." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function GET() {
-  const provider = getAIProvider();
-  const model = getModelName();
-  const apiKeyValidation = validateGoogleAPIKey();
   const isConfigured = isAIConfigured();
+  const isProduction = process.env.NODE_ENV === "production";
 
-  return NextResponse.json({
+  const baseResponse = {
     status: isConfigured ? "configured" : "not_configured",
-    message: `Chat API endpoint. Use POST to chat with Gemini.`,
-    provider,
-    model,
-    apiKey: {
-      set: !!process.env.GOOGLE_API_KEY,
-      valid: apiKeyValidation.valid,
-      message: apiKeyValidation.message,
-    },
+    message: "Chat API endpoint. Use POST to chat.",
     usage: {
       method: "POST",
       body: {
         message: "Your conversational message",
         language: "en | es (optional, defaults to en)",
+      },
+    },
+  };
+
+  if (isProduction) {
+    return NextResponse.json(baseResponse);
+  }
+
+  const apiKeyValidation = validateGoogleAPIKey();
+  return NextResponse.json({
+    ...baseResponse,
+    debug: {
+      provider: "gemini",
+      model: "gemini-2.0-flash",
+      apiKey: {
+        set: !!process.env.GOOGLE_API_KEY,
+        valid: apiKeyValidation.valid,
+        message: apiKeyValidation.message,
       },
     },
   });

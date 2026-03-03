@@ -9,7 +9,7 @@
       "contact": "Get in touch"
     },
     "about": {
-      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like [here](https://es.wikipedia.org/wiki/Isla_de_Margarita)).\n\n**Interests**\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\n**Fun facts**\n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\n\nCurrently learning to dance Salsa!\n\nI love reading about history, journalism, politics, economics and things about how our world works.\n\nMy favorite dish is my grandma's lasagna :)",
+      "summary": "Hi! I'm Iván. I'm an AI & Software Engineer currently based in Madrid, but I was born and raised in Isla de Margarita, Venezuela (take a look if you'd like [the Wikipedia entry](https://es.wikipedia.org/wiki/Isla_de_Margarita)).\n\n**Interests**\n\nIn my free time, I like to play some sports, see movies and to be around with my hometown friends. \n\n**Fun facts**\n\nI'm not a enjoyer of old movies, or songs for that matter, but I'm beginning to take a hang of it.\n\nCurrently learning to dance Salsa!\n\nI love reading about history, journalism, politics, economics and things about how our world works.\n\nMy favorite dish is my grandma's lasagna :)",
       "title": "About Me",
       "educationTitle": "Education",
       "education1": "M.Eng. Network and Telematic Services (Universidad Politécnica de Madrid)",
@@ -92,10 +92,7 @@
             "title": "X / Twitter",
             "subtitle": "@_ivvann",
             "description": "Threads on AI engineering, data ops, and the Avvale, NFQ, and Indra projects shaping my work.",
-            "highlights": [
-              "Daily updates",
-              "Community questions welcome"
-            ],
+            "highlights": ["Daily updates", "Community questions welcome"],
             "stats": [
               {
                 "label": "Followers",
@@ -231,7 +228,19 @@
           "period": "April 2025 - Present",
           "location": "Madrid, Spain",
           "summary": "Lead automation initiatives that blend AI agents, RAG systems, and computer vision for consulting engagements.",
-          "tech": ["Python", "AWS", "Azure", "GCP", "LangChain", "GenAI", "ETL", "RAG", "MCP", "NLP", "LLM"],
+          "tech": [
+            "Python",
+            "AWS",
+            "Azure",
+            "GCP",
+            "LangChain",
+            "GenAI",
+            "ETL",
+            "RAG",
+            "MCP",
+            "NLP",
+            "LLM"
+          ],
           "bullets": [
             "Designed and deployed AI-powered document-generation agent systems using Amazon Bedrock, Lambda functions and Claude Sonnet, reducing production time from 8h to 24min per document (95% reduction).",
             "Engineered RAG implementations for the development of chatbots using Azure Cognitive Search, ML and AI Foundry, using vectors and embeddings to decrease information retrieval latency by 90%.",
@@ -246,7 +255,15 @@
           "period": "January 2025 - March 2025",
           "location": "Madrid, Spain",
           "summary": "Supported BBVA's Risk team delivering the Internal Model Method (IMM) platform with production-ready tooling.",
-          "tech": ["Python", "Java", "AWS", "Docker", "Kubernetes", "CI/CD", "ETL"],
+          "tech": [
+            "Python",
+            "Java",
+            "AWS",
+            "Docker",
+            "Kubernetes",
+            "CI/CD",
+            "ETL"
+          ],
           "bullets": [
             "Designed and implemented ETL pipelines for 4 IMM risk calculation processes, processing 2M+ credit exposure records daily using Python (Pandas, PySpark) and Java batch jobs on Unix environments.",
             "Deployed microservices architecture using Docker and Kubernetes for parallel processing of EAD calculations, reducing batch execution time by 10%."
@@ -260,7 +277,14 @@
           "period": "September 2022 - July 2024",
           "location": "Madrid, Spain",
           "summary": "Coordinated with a team of 19 students for the realization of the Employment and Technology Forum of the University, with +100 participants and +20 collaborating companies.",
-          "tech": ["Javascript", "React", "Notion", "Leadership", "Collaboration", "Problem-solving"],
+          "tech": [
+            "Javascript",
+            "React",
+            "Notion",
+            "Leadership",
+            "Collaboration",
+            "Problem-solving"
+          ],
           "bullets": [
             "Coordinated +100 participants each year, including companies like Apple, Amazon and BBVA, and organized +80 conferences, workshops, and activities arranged in the months leading up to the forum.",
             "Developed features and improved the UI/UX of Satelec's website, increasing general web interaction by 60% and CV submissions by 40%."
@@ -274,7 +298,14 @@
           "period": "September 2021 - July 2022",
           "location": "Madrid, Spain",
           "summary": "Contributed ML and data-processing capabilities to modernize AESA radar programs tied to Eurofighter platforms.",
-          "tech": ["Python", "PyTorch", "TensorFlow", "scikit-learn", "ML", "Deep Learning"],
+          "tech": [
+            "Python",
+            "PyTorch",
+            "TensorFlow",
+            "scikit-learn",
+            "ML",
+            "Deep Learning"
+          ],
           "bullets": [
             "Developed CNN-based model for radar signal classification using PyTorch, training on 50K+ simulated AESA radar returns to detect and classify aerial targets improving pattern detection efficiency by 30%.",
             "Implemented noise reduction pipeline using TensorFlow, applying wavelet transforms and autoencoder architecture to filter Doppler radar data, enhancing signal-to-noise ratio from 12dB to 18dB."
@@ -347,29 +378,20 @@
         "icon": "layers",
         "title": "Nexxo",
         "desc": "A smart expense-splitting app with currency indexing. Converts local currency to dollars automatically so debts stay fair over time, featuring AI-powered natural language expense parsing.",
-        "tags": [
-          "Next.js",
-          "TypeScript",
-          "Gemini",
-          "FinTech"
-        ],
-        "liveUrl": "https://nexxo-waitlist.vercel.app",
+        "tags": ["TypeScript", "Expo", "React Native"],
+        "liveUrl": "https://www.nexxoapp.com/",
         "githubUrl": "https://github.com/ivannxbt/nexxo",
         "image": "/projects/nexxo.webp",
         "confidential": false,
-        "projectType": "Web"
+        "projectType": "Web",
+        "secondaryTypes": ["Mobile"]
       },
       {
         "id": 7,
         "icon": "layers",
         "title": "Caamaño Inmuebles",
         "desc": "Real estate website for a 37-year-old agency in Margarita Island, Venezuela. Features bilingual support (EN/ES), WhatsApp integration, and a modern responsive design.",
-        "tags": [
-          "Next.js",
-          "TypeScript",
-          "Claude",
-          "Real Estate"
-        ],
+        "tags": ["Next.js", "TypeScript", "Claude", "Real Estate"],
         "liveUrl": "https://caamano-inmuebles.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/caamano-inmuebles",
         "image": "/projects/caamano-inmuebles.webp",
@@ -381,12 +403,7 @@
         "icon": "cloud",
         "title": "PA Document Generator Agent",
         "desc": "Designed and deployed an AWS-based agent automating production of 4 dynamic document types, reducing manual effort by 95%.",
-        "tags": [
-          "AWS",
-          "Python",
-          "LangChain",
-          "Automation"
-        ],
+        "tags": ["AWS", "Python", "LangChain", "Automation"],
         "image": "/projects/pa-document-generator.webp",
         "confidential": true,
         "projectType": "AI"
@@ -396,12 +413,7 @@
         "icon": "database",
         "title": "Enterprise RAG Chatbot",
         "desc": "Engineered prompting and RAG implementations in Azure, decreasing information retrieval latency by 90% for specialized queries.",
-        "tags": [
-          "Azure",
-          "OpenAI",
-          "LangChain",
-          "Python"
-        ],
+        "tags": ["Azure", "OpenAI", "LangChain", "Python"],
         "image": "/projects/enterprise-rag-chatbot.webp",
         "confidential": true,
         "projectType": "AI"
@@ -411,11 +423,7 @@
         "icon": "layers",
         "title": "ML AESA Radar Optimizer",
         "desc": "Developed ML models for AESA radar data processing (Eurofighter), improving efficiency by 30% using TensorFlow and PyTorch.",
-        "tags": [
-          "PyTorch",
-          "TensorFlow",
-          "Python"
-        ],
+        "tags": ["PyTorch", "TensorFlow", "Python"],
         "image": "/projects/ml-radar-optimizer.webp",
         "confidential": true,
         "projectType": "AI"
@@ -425,11 +433,7 @@
         "icon": "database",
         "title": "Multi-Source Advertiser Data Deduplicator",
         "desc": "Developed a data deduplication and analysis toolkit that cleans, normalizes, and matches advertiser data across multiple sources, generates quality and clustering reports, and uses LLMs to validate fiscal IDs, standardize addresses, and infer missing address information.",
-        "tags": [
-          "Python",
-          "Azure",
-          "LangChain"
-        ],
+        "tags": ["Python", "Azure", "LangChain"],
         "image": "/projects/data-deduplication.webp",
         "confidential": true,
         "projectType": "AI"
@@ -439,11 +443,7 @@
         "icon": "cloud",
         "title": "Deviation Budget Analysis Agent",
         "desc": "I developed a pipeline that processes varios sources of spending and budgeting data, generates structured CSVs, builds an LLM-ready prompt and automatically produces a DOCX report highlighting key budget metrics.",
-        "tags": [
-          "Python",
-          "Azure",
-          "LangChain"
-        ],
+        "tags": ["Python", "Azure", "LangChain"],
         "image": "/projects/budget-analysis-agent.webp",
         "confidential": true,
         "projectType": "AI"
@@ -706,7 +706,19 @@
           "period": "Abril 2025 - Actualidad",
           "location": "Madrid, España",
           "summary": "Actualmente lidero iniciativas de automatización que combinan agentes de IA, sistemas RAG y visión artificial para consultorías.",
-          "tech": ["Python", "AWS", "Azure", "GCP", "LangChain", "GenAI", "ETL", "RAG", "MCP", "NLP", "LLM"],
+          "tech": [
+            "Python",
+            "AWS",
+            "Azure",
+            "GCP",
+            "LangChain",
+            "GenAI",
+            "ETL",
+            "RAG",
+            "MCP",
+            "NLP",
+            "LLM"
+          ],
           "bullets": [
             "Diseñé y desplegué sistemas de agentes de generación de documentos con IA usando Amazon Bedrock, funciones Lambda y Claude Sonnet, reduciendo el tiempo de producción de 8h a 24min por documento (reducción del 95%).",
             "Diseñé implementaciones RAG para el desarrollo de chatbots usando Azure Cognitive Search, ML y AI Foundry, usando vectores y embeddings para disminuir la latencia de recuperación de información en un 90%.",
@@ -721,7 +733,15 @@
           "period": "Enero 2025 - Marzo 2025",
           "location": "Madrid, España",
           "summary": "Apoyé al equipo de riesgo de BBVA entregando la plataforma IMM con herramientas listas para producción.",
-          "tech": ["Python", "Java", "AWS", "Docker", "Kubernetes", "CI/CD", "ETL"],
+          "tech": [
+            "Python",
+            "Java",
+            "AWS",
+            "Docker",
+            "Kubernetes",
+            "CI/CD",
+            "ETL"
+          ],
           "bullets": [
             "Diseñé e implementé pipelines ETL para 4 procesos de cálculo de riesgo IMM, procesando más de 2M de registros de exposición crediticia diariamente usando Python (Pandas, PySpark) y trabajos batch de Java en entornos Unix.",
             "Desplegué arquitectura de microservicios usando Docker y Kubernetes para el procesamiento paralelo de cálculos EAD, reduciendo el tiempo de ejecución batch en un 10%."
@@ -735,7 +755,14 @@
           "period": "Septiembre 2022 - Julio 2024",
           "location": "Madrid, España",
           "summary": "Coordiné con un equipo de 19 estudiantes la realización del Foro de Empleo y Tecnología de la Universidad, con +100 participantes y +20 empresas colaboradoras.",
-          "tech": ["Javascript", "React", "Notion", "Leadership", "Collaboration", "Problem-solving"],
+          "tech": [
+            "Javascript",
+            "React",
+            "Notion",
+            "Leadership",
+            "Collaboration",
+            "Problem-solving"
+          ],
           "bullets": [
             "Coordiné +100 participantes cada año, incluyendo empresas como Apple, Amazon y BBVA, y organicé +80 conferencias, talleres y actividades en los meses previos al foro.",
             "Desarrollé funcionalidades y mejoré la UI/UX del sitio web de Satelec, aumentando la interacción web general en un 60% y las entregas de CV en un 40%."
@@ -749,7 +776,14 @@
           "period": "Septiembre 2021 - Julio 2022",
           "location": "Madrid, España",
           "summary": "Contribuí con ML y procesamiento de datos para modernizar programas de radar AESA.",
-          "tech": ["Python", "PyTorch", "TensorFlow", "scikit-learn", "ML", "Deep Learning"],
+          "tech": [
+            "Python",
+            "PyTorch",
+            "TensorFlow",
+            "scikit-learn",
+            "ML",
+            "Deep Learning"
+          ],
           "bullets": [
             "Desarrollé modelo basado en CNN para clasificación de señales de radar usando PyTorch, entrenando con más de 50K retornos de radar AESA simulados para detectar y clasificar objetivos aéreos mejorando la eficiencia de detección de patrones en un 30%.",
             "Implementé pipeline de reducción de ruido usando TensorFlow, aplicando transformadas wavelet y arquitectura autoencoder para filtrar datos radar Doppler, mejorando la relación señal-ruido de 12dB a 18dB."
@@ -821,29 +855,20 @@
         "icon": "layers",
         "title": "Nexxo",
         "desc": "App inteligente para dividir gastos con indexación monetaria. Convierte moneda local a dólares automáticamente para que las deudas se mantengan justas, con análisis de gastos mediante lenguaje natural con IA.",
-        "tags": [
-          "Next.js",
-          "TypeScript",
-          "Gemini",
-          "FinTech"
-        ],
-        "liveUrl": "https://nexxo-waitlist.vercel.app",
+        "tags": ["TypeScript", "Expo", "React Native"],
+        "liveUrl": "https://www.nexxoapp.com/",
         "githubUrl": "https://github.com/ivannxbt/nexxo",
         "image": "/projects/nexxo.webp",
         "confidential": false,
-        "projectType": "Web"
+        "projectType": "Web",
+        "secondaryTypes": ["Mobile"]
       },
       {
         "id": 7,
         "icon": "layers",
         "title": "Caamaño Inmuebles",
         "desc": "Sitio web inmobiliario para una agencia con 37 años de experiencia en la Isla de Margarita, Venezuela. Incluye soporte bilingüe (EN/ES), integración con WhatsApp y diseño responsive moderno.",
-        "tags": [
-          "Next.js",
-          "TypeScript",
-          "Claude",
-          "Inmobiliaria"
-        ],
+        "tags": ["Next.js", "TypeScript", "Claude", "Inmobiliaria"],
         "liveUrl": "https://caamano-inmuebles.vercel.app",
         "githubUrl": "https://github.com/ivannxbt/caamano-inmuebles",
         "image": "/projects/caamano-inmuebles.webp",
@@ -855,12 +880,7 @@
         "icon": "cloud",
         "title": "Agente documental con IA",
         "desc": "Diseñé y desplegué un agente basado en AWS que automatiza la generación de 4 tipos dinámicos de documento, reduciendo el esfuerzo manual en un 95%.",
-        "tags": [
-          "AWS",
-          "Python",
-          "LangChain",
-          "Automation"
-        ],
+        "tags": ["AWS", "Python", "LangChain", "Automation"],
         "image": "/projects/pa-document-generator.webp",
         "confidential": true,
         "projectType": "AI"
@@ -870,12 +890,7 @@
         "icon": "database",
         "title": "Chatbot RAG empresarial",
         "desc": "Arquitecté prompts y flujos RAG en Azure que reducen la latencia de consultas especializadas en un 90%.",
-        "tags": [
-          "Azure",
-          "OpenAI",
-          "LangChain",
-          "Python"
-        ],
+        "tags": ["Azure", "OpenAI", "LangChain", "Python"],
         "image": "/projects/enterprise-rag-chatbot.webp",
         "confidential": true,
         "projectType": "AI"
@@ -885,11 +900,7 @@
         "icon": "layers",
         "title": "Optimización ML para radar",
         "desc": "Desarrollé modelos ML para procesar datos radar AESA (Eurofighter), mejorando la eficiencia en un 30% con TensorFlow y PyTorch.",
-        "tags": [
-          "PyTorch",
-          "TensorFlow",
-          "Python"
-        ],
+        "tags": ["PyTorch", "TensorFlow", "Python"],
         "image": "/projects/ml-radar-optimizer.webp",
         "confidential": true,
         "projectType": "AI"
@@ -899,11 +910,7 @@
         "icon": "database",
         "title": "Deduplicador de Datos Publicitarios",
         "desc": "Desarrollé un toolkit de deduplicación y análisis que limpia, normaliza y empareja datos de anunciantes de múltiples fuentes, genera informes de calidad y clustering, y usa LLMs para validar NIF fiscales, estandarizar direcciones e inferir información faltante.",
-        "tags": [
-          "Python",
-          "Azure",
-          "LangChain"
-        ],
+        "tags": ["Python", "Azure", "LangChain"],
         "image": "/projects/data-deduplication.webp",
         "confidential": true,
         "projectType": "AI"
@@ -913,11 +920,7 @@
         "icon": "cloud",
         "title": "Agente de análisis presupuestario",
         "desc": "Construí un pipeline que procesa varias fuentes de datos de gasto y presupuesto, genera CSVs estructurados, prepara un prompt listo para LLM y produce automáticamente un informe DOCX destacando métricas clave.",
-        "tags": [
-          "Python",
-          "Azure",
-          "LangChain"
-        ],
+        "tags": ["Python", "Azure", "LangChain"],
         "image": "/projects/budget-analysis-agent.webp",
         "confidential": true,
         "projectType": "AI"

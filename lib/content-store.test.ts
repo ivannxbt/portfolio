@@ -1,301 +1,301 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { readFile, writeFile, mkdir } from 'fs/promises';
-import os from 'os';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import os from "os";
 
-// NOTE: content-store.ts maintains module-level state (resolvedOverridesPath and pathResolutionPromise)
-// which persists across tests. Tests are designed to work with this shared state rather than
-// attempting to reset modules between tests, as module resets would interfere with mock setup.
-// The first test that triggers path resolution will establish the state used by subsequent tests.
-
-// Mock server-only to prevent it from throwing errors in tests
-vi.mock('server-only', () => ({
-  default: {},
-}));
-
-// Mock the fs/promises module
-vi.mock('fs/promises', () => ({
-  default: {
-    readFile: vi.fn(),
-    writeFile: vi.fn(),
-    mkdir: vi.fn(),
-  },
+const fsMocks = vi.hoisted(() => ({
   readFile: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),
 }));
 
+// Mock server-only to prevent it from throwing errors in tests
+vi.mock("server-only", () => ({
+  default: {},
+}));
+
+vi.mock("fs/promises", () => ({
+  default: fsMocks,
+  ...fsMocks,
+}));
+vi.mock("node:fs/promises", () => ({
+  default: fsMocks,
+  ...fsMocks,
+}));
+
 // Mock react cache
-vi.mock('react', () => ({
+vi.mock("react", () => ({
   cache: <T extends (...args: never[]) => unknown>(fn: T) => fn,
 }));
 
 // Mock the site-content module
-vi.mock('@/content/site-content', () => ({
+vi.mock("@/content/site-content", () => ({
   defaultContent: {
-    en: { hero: { headline: 'Default English' } },
-    es: { hero: { headline: 'Default Spanish' } },
+    en: { hero: { headline: "Default English" } },
+    es: { hero: { headline: "Default Spanish" } },
   },
 }));
 
 // Mock the i18n module
-vi.mock('@/lib/i18n', () => ({
-  locales: ['en', 'es'],
+vi.mock("@/lib/i18n", () => ({
+  locales: ["en", "es"],
 }));
 
-describe('content-store', () => {
+const loadContentStore = () => import("./content-store");
+
+describe("content-store", () => {
   let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
+    vi.resetModules();
     vi.clearAllMocks();
-    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    // Set default mock implementations
-    vi.mocked(mkdir).mockResolvedValue(undefined);
-    vi.mocked(readFile).mockResolvedValue('{}');
-    vi.mocked(writeFile).mockResolvedValue(undefined);
+    fsMocks.mkdir.mockResolvedValue(undefined);
+    fsMocks.readFile.mockResolvedValue("{}");
+    fsMocks.writeFile.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     consoleWarnSpy.mockRestore();
   });
 
-  describe('getOverridesPath', () => {
-    it('should use default path when file is accessible', async () => {
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue('{}');
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+  describe("getOverridesPath", () => {
+    it("should use default path when file is accessible", async () => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue("{}");
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      // Import fresh module
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       await readOverrides();
 
-      expect(mkdir).toHaveBeenCalledWith(
-        expect.stringContaining('data'),
-        { recursive: true }
+      expect(fsMocks.mkdir).toHaveBeenCalledWith(
+        expect.stringContaining("data"),
+        { recursive: true },
       );
     });
 
-    it('should fall back to temp directory on EROFS error', async () => {
-      const erofError = new Error('Read-only file system') as NodeJS.ErrnoException;
-      erofError.code = 'EROFS';
+    it("should fall back to temp directory on EROFS error", async () => {
+      const erofError = new Error(
+        "Read-only file system",
+      ) as NodeJS.ErrnoException;
+      erofError.code = "EROFS";
 
       let callCount = 0;
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockImplementation(() => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
           throw erofError;
         }
-        return Promise.resolve('{}');
+        return Promise.resolve("{}");
       });
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       await readOverrides();
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Primary overrides path is not writable'),
+        expect.stringContaining("Primary overrides path is not writable"),
       );
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining(os.tmpdir()),
       );
     });
 
-    it('should fall back to temp directory on EPERM error', async () => {
-      const epermError = new Error('Operation not permitted') as NodeJS.ErrnoException;
-      epermError.code = 'EPERM';
+    it("should fall back to temp directory on EPERM error", async () => {
+      const epermError = new Error(
+        "Operation not permitted",
+      ) as NodeJS.ErrnoException;
+      epermError.code = "EPERM";
 
       let callCount = 0;
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockImplementation(() => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
           throw epermError;
         }
-        return Promise.resolve('{}');
+        return Promise.resolve("{}");
       });
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       await readOverrides();
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Primary overrides path is not writable'),
+        expect.stringContaining("Primary overrides path is not writable"),
       );
     });
 
-    it('should fall back to temp directory on EACCES error', async () => {
-      const eaccesError = new Error('Permission denied') as NodeJS.ErrnoException;
-      eaccesError.code = 'EACCES';
+    it("should fall back to temp directory on EACCES error", async () => {
+      const eaccesError = new Error(
+        "Permission denied",
+      ) as NodeJS.ErrnoException;
+      eaccesError.code = "EACCES";
 
       let callCount = 0;
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockImplementation(() => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
           throw eaccesError;
         }
-        return Promise.resolve('{}');
+        return Promise.resolve("{}");
       });
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       await readOverrides();
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Primary overrides path is not writable'),
+        expect.stringContaining("Primary overrides path is not writable"),
       );
     });
 
-    it('should throw on unexpected errors', async () => {
-      const unexpectedError = new Error('Unexpected error');
+    it("should throw on unexpected errors", async () => {
+      const unexpectedError = new Error("Unexpected error");
 
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockRejectedValue(unexpectedError);
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockRejectedValue(unexpectedError);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
-      await expect(readOverrides()).rejects.toThrow('Unexpected error');
+      await expect(readOverrides()).rejects.toThrow("Unexpected error");
     });
 
-    it('should handle race condition with multiple concurrent calls', async () => {
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue('{}');
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+    it("should handle race condition with multiple concurrent calls", async () => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue("{}");
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       // Make multiple concurrent calls
-      const promises = [
-        readOverrides(),
-        readOverrides(),
-        readOverrides(),
-      ];
+      const promises = [readOverrides(), readOverrides(), readOverrides()];
 
       await Promise.all(promises);
 
       // mkdir should only be called once for the data directory
       // (not 3 times, which would indicate a race condition)
-      const dataDirCalls = vi.mocked(mkdir).mock.calls.filter(
-        ([dirPath]) => typeof dirPath === 'string' && dirPath.includes('data')
+      const dataDirCalls = fsMocks.mkdir.mock.calls.filter(
+        ([dirPath]) => typeof dirPath === "string" && dirPath.includes("data"),
       );
       expect(dataDirCalls.length).toBeLessThanOrEqual(1);
     });
   });
 
-  describe('readOverrides', () => {
-    it('should return empty object for empty file', async () => {
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue('   ');
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+  describe("readOverrides", () => {
+    it("should return empty object for empty file", async () => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue("   ");
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       const result = await readOverrides();
 
       expect(result).toEqual({});
     });
 
-    it('should parse valid JSON', async () => {
+    it("should parse valid JSON", async () => {
       const validOverrides = {
-        en: { hero: { headline: 'Custom English' } },
+        en: { hero: { headline: "Custom English" } },
       };
 
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue(JSON.stringify(validOverrides));
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(validOverrides));
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       const result = await readOverrides();
 
       expect(result).toEqual(validOverrides);
     });
 
-    it('should reset file and log warning on invalid JSON', async () => {
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue('{ invalid json }');
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+    it("should reset file and log warning on invalid JSON", async () => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue("{ invalid json }");
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       const result = await readOverrides();
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid overrides file detected'),
-        expect.any(String)
-      );
-      expect(vi.mocked(writeFile)).toHaveBeenCalledWith(
+        expect.stringContaining("Invalid overrides file detected"),
         expect.any(String),
-        '{}',
-        'utf-8'
+      );
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.any(String),
+        "{}",
+        "utf-8",
       );
       expect(result).toEqual({});
     });
 
-    it('should create file with empty object on ENOENT', async () => {
-      const enoentError = new Error('File not found') as NodeJS.ErrnoException;
-      enoentError.code = 'ENOENT';
+    it("should create file with empty object on ENOENT", async () => {
+      const enoentError = new Error("File not found") as NodeJS.ErrnoException;
+      enoentError.code = "ENOENT";
 
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile)
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile
         .mockRejectedValueOnce(enoentError)
-        .mockResolvedValue('{}');
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+        .mockResolvedValue("{}");
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { readOverrides } = await import('./content-store');
+      const { readOverrides } = await loadContentStore();
 
       await readOverrides();
 
-      expect(vi.mocked(writeFile)).toHaveBeenCalledWith(
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.any(String),
-        '{}',
-        'utf-8'
+        "{}",
+        "utf-8",
       );
     });
   });
 
-  describe('writeOverrides', () => {
-    it('should write formatted JSON to file', async () => {
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue('{}');
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+  describe("writeOverrides", () => {
+    it("should write formatted JSON to file", async () => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue("{}");
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { writeOverrides } = await import('./content-store');
+      const { writeOverrides } = await loadContentStore();
 
       const overrides = {
-        en: { hero: { headline: 'Test' } },
+        en: { hero: { headline: "Test" } },
       };
 
       await writeOverrides(overrides);
 
-      expect(vi.mocked(writeFile)).toHaveBeenCalledWith(
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.any(String),
         JSON.stringify(overrides, null, 2),
-        'utf-8'
+        "utf-8",
       );
     });
 
-    it('should create directory before writing', async () => {
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue('{}');
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+    it("should create directory before writing", async () => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue("{}");
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { writeOverrides } = await import('./content-store');
+      const { writeOverrides } = await loadContentStore();
 
       await writeOverrides({});
 
-      expect(vi.mocked(mkdir)).toHaveBeenCalled();
+      expect(fsMocks.mkdir).toHaveBeenCalled();
     });
   });
 
-  describe('deepMerge', () => {
-    it('should merge objects deeply', async () => {
-      const { deepMerge } = await import('./content-store');
+  describe("deepMerge", () => {
+    it("should merge objects deeply", async () => {
+      const { deepMerge } = await loadContentStore();
 
       const target = { a: { b: 1, c: 2 } };
       const source = { a: { b: 3, d: 4 } };
@@ -305,8 +305,8 @@ describe('content-store', () => {
       expect(result).toEqual({ a: { b: 3, c: 2, d: 4 } });
     });
 
-    it('should replace arrays instead of merging', async () => {
-      const { deepMerge } = await import('./content-store');
+    it("should replace arrays instead of merging", async () => {
+      const { deepMerge } = await loadContentStore();
 
       const target = { arr: [1, 2, 3] };
       const source = { arr: [4, 5] };
@@ -316,43 +316,54 @@ describe('content-store', () => {
       expect(result).toEqual({ arr: [4, 5] });
     });
 
-    it('should not merge non-plain objects', async () => {
-      const { deepMerge } = await import('./content-store');
+    it("should not merge non-plain objects", async () => {
+      const { deepMerge } = await loadContentStore();
 
-      const sourceDate = new Date('2024-01-01T00:00:00.000Z');
-      const result = deepMerge({ value: { nested: true } }, { value: sourceDate });
+      const sourceDate = new Date("2024-01-01T00:00:00.000Z");
+      const result = deepMerge(
+        { value: { nested: true } },
+        { value: sourceDate },
+      );
 
       expect(result).toEqual({ value: sourceDate });
     });
 
-    it('should skip denylisted keys and preserve global prototype safety', async () => {
-      const { deepMerge } = await import('./content-store');
+    it("should skip denylisted keys and preserve global prototype safety", async () => {
+      const { deepMerge } = await loadContentStore();
 
-      const beforePolluted = (Object.prototype as { polluted?: boolean }).polluted;
+      const beforePolluted = (Object.prototype as { polluted?: boolean })
+        .polluted;
       const source = JSON.parse('{"__proto__":{"polluted":true},"safe":1}');
 
       const result = deepMerge({}, source) as Record<string, unknown>;
 
       expect(result).toEqual({ safe: 1 });
-      expect((Object.prototype as { polluted?: boolean }).polluted).toBe(beforePolluted);
+      expect((Object.prototype as { polluted?: boolean }).polluted).toBe(
+        beforePolluted,
+      );
       expect(({} as { polluted?: boolean }).polluted).toBeUndefined();
     });
 
-    it('should block constructor.prototype pollution payloads', async () => {
-      const { deepMerge } = await import('./content-store');
+    it("should block constructor.prototype pollution payloads", async () => {
+      const { deepMerge } = await loadContentStore();
 
-      const beforePolluted = (Object.prototype as { polluted?: boolean }).polluted;
-      const source = JSON.parse('{"constructor":{"prototype":{"polluted":true}},"safe":2}');
+      const beforePolluted = (Object.prototype as { polluted?: boolean })
+        .polluted;
+      const source = JSON.parse(
+        '{"constructor":{"prototype":{"polluted":true}},"safe":2}',
+      );
 
       const result = deepMerge({}, source) as Record<string, unknown>;
 
       expect(result).toEqual({ safe: 2 });
-      expect((Object.prototype as { polluted?: boolean }).polluted).toBe(beforePolluted);
+      expect((Object.prototype as { polluted?: boolean }).polluted).toBe(
+        beforePolluted,
+      );
       expect(({} as { polluted?: boolean }).polluted).toBeUndefined();
     });
 
-    it('should throw error on deep circular references', async () => {
-      const { deepMerge } = await import('./content-store');
+    it("should throw error on deep circular references", async () => {
+      const { deepMerge } = await loadContentStore();
 
       const target = {};
       const source: { a: Record<string, unknown> } = { a: {} };
@@ -364,11 +375,11 @@ describe('content-store', () => {
         current = current.b as Record<string, unknown>;
       }
 
-      expect(() => deepMerge(target, source)).toThrow('Maximum merge depth');
+      expect(() => deepMerge(target, source)).toThrow("Maximum merge depth");
     });
 
-    it('should handle undefined source', async () => {
-      const { deepMerge } = await import('./content-store');
+    it("should handle undefined source", async () => {
+      const { deepMerge } = await loadContentStore();
 
       const target = { a: 1 };
 
@@ -378,57 +389,61 @@ describe('content-store', () => {
     });
   });
 
-  describe('mergeWithDefaults', () => {
-    it('should merge overrides with defaults', async () => {
-      const { mergeWithDefaults } = await import('./content-store');
+  describe("mergeWithDefaults", () => {
+    it("should merge overrides with defaults", async () => {
+      const { mergeWithDefaults } = await loadContentStore();
 
-      const overrides = { hero: { headline: 'Custom' } };
+      const overrides = { hero: { headline: "Custom" } };
 
-      const result = mergeWithDefaults('en', overrides);
+      const result = mergeWithDefaults("en", overrides);
 
-      expect(result.hero.headline).toBe('Custom');
+      expect(result.hero.headline).toBe("Custom");
     });
 
-    it('should use defaults when no overrides provided', async () => {
-      const { mergeWithDefaults } = await import('./content-store');
+    it("should use defaults when no overrides provided", async () => {
+      const { mergeWithDefaults } = await loadContentStore();
 
-      const result = mergeWithDefaults('en');
+      const result = mergeWithDefaults("en");
 
-      expect(result.hero.headline).toBe('Default English');
-    });
-  });
-
-  describe('getLandingContent', () => {
-    it('should return merged content for locale', async () => {
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue(JSON.stringify({
-        en: { hero: { headline: 'Override' } },
-      }));
-      vi.mocked(writeFile).mockResolvedValue(undefined);
-
-      const { getLandingContent } = await import('./content-store');
-
-      const result = await getLandingContent('en');
-
-      expect(result.hero.headline).toBe('Override');
+      expect(result.hero.headline).toBe("Default English");
     });
   });
 
-  describe('getAllLandingContent', () => {
-    it('should return content for all locales', async () => {
-      vi.mocked(mkdir).mockResolvedValue(undefined);
-      vi.mocked(readFile).mockResolvedValue(JSON.stringify({
-        en: { hero: { headline: 'English Override' } },
-        es: { hero: { headline: 'Spanish Override' } },
-      }));
-      vi.mocked(writeFile).mockResolvedValue(undefined);
+  describe("getLandingContent", () => {
+    it("should return merged content for locale", async () => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue(
+        JSON.stringify({
+          en: { hero: { headline: "Override" } },
+        }),
+      );
+      fsMocks.writeFile.mockResolvedValue(undefined);
 
-      const { getAllLandingContent } = await import('./content-store');
+      const { getLandingContent } = await loadContentStore();
+
+      const result = await getLandingContent("en");
+
+      expect(result.hero.headline).toBe("Override");
+    });
+  });
+
+  describe("getAllLandingContent", () => {
+    it("should return content for all locales", async () => {
+      fsMocks.mkdir.mockResolvedValue(undefined);
+      fsMocks.readFile.mockResolvedValue(
+        JSON.stringify({
+          en: { hero: { headline: "English Override" } },
+          es: { hero: { headline: "Spanish Override" } },
+        }),
+      );
+      fsMocks.writeFile.mockResolvedValue(undefined);
+
+      const { getAllLandingContent } = await loadContentStore();
 
       const result = await getAllLandingContent();
 
-      expect(result.en.hero.headline).toBe('English Override');
-      expect(result.es.hero.headline).toBe('Spanish Override');
+      expect(result.en.hero.headline).toBe("English Override");
+      expect(result.es.hero.headline).toBe("Spanish Override");
     });
   });
 });

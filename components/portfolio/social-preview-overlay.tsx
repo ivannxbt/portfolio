@@ -28,11 +28,12 @@ export const SocialPreviewOverlay = React.memo<SocialPreviewOverlayProps>(
     return (
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-full mt-2 z-30 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 transition duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
+        className="pointer-events-none absolute top-full left-1/2 z-30 mt-2 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 transition duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
       >
         <div
-          className={`relative h-[220px] w-[360px] overflow-hidden rounded-[28px] border border-white/20 shadow-[0_35px_60px_rgba(0,0,0,0.5)] transition duration-200 group-focus-within:shadow-[0_38px_80px_rgba(0,0,0,0.45)] group-hover:shadow-[0_38px_80px_rgba(0,0,0,0.45)] ${isResume ? "bg-[#2e2e2e]" : "bg-[#242424]"
-            }`}
+          className={`relative h-[220px] w-[360px] overflow-hidden rounded-[28px] border border-white/20 shadow-[0_35px_60px_rgba(0,0,0,0.5)] transition duration-200 group-focus-within:shadow-[0_38px_80px_rgba(0,0,0,0.45)] group-hover:shadow-[0_38px_80px_rgba(0,0,0,0.45)] ${
+            isResume ? "bg-[#2e2e2e]" : "bg-[#242424]"
+          }`}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <Image
@@ -48,7 +49,7 @@ export const SocialPreviewOverlay = React.memo<SocialPreviewOverlayProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 SocialPreviewOverlay.displayName = "SocialPreviewOverlay";

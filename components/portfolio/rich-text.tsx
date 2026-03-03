@@ -31,7 +31,7 @@ export const RichText = React.memo<RichTextProps>(
               href={href}
               className={linkClassName}
               target={external ? "_blank" : undefined}
-              rel={external ? "noreferrer" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
               {...props}
             >
               {children}
@@ -48,7 +48,9 @@ export const RichText = React.memo<RichTextProps>(
           <li className="leading-relaxed">{children}</li>
         ),
         code: ({ children }: { children?: React.ReactNode }) => (
-          <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">{children}</code>
+          <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">
+            {children}
+          </code>
         ),
         blockquote: ({ children }: { children?: React.ReactNode }) => (
           <blockquote className="border-l-2 border-teal-500/50 pl-4 text-sm italic">
@@ -56,7 +58,7 @@ export const RichText = React.memo<RichTextProps>(
           </blockquote>
         ),
       }),
-      [linkClassName]
+      [linkClassName],
     );
 
     if (!text?.trim()) {
@@ -68,7 +70,7 @@ export const RichText = React.memo<RichTextProps>(
         <ReactMarkdown components={components}>{text}</ReactMarkdown>
       </div>
     );
-  }
+  },
 );
 
 RichText.displayName = "RichText";

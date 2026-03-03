@@ -5,17 +5,17 @@
  * All animations respect user's reduced motion preferences.
  */
 
-import { Transition, Variants } from "framer-motion";
+import { Transition, Variants } from "motion/react";
 
 /**
  * Timing standards for consistent animation durations across the app
  */
 export const timing = {
-  fast: 0.15,    // 150ms - micro-interactions (hover states)
-  normal: 0.3,   // 300ms - most UI transitions
-  slow: 0.5,     // 500ms - complex content animations
+  fast: 0.15, // 150ms - micro-interactions (hover states)
+  normal: 0.3, // 300ms - most UI transitions
+  slow: 0.5, // 500ms - complex content animations
   entrance: 0.4, // 400ms - content appearing on screen
-  exit: 0.2,     // 200ms - faster out than in
+  exit: 0.2, // 200ms - faster out than in
 } as const;
 
 /**
@@ -207,7 +207,7 @@ export const staggerContainer: Variants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.06, // 60ms between items (reduced from 100ms)
-      delayChildren: 0.1,    // Wait 100ms before first item (reduced from 200ms)
+      delayChildren: 0.1, // Wait 100ms before first item (reduced from 200ms)
     },
   },
 };
@@ -268,7 +268,7 @@ export const rotate: Variants = {
  */
 export function createStagger(
   staggerDelay: number = 0.1,
-  delayChildren: number = 0
+  delayChildren: number = 0,
 ): Transition {
   return {
     staggerChildren: staggerDelay,
@@ -285,7 +285,7 @@ export function createStagger(
  */
 export function getTransition(
   transition: Transition,
-  prefersReducedMotion: boolean
+  prefersReducedMotion: boolean,
 ): Transition {
   if (prefersReducedMotion) {
     return {
@@ -357,7 +357,8 @@ export const codeReveal: Variants = {
 // Glitch effect on hover
 export const glitchHover = {
   scale: 1.02,
-  textShadow: "2px 2px 0px rgba(0, 255, 65, 0.3), -2px -2px 0px rgba(0, 229, 255, 0.3)",
+  textShadow:
+    "2px 2px 0px rgba(0, 255, 65, 0.3), -2px -2px 0px rgba(0, 229, 255, 0.3)",
   transition: {
     duration: 0.1,
   },
@@ -371,7 +372,8 @@ export const elevate: Variants = {
   },
   hover: {
     y: -4,
-    boxShadow: "0 10px 30px rgba(0, 229, 255, 0.1), 0 0 20px rgba(0, 255, 65, 0.05)",
+    boxShadow:
+      "0 10px 30px rgba(0, 229, 255, 0.1), 0 0 20px rgba(0, 255, 65, 0.05)",
     transition: spring.gentle,
   },
 };
@@ -403,7 +405,7 @@ export const developerStagger: Variants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.03, // Faster stagger (reduced from 0.05)
-      delayChildren: 0.05,   // Reduced from 0.1
+      delayChildren: 0.05, // Reduced from 0.1
     },
   },
 };
@@ -412,7 +414,7 @@ export const developerStagger: Variants = {
 export const developerStaggerItem: Variants = {
   hidden: {
     opacity: 0,
-    y: 20,      // Cards animate FROM below (slide up into view)
+    y: 20, // Cards animate FROM below (slide up into view)
     scale: 0.98, // Closer to 1 for subtler effect
   },
   visible: {
@@ -480,7 +482,8 @@ export const brutalElevate: Variants = {
     y: -8,
     x: -4,
     rotate: 0.5,
-    boxShadow: "8px 8px 0px rgba(0, 229, 255, 0.3), 12px 12px 0px rgba(0, 255, 65, 0.2)",
+    boxShadow:
+      "8px 8px 0px rgba(0, 229, 255, 0.3), 12px 12px 0px rgba(0, 255, 65, 0.2)",
     transition: {
       type: "spring",
       stiffness: 400,
@@ -497,7 +500,8 @@ export const refinedElevate: Variants = {
   },
   hover: {
     y: -4,
-    boxShadow: "0 10px 30px rgba(0, 229, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)",
+    boxShadow:
+      "0 10px 30px rgba(0, 229, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)",
     transition: {
       type: "spring",
       stiffness: 400,

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from "react";
 
 /**
  * ScrollReveal - Lightweight Intersection Observer wrapper for CSS animations
@@ -25,11 +25,11 @@ interface ScrollRevealProps {
 
 export function ScrollReveal({
   children,
-  animation = 'animate-fade-in-up',
-  rootMargin = '0px 0px -100px 0px',
+  animation = "animate-fade-in-up",
+  rootMargin = "0px 0px -100px 0px",
   threshold = 0.1,
   delay = 0,
-  className = '',
+  className = "",
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -38,7 +38,7 @@ export function ScrollReveal({
     if (!element) return;
 
     // Set initial state
-    element.style.opacity = '0';
+    element.style.opacity = "0";
     if (delay > 0) {
       element.style.animationDelay = `${delay}ms`;
     }
@@ -57,7 +57,7 @@ export function ScrollReveal({
       {
         rootMargin,
         threshold,
-      }
+      },
     );
 
     observer.observe(element);
@@ -77,14 +77,16 @@ export function ScrollReveal({
 /**
  * Hook version for more flexibility
  */
-export function useScrollReveal(options: {
-  animation?: string;
-  rootMargin?: string;
-  threshold?: number;
-} = {}) {
+export function useScrollReveal(
+  options: {
+    animation?: string;
+    rootMargin?: string;
+    threshold?: number;
+  } = {},
+) {
   const {
-    animation = 'animate-fade-in-up',
-    rootMargin = '0px 0px -100px 0px',
+    animation = "animate-fade-in-up",
+    rootMargin = "0px 0px -100px 0px",
     threshold = 0.1,
   } = options;
 
@@ -94,7 +96,7 @@ export function useScrollReveal(options: {
     const element = ref.current;
     if (!element) return;
 
-    element.style.opacity = '0';
+    element.style.opacity = "0";
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -105,7 +107,7 @@ export function useScrollReveal(options: {
           }
         });
       },
-      { rootMargin, threshold }
+      { rootMargin, threshold },
     );
 
     observer.observe(element);

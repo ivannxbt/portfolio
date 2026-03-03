@@ -52,7 +52,9 @@ async function main() {
     console.error("\nTo provide a password securely, you can:");
     console.error("1. Set the ADMIN_PASSWORD environment variable:");
     console.error("   ADMIN_PASSWORD=your_password node generate-hash.mjs");
-    console.error("\n2. Run the script in an interactive terminal to be prompted.");
+    console.error(
+      "\n2. Run the script in an interactive terminal to be prompted.",
+    );
     process.exit(1);
   }
 

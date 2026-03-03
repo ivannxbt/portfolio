@@ -7,9 +7,8 @@
  * Handles viewport detection for scroll animations and respects reduced motion preferences.
  */
 
-import { motion, useReducedMotion, Variants } from "framer-motion";
+import { motion, useReducedMotion, Variants } from "motion/react";
 import { ReactNode } from "react";
-import type { JSX } from "react";
 import {
   fadeInUp,
   fadeInDown,
@@ -20,7 +19,6 @@ import {
   staggerContainer,
   staggerItem,
   scrollViewport,
-  getTransition,
 } from "@/lib/animations";
 
 /**
@@ -46,14 +44,15 @@ interface AnimatedWrapperProps {
   variant?: AnimationVariant;
   /** Custom Framer Motion variants (overrides preset variant) */
   customVariants?: Variants;
+  /** Animation trigger mode */
+  trigger?: "mount" | "inView";
+  /** @deprecated Use `trigger="inView"` instead */
   /** Enable scroll-triggered animation (uses whileInView) */
   scrollTrigger?: boolean;
   /** Delay before animation starts (in seconds) */
   delay?: number;
   /** Additional CSS classes */
   className?: string;
-  /** HTML element to render (default: div) */
-  as?: keyof JSX.IntrinsicElements;
 }
 
 /**
@@ -101,37 +100,42 @@ export function AnimatedWrapper({
   children,
   variant = "fadeInUp",
   customVariants,
+  trigger,
   scrollTrigger = false,
   delay = 0,
   className,
-  as = "div",
 }: AnimatedWrapperProps) {
   // Check if user prefers reduced motion
   const prefersReducedMotion = useReducedMotion();
 
   // Get the variants to use (custom or preset)
-  const variants = customVariants || (variant !== "none" ? variantMap[variant] : undefined);
+  const variants =
+    customVariants || (variant !== "none" ? variantMap[variant] : undefined);
+  const resolvedTrigger = trigger ?? (scrollTrigger ? "inView" : "mount");
 
   // If no animation or reduced motion, render children directly
   if (!variants || prefersReducedMotion) {
-    const Component = as;
-    return <Component className={className}>{children}</Component>;
+    return <div className={className}>{children}</div>;
   }
 
   // Apply delay if specified
-  const modifiedVariants = delay > 0 ? {
-    ...variants,
-    visible: {
-      ...(variants.visible as object),
-      transition: {
-        ...(variants.visible as any)?.transition,
-        delay,
-      },
-    },
-  } : variants;
-
-  // Create motion component dynamically based on 'as' prop
-  const MotionComponent = motion[as as keyof typeof motion] as any;
+  const modifiedVariants: Variants =
+    delay > 0
+      ? {
+          ...variants,
+          visible: {
+            ...(typeof variants.visible === "object" ? variants.visible : {}),
+            transition: {
+              ...((typeof variants.visible === "object" &&
+              variants.visible &&
+              "transition" in variants.visible
+                ? variants.visible.transition
+                : {}) as object),
+              delay,
+            },
+          },
+        }
+      : variants;
 
   // Common props for all animations
   const commonProps = {
@@ -141,26 +145,23 @@ export function AnimatedWrapper({
   };
 
   // Scroll-triggered animation
-  if (scrollTrigger) {
+  if (resolvedTrigger === "inView") {
     return (
-      <MotionComponent
+      <motion.div
         {...commonProps}
         whileInView="visible"
         viewport={scrollViewport}
       >
         {children}
-      </MotionComponent>
+      </motion.div>
     );
   }
 
   // Immediate animation (on mount)
   return (
-    <MotionComponent
-      {...commonProps}
-      animate="visible"
-    >
+    <motion.div {...commonProps} animate="visible">
       {children}
-    </MotionComponent>
+    </motion.div>
   );
 }
 
@@ -169,16 +170,28 @@ export function AnimatedWrapper({
  */
 
 // Scroll-triggered fade in from bottom
-export function ScrollFadeIn({ children, className, delay }: Pick<AnimatedWrapperProps, "children" | "className" | "delay">) {
+export function ScrollFadeIn({
+  children,
+  className,
+  delay,
+}: Pick<AnimatedWrapperProps, "children" | "className" | "delay">) {
   return (
-    <AnimatedWrapper variant="fadeInUp" scrollTrigger className={className} delay={delay}>
+    <AnimatedWrapper
+      variant="fadeInUp"
+      trigger="inView"
+      className={className}
+      delay={delay}
+    >
       {children}
     </AnimatedWrapper>
   );
 }
 
 // Stagger container wrapper
-export function StaggerContainer({ children, className }: Pick<AnimatedWrapperProps, "children" | "className">) {
+export function StaggerContainer({
+  children,
+  className,
+}: Pick<AnimatedWrapperProps, "children" | "className">) {
   return (
     <AnimatedWrapper variant="staggerContainer" className={className}>
       {children}
@@ -187,7 +200,10 @@ export function StaggerContainer({ children, className }: Pick<AnimatedWrapperPr
 }
 
 // Stagger item wrapper (use inside StaggerContainer)
-export function StaggerItem({ children, className }: Pick<AnimatedWrapperProps, "children" | "className">) {
+export function StaggerItem({
+  children,
+  className,
+}: Pick<AnimatedWrapperProps, "children" | "className">) {
   return (
     <AnimatedWrapper variant="staggerItem" className={className}>
       {children}

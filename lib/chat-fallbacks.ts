@@ -10,12 +10,14 @@ export const fallbackChatProfile: Record<Language, FallbackProfile> = {
       "Currently at Avvale leading AI automation initiatives. Recent work includes AWS-based document generation agents, Azure RAG chatbots, computer vision for beef loin analysis, IMM risk calculation systems for BBVA via NFQ, and ML optimization for Indra's radar division.",
     education:
       "Master's degree in Network & Telematic Services and Bachelor's in Telecommunications Engineering, both from Universidad Politécnica de Madrid (UPM).",
-    location: "Based in Madrid, Spain. Open to remote collaboration on impactful projects.",
+    location:
+      "Based in Madrid, Spain. Open to remote collaboration on impactful projects.",
     contact:
       "Best reach me at ivanncaamano@gmail.com. Also on GitHub (@ivannxbt), X (@_ivvann), and LinkedIn.",
     availability:
       "Currently leading AI programs at Avvale while open to consulting or advisory opportunities on projects with real-world impact.",
-    defaultMessage: "Feel free to ask about my technical skills, experience, projects, or availability.",
+    defaultMessage:
+      "Feel free to ask about my technical skills, experience, projects, or availability.",
   },
   es: {
     intro:
@@ -26,12 +28,14 @@ export const fallbackChatProfile: Record<Language, FallbackProfile> = {
       "Actualmente en Avvale liderando iniciativas de automatización con IA. Trabajo reciente incluye agentes de generación documental en AWS, chatbots RAG en Azure, visión computacional para análisis de lomos de res, sistemas de cálculo de riesgo IMM para BBVA vía NFQ, y optimización ML para la división de radares de Indra.",
     education:
       "Máster en Servicios de Red y Telemática y Grado en Ingeniería de Telecomunicación, ambos por la Universidad Politécnica de Madrid (UPM).",
-    location: "Resido en Madrid, España. Abierto a colaboración remota en proyectos con impacto.",
+    location:
+      "Resido en Madrid, España. Abierto a colaboración remota en proyectos con impacto.",
     contact:
       "Mejor contacto: ivanncaamano@gmail.com. También en GitHub (@ivannxbt), X (@_ivvann) y LinkedIn.",
     availability:
       "Actualmente liderando programas de IA en Avvale, abierto a consultorías o colaboraciones en proyectos con impacto real.",
-    defaultMessage: "Pregúntame sobre mis habilidades técnicas, experiencia, proyectos o disponibilidad.",
+    defaultMessage:
+      "Pregúntame sobre mis habilidades técnicas, experiencia, proyectos o disponibilidad.",
   },
 };
 
@@ -141,7 +145,7 @@ export const getFallbackResponse = (prompt: string, lang: Language): string => {
   const profile = fallbackChatProfile[lang] ?? fallbackChatProfile.en;
   const normalized = prompt.toLowerCase();
   const match = fallbackTopicMatchers.find(({ keywords }) =>
-    keywords.some((keyword) => normalized.includes(keyword))
+    keywords.some((keyword) => normalized.includes(keyword)),
   );
 
   if (match) {
@@ -192,7 +196,11 @@ export const callAIAssistant = async ({
       throw new Error(errorMessage);
     }
 
-    const data = (await response.json()) as { reply?: string; error?: string; warning?: string };
+    const data = (await response.json()) as {
+      reply?: string;
+      error?: string;
+      warning?: string;
+    };
 
     if (data.error) {
       console.error("API returned error:", data.error);

@@ -5,15 +5,26 @@ import { readFile, writeFile, mkdir } from "fs/promises";
 import os from "os";
 import path from "path";
 
-import {
-  defaultContent,
-  type LandingContent,
-} from "@/content/site-content";
+import { defaultContent, type LandingContent } from "@/content/site-content";
 import { locales, type Locale } from "@/lib/i18n";
 
-export type ContentOverrides = Partial<Record<Locale, Partial<LandingContent>>>;
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends Array<infer U>
+    ? Array<DeepPartial<U>>
+    : T[K] extends object
+      ? DeepPartial<T[K]>
+      : T[K];
+};
 
-const defaultOverridesPath = path.join(process.cwd(), "data", "content-overrides.json");
+export type ContentOverrides = Partial<
+  Record<Locale, DeepPartial<LandingContent>>
+>;
+
+const defaultOverridesPath = path.join(
+  process.cwd(),
+  "data",
+  "content-overrides.json",
+);
 const fallbackOverridesPath = path.join(os.tmpdir(), "content-overrides.json");
 
 let resolvedOverridesPath: string | undefined;
@@ -60,7 +71,7 @@ async function getOverridesPath() {
       } catch (error: unknown) {
         if (isErofs(error) || isEperm(error) || isEacces(error)) {
           console.warn(
-            `Primary overrides path is not writable (${error instanceof Error ? error.message : String(error)}), using fallback: ${fallbackOverridesPath}`
+            `Primary overrides path is not writable (${error instanceof Error ? error.message : String(error)}), using fallback: ${fallbackOverridesPath}`,
           );
           await ensureOverridesFileExists(fallbackOverridesPath);
           resolvedOverridesPath = fallbackOverridesPath;
@@ -86,7 +97,10 @@ export const readOverrides = cache(async (): Promise<ContentOverrides> => {
   try {
     return JSON.parse(raw) as ContentOverrides;
   } catch (error) {
-    console.warn("Invalid overrides file detected. Resetting to empty object.", (error instanceof Error ? error.message : String(error)));
+    console.warn(
+      "Invalid overrides file detected. Resetting to empty object.",
+      error instanceof Error ? error.message : String(error),
+    );
     await writeFile(overridesPath, "{}", "utf-8");
     return {};
   }
@@ -112,7 +126,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 export function deepMerge<T>(target: T, source: unknown, depth = 0): T {
   if (depth > MAX_MERGE_DEPTH) {
     throw new Error(
-      `Maximum merge depth (${MAX_MERGE_DEPTH}) exceeded. This may indicate a circular reference or malicious input.`
+      `Maximum merge depth (${MAX_MERGE_DEPTH}) exceeded. This may indicate a circular reference or malicious input.`,
     );
   }
 
@@ -125,7 +139,9 @@ export function deepMerge<T>(target: T, source: unknown, depth = 0): T {
   }
 
   if (isPlainObject(source)) {
-    const plainTarget: Record<string, unknown> | undefined = isPlainObject(target)
+    const plainTarget: Record<string, unknown> | undefined = isPlainObject(
+      target,
+    )
       ? target
       : undefined;
     const base: Record<string, unknown> = plainTarget ? { ...plainTarget } : {};
@@ -147,20 +163,27 @@ export function deepMerge<T>(target: T, source: unknown, depth = 0): T {
 
 export function mergeWithDefaults(
   locale: Locale,
-  overrides?: Partial<LandingContent>
+  overrides?: DeepPartial<LandingContent>,
 ): LandingContent {
   return deepMerge(defaultContent[locale], overrides ?? {});
 }
 
-export const getLandingContent = cache(async (locale: Locale): Promise<LandingContent> => {
-  const overrides = await readOverrides();
-  return mergeWithDefaults(locale, overrides[locale]);
-});
+export const getLandingContent = cache(
+  async (locale: Locale): Promise<LandingContent> => {
+    const overrides = await readOverrides();
+    return mergeWithDefaults(locale, overrides[locale]);
+  },
+);
 
-export const getAllLandingContent = cache(async (): Promise<Record<Locale, LandingContent>> => {
-  const overrides = await readOverrides();
-  return locales.reduce<Record<Locale, LandingContent>>((acc, locale) => {
-    acc[locale] = mergeWithDefaults(locale, overrides[locale]);
-    return acc;
-  }, {} as Record<Locale, LandingContent>);
-});
+export const getAllLandingContent = cache(
+  async (): Promise<Record<Locale, LandingContent>> => {
+    const overrides = await readOverrides();
+    return locales.reduce<Record<Locale, LandingContent>>(
+      (acc, locale) => {
+        acc[locale] = mergeWithDefaults(locale, overrides[locale]);
+        return acc;
+      },
+      {} as Record<Locale, LandingContent>,
+    );
+  },
+);
